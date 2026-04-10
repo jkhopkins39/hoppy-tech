@@ -6,6 +6,6 @@ export const socialLinks = {
 };
 
 export const contactInfo = {
-  email: "jeremyyhopkins@gmail.com",
+  email: "jeremy@hoppytech.com",
   phone: "770-686-6503"
 }; 

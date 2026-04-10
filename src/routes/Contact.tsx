@@ -220,7 +220,7 @@ const Contact: React.FC = () => {
           >
             {/* Direct email */}
             <a
-              href="mailto:jeremyyhopkins@gmail.com"
+              href="mailto:jeremy@hoppytech.com"
               className="group flex items-center gap-4 p-5 rounded-2xl border border-subtle bg-surface hover:border-accent-subtle hover:bg-accent-subtle-2 transition-all duration-200"
             >
               <div
@@ -233,7 +233,7 @@ const Contact: React.FC = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[11px] uppercase tracking-widest text-muted mb-0.5">Email</p>
-                <p className="text-ink text-sm font-medium truncate group-hover:text-accent transition-colors">jeremyyhopkins@gmail.com</p>
+                <p className="text-ink text-sm font-medium truncate group-hover:text-accent transition-colors">jeremy@hoppytech.com</p>
               </div>
               <svg className="w-4 h-4 text-muted group-hover:text-accent flex-none transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

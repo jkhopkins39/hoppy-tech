@@ -9,6 +9,7 @@ import Contact from "./Contact";
 import Dashboard from "./Dashboard";
 import Portfolio from "./Portfolio";
 import ThankYou from "./ThankYou";
+import AISolutions from "./AISolutions";
 import Footer from "../components/Footer";
 import { socialLinks, contactInfo } from "../config/socialLinks";
 
@@ -230,6 +231,7 @@ function HomePage() {
               title: "AI & Machine Learning",
               desc: "Integrating intelligence into applications using TensorFlow, PyTorch, and Gemini; I believe AI is the next frontier!",
               accent: "#7C5CBF",
+              learnMore: "/ai-solutions",
             },
             {
               icon: (
@@ -268,6 +270,18 @@ function HomePage() {
               </div>
               <h3 className="font-semibold text-ink mb-2 text-lg">{card.title}</h3>
               <p className="text-muted text-sm leading-relaxed">{card.desc}</p>
+              {"learnMore" in card && card.learnMore && (
+                <button
+                  onClick={() => navigate(card.learnMore as string)}
+                  className="mt-4 flex items-center gap-1.5 text-[13px] font-medium transition-all duration-200 hover:gap-2.5"
+                  style={{ color: card.accent }}
+                >
+                  Learn more
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
             </motion.div>
           ))}
         </div>
@@ -346,6 +360,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/thanks" element={<ThankYou />} />
+          <Route path="/ai-solutions" element={<AISolutions />} />
         </Routes>
       </main>
     </div>

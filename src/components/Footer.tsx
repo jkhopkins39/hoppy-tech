@@ -98,7 +98,10 @@ const Footer: React.FC = () => {
               <span className="font-semibold text-ink text-[15px]">Jeremy Hopkins</span>
             </Link>
             <p className="text-muted text-sm leading-relaxed max-w-xs">
-              AI Developer & CS Student at KSU — building things that matter with React, Python, and a lot of coffee.
+              AI & Web Developer
+            </p>
+            <p className="text-muted text-sm leading-relaxed max-w-xs">
+              Check me out here ↓
             </p>
             <div className="flex gap-3 mt-5">
               {socials.map((s) => (
