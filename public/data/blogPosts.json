@@ -1,5 +1,23 @@
 [
   {
+    "id": "1778362596475",
+    "title": "Beyond Chatbots: Leveraging Agentic AI for Business Automation",
+    "content": "When AI is mentioned, most people think of chatbots like ChatGPT, however AI and LLMs can be utilized in more nuanced and helpful ways with the help of some clever engineering.\n\nProblem: how do we reduce the number of hours spent by employees helping customers with simple customer service requests?\n\nSolution: agentic AI! Using various technologies like LangGraph, Kafka, AI API calls and more, one can create a flow of data starting from the user input into a chatbot text window and ending with a response from a bot informing you action has been taken.\n\nAllow me to walk you through a single customer service request:\n1. The user asks \"what is your store policy on returning items?\"\n2. The input is interpreted and classified by an LLM\n3. The input is sent to the appropriate Kafka topic (in this case 'Policy')\n4. The Policy agent consumes from the Kafka topic (like somebody going to check the mail in their mailbox)\n5. The policy agent uses retrieval augmented generation to look up the vector representation of the answer (found in the policy text file)\n6. The policy agent gives its response to the orchestrator agent who then replies to the user, telling them \"according to our policy, you have 90 days to return your item after purchase.\"\n\nThis approach is reliable, cuts out the need to search through a document or ask questions to a customer service representative, and overall proves that when it comes to simple computer tasks, AI can handle most things.\n\nThe agentic stack we architected can do more, but this is just one example of using different AI technologies to reduce time spent by customer service representatives. If you are looking to build an automated system and don't know where to start, feel free to reach out to me at any time, and I will give you a free consultation!",
+    "excerpt": "A breakdown of my Senior Capstone Project at KSU",
+    "author": "Jeremy Hopkins",
+    "date": "2026-05-09",
+    "tags": [
+      "AI",
+      "React",
+      "Web Development",
+      "Agents",
+      "LangChain",
+      "LangGraph",
+      "OpenAI"
+    ],
+    "readTime": 2
+  },
+  {
     "id": "3",
     "title": "Scaling to $100k/Month: What I Learned Building a High-Performance E-Commerce Engine",
     "content": "This will cover my experience working with the people over at Watch Trading Post in Carrollton to build their website which acts as the hub for all of their online operations.\n\nIn mid-2025, I partnered with Watch Trading Post in Carrollton to overhaul their digital infrastructure. While their existing Shopify store was functional, it lacked the premium aesthetic and operational efficiency required for a high-volume luxury dealer. My goal was to move beyond the \"default\" look and build a high-performance system that streamlined their daily operations.\n\nKey Technical Implementations:\n\nModernized Brand Identity: A bespoke, responsive UI designed to build instant trust with high-ticket buyers.\n\nAI Chatbot: An AI assistant that can guide you through the available inventory and give suggestions based on user preference.\n\nOperational Admin Dashboard: Integrated tools for tracking bespoke watch requests and managing orders.\n\nChrono24 Ecosystem Integration: Automated workflows to manage cross-listings on global marketplaces, reducing manual data entry.\n\nRapid Deployment Cycle: A streamlined development pipeline allowing for functional updates within hours rather than weeks.\n\nStrategic Engineering Insights:\n\nCost-Efficiency at Scale: I focused on minimizing external service overhead by leveraging high-performance free-tier architectures without sacrificing reliability.\n\nProfessional Communication Hub: I implemented an autonomous business email system that ensures all client communications are secure, branded, and reliable.\n\nThe \"Serverless\" Advantage: By utilizing a robust frontend architecture and strategic API integrations, I eliminated the need for a traditional backend. This results in lightning-fast load times, reduced security vulnerabilities, and 100% secure, autonomous transactions.\n\nThe Takeaway:\nThis project serves as a definitive proof of concept: supporting a million in annual revenue doesn't require bloated overhead or expensive monthly service fees. With strategic engineering, intentional design, and a focus on lean architecture, I've proven that a world-class e-commerce operation can be both highly profitable and incredibly cost-efficient to maintain.",
