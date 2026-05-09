@@ -211,7 +211,7 @@ const Portfolio: React.FC = () => {
             </span>
           </h1>
           <p className="mt-4 text-muted text-lg leading-relaxed max-w-2xl">
-            A selection of projects I've built — from luxury marketplaces to AI-powered applications.
+            A selection of projects I've built!
           </p>
         </motion.div>
       </div>

@@ -15,13 +15,13 @@ const SkillsDropdown: React.FC = () => {
       category: "Frameworks",
       accent: "#7C5CBF",
       bg: "rgba(124,92,191,0.08)",
-      items: ["React", "Node.js", "Express", "Tailwind CSS", "TensorFlow", "PyTorch"],
+      items: ["React", "Node.js", "Next.js", "Tailwind CSS", "PyTorch"],
     },
     {
       category: "Tools",
       accent: "#0EA5E9",
       bg: "rgba(14,165,233,0.08)",
-      items: ["Git", "MongoDB", "SQL", "Linux", "OpenAI API", "MS Office"],
+      items: ["Git", "SQL", "Linux", "OpenAI API", "MS Office"],
     },
     {
       category: "Soft Skills",

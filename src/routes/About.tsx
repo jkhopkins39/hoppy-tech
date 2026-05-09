@@ -62,30 +62,9 @@ function About() {
           </span>
         </motion.h1>
         <motion.p {...fadeUp(2)} className="mt-4 text-muted text-lg leading-relaxed max-w-2xl">
-          I'm a Computer Science student at Kennesaw State University with a focus on Artificial Intelligence and Machine Learning — building innovative web applications and AI solutions with modern technologies.
+          I'm a Computer Science student at Kennesaw State University with a concentration in Artificial Intelligence. I enjoy building stuff with new random technologies.
         </motion.p>
       </div>
-
-      {/* ─── Quick facts row ──────────────────────────── */}
-      <motion.div {...fadeUp(3)} className="max-w-7xl mx-auto px-4 sm:px-6 mb-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: "Current school", value: "KSU" },
-            { label: "Major", value: "CS / AI" },
-            { label: "Based in", value: "Georgia" },
-            { label: "Status", value: "Available" },
-          ].map((fact) => (
-            <div
-              key={fact.label}
-              className="p-5 rounded-2xl border bg-surface"
-              style={{ borderColor: 'var(--border-color)' }}
-            >
-              <div className="text-[11px] uppercase tracking-widest text-muted mb-1">{fact.label}</div>
-              <div className="font-semibold text-ink">{fact.value}</div>
-            </div>
-          ))}
-        </div>
-      </motion.div>
 
       {/* ─── Education ────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-16">
