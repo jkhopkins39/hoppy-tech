@@ -92,6 +92,149 @@
     </script>
   </head>
   <body>
+    <noscript>
+      <style>
+        /* reset list chrome for the bar */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #FFFFFF; /* match your nav or page so nothing flashes white */
+}
+
+.fallback-nav .nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+  }
+  
+  .fallback-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem clamp(1rem, 4vw, 2rem);
+  
+    position: sticky; /* or fixed — see below */
+    top: 0;
+    z-index: 1000;
+  
+    background: #0a0a0a; /* match your brand */
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .fallback-nav .logo {
+    font-weight: 700;
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    white-space: nowrap;
+    ;
+  }
+
+  .logo {
+  display: flex;
+  align-items: center;
+  line-height: 0; /* removes stray gap under img in some layouts */
+}
+
+.logo img {
+  display: block;
+  width: clamp(2rem, 6vw, 2.25rem); /* scales with viewport */
+  height: auto;
+  object-fit: contain;
+}
+  
+  .fallback-nav a {
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  .fallback-nav a:hover {
+    text-decoration: underline;
+  }
+  
+  .fallback-nav a.button {
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #0a0a0a;
+  }
+
+.fallback-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid rgba(0,0,0,1);
+  background-color: #E8971A;
+}
+
+.hero-section {
+  width: 100%;
+  height: 100vh;
+  background: 
+    linear-gradient(to right, 
+      black 0%, 
+      black 40%, 
+      transparent 60%
+    ),
+    url('/Introduction.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.crop-container {
+  width: 60vw;
+  height: 100vh;
+  overflow: hidden;
+  justify-content: right;
+  align-items: right;
+  display: flex;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 80% 50%;
+  overflow: hidden;
+  justify-content: right;
+  align-items: right;
+  display: flex;
+}
+
+      </style>
+      <nav class="fallback-nav">
+        <div class="logo">
+          <img src="/WebsiteLogo.png" alt="">
+        </div>
+        <ul class="nav-links">
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#portfolio">Portfolio</a></li>
+          <li><a href="#blog">Blog</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a class="button" href="#contact">Hire Me</a></li>
+        </ul>
+      </nav>
+      <div class="fallback-message">
+        <p> Note: currently JS is not enabled. This website looks best with JS enabled ;D </p>
+      </div>
+      <div class="crop-container">
+        <img class="image" src="/Introduction.jpg" alt="">
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

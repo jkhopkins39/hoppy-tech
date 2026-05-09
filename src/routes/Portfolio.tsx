@@ -70,6 +70,19 @@ const initialProjects: Project[] = [
     liveUrl: "https://sxnctuary.com",
     category: "web",
   },
+  {
+    id: 4,
+    title: "Joshua 1:9 Law Firm LLC",
+    description:
+      "A website that informs the user of the legal services offered by the firm. In addition, it offers multiple ways for the user to reach out if they need legal help. Built with React, Tailwind CSS, and Resend; deployed on Vercel.",
+    shortDescription: "Alabama law firm",
+    image: "/images/projects/joshua19.svg",
+    imageFallback: "/images/projects/joshua-firm.png",
+    technologies: ["React", "Tailwind CSS", "Resend", "Vercel"],
+    repoUrl: "",
+    liveUrl: "https://joshua19lawfirm.com",
+    category: "web",
+  },
 ];
 
 const categories = [
@@ -351,7 +364,9 @@ const Portfolio: React.FC = () => {
                       </div>
                     )}
                     <picture>
-                      <source srcSet={project.imageWebP} type="image/webp" />
+                      {project.imageWebP ? (
+                        <source srcSet={project.imageWebP} type="image/webp" />
+                      ) : null}
                       <img
                         src={project.imageFallback || project.image}
                         alt={project.title}
