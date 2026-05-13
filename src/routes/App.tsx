@@ -113,7 +113,7 @@ function HomePage() {
                   paddingRight: "0.1em",
                 }}
               >
-                Latest tech, within reach
+                Web, AI, and Custom Solutions
               </span>
             </motion.h1>
 
@@ -125,10 +125,10 @@ function HomePage() {
               variants={fadeUp}
               className="text-muted text-lg leading-relaxed max-w-xl mb-10"
             >
-              Hoppy Tech is a technology company founded by Jeremy Hopkins. We focus on bringing
-              modern software and AI to individuals and businesses alike—practical solutions,
-              explained clearly, at a price that stays affordable. Explore our work below or
-              reach out to talk about your project.
+              Hoppy Tech is a technology company founded by Jeremy Hopkins, with the goal
+              of bridging the gap between business needs and new, emerging technologies.
+              Whether you need a simple portfolio, a digital storefront, or a custom AI knowledgebase
+              for your IT department, Hoppy Tech can help. Reach out today for a free consultation!
             </motion.p>
 
             {/* CTAs */}
@@ -140,7 +140,7 @@ function HomePage() {
               className="flex flex-wrap gap-4"
             >
               <button
-                onClick={() => navigate("/portfolio")}
+                onClick={() => navigate("/contact")}
                 className="px-7 py-3.5 font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] text-[15px]"
                 style={{
                   backgroundColor: "var(--accent)",
@@ -154,10 +154,10 @@ function HomePage() {
                   (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
                 }}
               >
-                View My Work
+                Get in Touch
               </button>
               <button
-                onClick={() => navigate("/contact")}
+                onClick={() => navigate("/portfolio")}
                 className="px-7 py-3.5 font-medium rounded-xl transition-all duration-200 text-[15px] text-ink border"
                 style={{ borderColor: "var(--border-color)" }}
                 onMouseEnter={(e) => {
@@ -169,7 +169,7 @@ function HomePage() {
                   (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border-color)";
                 }}
               >
-                Get in Touch
+                View My Work
               </button>
             </motion.div>
           </div>
