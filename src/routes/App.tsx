@@ -47,7 +47,7 @@ function HomePage() {
         >
           <img
             src="/Introduction.jpg"
-            alt="Jeremy Hopkins"
+            alt="Jeremy Hopkins, founder of Hoppy Tech"
             className="w-full h-full object-cover object-top"
             loading="eager"
           />
@@ -101,7 +101,7 @@ function HomePage() {
               variants={fadeUp}
               className="text-[clamp(2.6rem,6vw,5.2rem)] font-bold leading-[1.08] tracking-tight text-ink mb-6"
             >
-              Jeremy Hopkins<br />
+              Hoppy Tech<br />
               <span
                 className="italic"
                 style={{
@@ -113,7 +113,7 @@ function HomePage() {
                   paddingRight: "0.1em",
                 }}
               >
-                Fullstack & AI Dev
+                Latest tech, within reach
               </span>
             </motion.h1>
 
@@ -123,12 +123,12 @@ function HomePage() {
               initial="hidden"
               animate="show"
               variants={fadeUp}
-              className="text-muted text-lg leading-relaxed max-w-md mb-10"
+              className="text-muted text-lg leading-relaxed max-w-xl mb-10"
             >
-              Hi, I'm Jeremy! I'm a KSU student graduating in May with a
-              B.S. in Computer Science with a concentration in AI. I like building
-              unique and practical solutions with AI, and developing other cool stuff.
-              Check out my work below, or reach out with your ideas!
+              Hoppy Tech is a technology company founded by Jeremy Hopkins. We focus on bringing
+              modern software and AI to individuals and businesses alike—practical solutions,
+              explained clearly, at a price that stays affordable. Explore our work below or
+              reach out to talk about your project.
             </motion.p>
 
             {/* CTAs */}

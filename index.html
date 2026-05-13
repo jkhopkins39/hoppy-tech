@@ -16,26 +16,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Primary Meta Tags -->
-    <title>Jeremy Hopkins - AI Developer & Computer Science Student | Portfolio</title>
-    <meta name="title" content="Jeremy Hopkins - AI Developer & Computer Science Student | Portfolio" />
-    <meta name="description" content="Jeremy Hopkins is a Computer Science student at Kennesaw State University specializing in AI and Machine Learning. View my portfolio of projects including web development, AI applications, and software engineering." />
-    <meta name="keywords" content="Jeremy Hopkins, AI Developer, Computer Science, Machine Learning, React Developer, Python Developer, JavaScript Developer, Portfolio, Kennesaw State University, Artificial Intelligence, Web Development, Software Engineering" />
+    <title>Hoppy Tech — Software, AI & Web Development</title>
+    <meta name="title" content="Hoppy Tech — Software, AI & Web Development" />
+    <meta name="description" content="Hoppy Tech is a technology company founded by Jeremy Hopkins. Modern software, AI, and web development for individuals and businesses—straightforward work and pricing that stays within reach." />
+    <meta name="keywords" content="Hoppy Tech, HoppyTech, hoppytech, Jeremy Hopkins, AI Developer, Computer Science, Machine Learning, React Developer, Python Developer, JavaScript Developer, Portfolio, Kennesaw State University, Artificial Intelligence, Web Development, Software Engineering" />
     <meta name="author" content="Jeremy Hopkins" />
     <meta name="robots" content="index, follow" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.hoppytech.com/" />
-    <meta property="og:title" content="Jeremy Hopkins - AI Developer & Computer Science Student" />
-    <meta property="og:description" content="Computer Science student specializing in AI and Machine Learning. View my portfolio of projects and get in touch for collaboration opportunities." />
+    <meta property="og:title" content="Hoppy Tech — Software, AI & Web Development" />
+    <meta property="og:description" content="Technology company founded by Jeremy Hopkins. We bring the latest software and AI to you—no matter who you are—with clear scope and fair pricing." />
     <meta property="og:image" content="https://www.hoppytech.com/Introduction.jpg" />
-    <meta property="og:site_name" content="Jeremy Hopkins Portfolio" />
+    <meta property="og:site_name" content="Hoppy Tech" />
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://www.hoppytech.com/" />
-    <meta property="twitter:title" content="Jeremy Hopkins - AI Developer & Computer Science Student" />
-    <meta property="twitter:description" content="Computer Science student specializing in AI and Machine Learning. View my portfolio of projects and get in touch for collaboration opportunities." />
+    <meta property="twitter:title" content="Hoppy Tech — Software, AI & Web Development" />
+    <meta property="twitter:description" content="Technology company founded by Jeremy Hopkins. We bring the latest software and AI to you—no matter who you are—with clear scope and fair pricing." />
     <meta property="twitter:image" content="https://www.hoppytech.com/Introduction.jpg" />
     
     <!-- Additional SEO Meta Tags -->
@@ -43,7 +43,7 @@
     <meta name="msapplication-TileColor" content="#000000" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Jeremy Hopkins" />
+    <meta name="apple-mobile-web-app-title" content="Hoppy Tech" />
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
@@ -60,34 +60,68 @@
     <!-- Custom fonts -->
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     
-    <!-- Structured Data -->
+    <!-- Structured Data: Person + Organization + WebSite (brand entity for hoppytech.com) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Jeremy Hopkins",
-      "jobTitle": "AI Developer & Computer Science Student",
-      "alumniOf": {
-        "@type": "CollegeOrUniversity",
-        "name": "Kennesaw State University"
-      },
-      "description": "Computer Science student specializing in AI and Machine Learning with experience in React, Python, and JavaScript development.",
-      "url": "https://www.hoppytech.com",
-      "sameAs": [
-        "https://github.com/jkhopkins39",
-        "https://linkedin.com/in/jeremy-hopkins-160001275",
-        "https://instagram.com/jeremykhopkins"
-      ],
-      "knowsAbout": [
-        "Artificial Intelligence",
-        "Machine Learning",
-        "React Development",
-        "Python Programming",
-        "JavaScript Development",
-        "Web Development",
-        "Software Engineering"
-      ],
-      "image": "https://www.hoppytech.com/Introduction.jpg"
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://www.hoppytech.com/#organization",
+          "name": "Hoppy Tech",
+          "alternateName": ["HoppyTech", "hoppytech"],
+          "description": "Hoppy Tech is the professional brand and portfolio of Jeremy Hopkins—software, AI, and web development at hoppytech.com.",
+          "url": "https://www.hoppytech.com/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.hoppytech.com/WebsiteLogo.png"
+          },
+          "sameAs": [
+            "https://github.com/jkhopkins39",
+            "https://linkedin.com/in/jeremy-hopkins-160001275",
+            "https://instagram.com/jeremykhopkins"
+          ],
+          "founder": { "@id": "https://www.hoppytech.com/#person" }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.hoppytech.com/#website",
+          "name": "Hoppy Tech",
+          "alternateName": ["HoppyTech", "hoppytech", "hoppytech.com", "www.hoppytech.com"],
+          "url": "https://www.hoppytech.com/",
+          "inLanguage": "en",
+          "publisher": { "@id": "https://www.hoppytech.com/#organization" },
+          "about": { "@id": "https://www.hoppytech.com/#person" }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://www.hoppytech.com/#person",
+          "name": "Jeremy Hopkins",
+          "jobTitle": "AI Developer & Computer Science Student",
+          "worksFor": { "@id": "https://www.hoppytech.com/#organization" },
+          "alumniOf": {
+            "@type": "CollegeOrUniversity",
+            "name": "Kennesaw State University"
+          },
+          "description": "Computer Science student specializing in AI and Machine Learning with experience in React, Python, and JavaScript development.",
+          "url": "https://www.hoppytech.com/",
+          "sameAs": [
+            "https://github.com/jkhopkins39",
+            "https://linkedin.com/in/jeremy-hopkins-160001275",
+            "https://instagram.com/jeremykhopkins"
+          ],
+          "knowsAbout": [
+            "Artificial Intelligence",
+            "Machine Learning",
+            "React Development",
+            "Python Programming",
+            "JavaScript Development",
+            "Web Development",
+            "Software Engineering"
+          ],
+          "image": "https://www.hoppytech.com/Introduction.jpg"
+        }
+      ]
     }
     </script>
   </head>
