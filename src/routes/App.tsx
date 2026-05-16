@@ -92,7 +92,8 @@ function HomePage() {
 
         {/* Text content */}
         <div className="relative z-[5] flex flex-col justify-center min-h-[calc(100vh-68px)] max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
-          <div className="md:w-[52%]">
+          {/* On small screens the photo is full-bleed behind copy; a frosted canvas panel keeps text readable over any crop. */}
+          <div className="md:w-[52%] max-md:rounded-2xl max-md:px-4 max-md:py-7 max-md:-mx-1 max-md:backdrop-blur-md max-md:shadow-[0_12px_40px_rgba(0,0,0,0.25)] max-md:bg-[color-mix(in_srgb,var(--canvas)_82%,transparent)] max-md:ring-1 max-md:ring-[color-mix(in_srgb,var(--ink)_8%,transparent)]">
             {/* Heading */}
             <motion.h1
               custom={1}
