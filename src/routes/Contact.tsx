@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Footer from '../components/Footer';
 
@@ -58,10 +59,12 @@ const socials = [
 ];
 
 const Contact: React.FC = () => {
+  const navigate = useNavigate();
   const [honeypot1, setHoneypot1] = useState("");
   const [honeypot2, setHoneypot2] = useState("");
   const [formLoadTime] = useState(Date.now());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   const storeSubmission = (email: string, message: string) => {
@@ -75,27 +78,58 @@ const Contact: React.FC = () => {
     localStorage.setItem('contactSubmissions', JSON.stringify(arr));
   };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitError('');
+
     if (honeypot1 || honeypot2) {
-      e.preventDefault();
-      window.location.href = import.meta.env.DEV ? 'http://localhost:5173/thanks' : 'https://www.hoppytech.com/thanks';
+      navigate('/thanks');
       return;
     }
     if (Date.now() - formLoadTime < 3000) {
-      e.preventDefault();
       alert("Please take your time filling out the form.");
       return;
     }
-    if (formRef.current) {
-      const fd = new FormData(formRef.current);
-      const email = fd.get('email') as string;
-      const message = fd.get('message') as string;
-      if (email && message) storeSubmission(email, message);
-    }
-    setIsSubmitting(true);
-  };
+    if (!formRef.current) return;
 
-  const redirectUrl = import.meta.env.DEV ? 'http://localhost:5173/thanks' : 'https://www.hoppytech.com/thanks';
+    const fd = new FormData(formRef.current);
+    const email = String(fd.get('email') ?? '').trim();
+    const name = String(fd.get('name') ?? '').trim();
+    const subjectLine = String(fd.get('subject_line') ?? '').trim();
+    const message = String(fd.get('message') ?? '').trim();
+
+    if (!email || !message) return;
+
+    storeSubmission(email, message);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          name,
+          subject_line: subjectLine,
+          message,
+          contact_website: honeypot1,
+          contact_fax: honeypot2,
+        }),
+      });
+      const result = await response.json().catch(() => ({})) as { success?: boolean; message?: string };
+
+      if (!response.ok || !result.success) {
+        setSubmitError(result.message || 'Failed to send message. Please try again or email directly.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      navigate('/thanks');
+    } catch {
+      setSubmitError('Network error. Please try again or email directly.');
+      setIsSubmitting(false);
+    }
+  };
 
   const inputClass = "w-full px-4 py-3.5 bg-white/[0.03] border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle focus:bg-white/[0.05] transition-all text-sm";
   const labelClass = "block text-[11px] uppercase tracking-widest text-muted font-semibold mb-2";
@@ -158,14 +192,9 @@ const Contact: React.FC = () => {
 
               <form
                 ref={formRef}
-                action="https://api.web3forms.com/submit"
-                method="POST"
                 className="space-y-5"
                 onSubmit={handleFormSubmit}
               >
-                <input type="hidden" name="access_key" value="46cae387-addf-453a-a32f-6464199035c6" />
-                <input type="hidden" name="subject" value="New Contact Form Submission" />
-                <input type="hidden" name="redirect" value={redirectUrl} />
 
                 {/* Honeypot */}
                 <div style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
@@ -207,6 +236,9 @@ const Contact: React.FC = () => {
                     <>Send Message<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></>
                   )}
                 </motion.button>
+                {submitError && (
+                  <p className="text-sm text-red-400">{submitError}</p>
+                )}
               </form>
             </div>
           </motion.div>

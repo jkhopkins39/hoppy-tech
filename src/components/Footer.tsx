@@ -1,44 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { socialLinks, contactInfo } from '../config/socialLinks';
+import {
+  AUTH_CHANGE_EVENT,
+  clearAdminAuth,
+  isAdminLoggedIn,
+  signInAdmin,
+} from '../lib/auth';
 
 const Footer: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoggingIn(true);
     try {
-      const apiUrl = import.meta.env.DEV
-        ? 'http://localhost:3001/api/admin/login'
-        : 'https://www.hoppytech.com/api/admin/login';
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginForm),
-      });
-      const data = await response.json();
-      if (data.success) {
-        setIsLoggedIn(true);
-        setLoginForm({ username: '', password: '' });
-        setShowLogin(false);
-        localStorage.setItem('blogAdminLoggedIn', 'true');
-      } else {
-        alert('Invalid credentials!');
-      }
+      await signInAdmin(loginForm.email.trim(), loginForm.password);
+      setIsLoggedIn(true);
+      setLoginForm({ email: '', password: '' });
+      setShowLogin(false);
     } catch {
-      alert('Login failed. Please try again.');
+      alert('Invalid credentials or unauthorized account.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await clearAdminAuth();
     setIsLoggedIn(false);
-    localStorage.removeItem('blogAdminLoggedIn');
   };
 
   useEffect(() => {
-    setIsLoggedIn(localStorage.getItem('blogAdminLoggedIn') === 'true');
+    const syncAuth = () => setIsLoggedIn(isAdminLoggedIn());
+    syncAuth();
+    window.addEventListener(AUTH_CHANGE_EVENT, syncAuth);
+    return () => window.removeEventListener(AUTH_CHANGE_EVENT, syncAuth);
   }, []);
 
   const navLinks = [
@@ -180,16 +180,17 @@ const Footer: React.FC = () => {
                   {showLogin && (
                     <form onSubmit={handleLogin} className="mt-3 space-y-2">
                       <input
-                        type="text"
-                        placeholder="Username"
-                        value={loginForm.username}
-                        onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
+                        type="email"
+                        placeholder="Email"
+                        value={loginForm.email}
+                        onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
                         className="w-full px-3 py-2 rounded-lg text-xs text-ink placeholder-muted-2 focus:outline-none transition-colors"
                         style={{
                           backgroundColor: 'var(--surface)',
                           border: '1px solid var(--border-color)',
                         }}
                         required
+                        autoComplete="username"
                       />
                       <input
                         type="password"
@@ -202,13 +203,15 @@ const Footer: React.FC = () => {
                           border: '1px solid var(--border-color)',
                         }}
                         required
+                        autoComplete="current-password"
                       />
                       <button
                         type="submit"
-                        className="w-full py-2 rounded-lg text-xs font-semibold transition-colors"
+                        disabled={isLoggingIn}
+                        className="w-full py-2 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
                         style={{ backgroundColor: 'var(--accent)', color: 'var(--canvas)' }}
                       >
-                        Login
+                        {isLoggingIn ? 'Signing in…' : 'Login'}
                       </button>
                     </form>
                   )}

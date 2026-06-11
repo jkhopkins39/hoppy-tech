@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "../components/Footer";
+import { authHeaders, isAdminLoggedIn } from "../lib/auth";
 
 interface BlogPost {
   id: string;
@@ -40,7 +41,7 @@ const Blog: React.FC = () => {
       finally { setIsLoading(false); }
     };
     fetchPosts();
-    setIsLoggedIn(localStorage.getItem('blogAdminLoggedIn') === 'true');
+    setIsLoggedIn(isAdminLoggedIn());
   }, []);
 
   const handleCreatePost = async (e: React.FormEvent) => {
@@ -62,7 +63,7 @@ const Blog: React.FC = () => {
     try {
       const res = await fetch('/api/blog', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ action: 'create', post }),
       });
       const result = await res.json();
@@ -102,7 +103,7 @@ const Blog: React.FC = () => {
     try {
       const res = await fetch('/api/blog', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ action: 'update', post: updatedPost, postId: editingPostId }),
       });
       const result = await res.json();
@@ -134,7 +135,7 @@ const Blog: React.FC = () => {
     try {
       const res = await fetch('/api/blog', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ action: 'delete', postId: id }),
       });
       const result = await res.json();

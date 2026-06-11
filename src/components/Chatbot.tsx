@@ -30,13 +30,6 @@ const Chatbot: React.FC = () => {
     if (isOpen) setTimeout(() => inputRef.current?.focus(), 150);
   }, [isOpen]);
 
-  const systemContext = `You are the AI assistant on Jeremy Hopkins' portfolio. Be concise and friendly. If you are unsure of any details, tell the user, and encourage them to reach out to Jeremy directly.
-CS student at KSU (graduating May 2025, AI/ML focus). Previously UWG. Bremen High School alum (NHS, marching band). Codes in Python,
-JS/TS, Java, React, Node.js, TensorFlow, PyTorch, Tailwind, Git, PostgreSQL. Also video editing (corporate events, Southwire).
-Projects: Watch Trading Post (luxury marketplace), Landlock Solutions LLC (business site), SXNCTUARY (DNB artist), Joshua 1:9 Law Firm LLC (Alabama legal services site), Agentic AI Stack for E-Commerce (Capstone Project at KSU)
-Contact: jeremy@hoppytech.com | github.com/jkhopkins39 | linkedin.com/in/jeremy-hopkins-160001275
-For anything not listed, suggest contacting Jeremy directly.`;
-
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
@@ -46,7 +39,7 @@ For anything not listed, suggest contacting Jeremy directly.`;
     setMessages((prev) => [...prev, { role: 'user', content: sentValue, timestamp: new Date() }]);
 
     try {
-      const apiUrl = import.meta.env.DEV ? 'http://localhost:3001/api/chat' : '/api/chat';
+      const apiUrl = '/api/chat';
 
       // Skip index 0 (initial greeting) — Gemini requires conversations to start with a user turn.
       const history = messages.slice(1).map((m) => ({ role: m.role, content: m.content }));
@@ -55,11 +48,7 @@ For anything not listed, suggest contacting Jeremy directly.`;
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [
-            { role: 'system', content: systemContext },
-            ...history,
-            { role: 'user', content: sentValue },
-          ],
+          messages: [...history, { role: 'user', content: sentValue }],
         }),
       });
 

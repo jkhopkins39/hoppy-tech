@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import DarkModeToggle from "./DarkModeToggle";
+import { AUTH_CHANGE_EVENT, isAdminLoggedIn } from "../lib/auth";
 
 const NAV_LINKS = [
   { label: "About", path: "/about" },
@@ -19,16 +20,10 @@ const NavBar = () => {
   const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkLogin = () => {
-      setIsLoggedIn(localStorage.getItem("blogAdminLoggedIn") === "true");
-    };
+    const checkLogin = () => setIsLoggedIn(isAdminLoggedIn());
     checkLogin();
-    window.addEventListener("storage", checkLogin);
-    const interval = setInterval(checkLogin, 1000);
-    return () => {
-      window.removeEventListener("storage", checkLogin);
-      clearInterval(interval);
-    };
+    window.addEventListener(AUTH_CHANGE_EVENT, checkLogin);
+    return () => window.removeEventListener(AUTH_CHANGE_EVENT, checkLogin);
   }, []);
 
   useEffect(() => {

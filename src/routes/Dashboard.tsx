@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
+import { clearAdminAuth, isAdminLoggedIn } from "../lib/auth";
 
 interface ContactSubmission {
   id: string;
@@ -20,7 +21,7 @@ const Dashboard: React.FC = () => {
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
 
   useEffect(() => {
-    if (localStorage.getItem('blogAdminLoggedIn') !== 'true') {
+    if (!isAdminLoggedIn()) {
       navigate('/');
       return;
     }
@@ -48,8 +49,8 @@ const Dashboard: React.FC = () => {
     save([]);
     setSelectedSubmission(null);
   };
-  const handleLogout = () => {
-    localStorage.removeItem('blogAdminLoggedIn');
+  const handleLogout = async () => {
+    await clearAdminAuth();
     navigate('/');
   };
 

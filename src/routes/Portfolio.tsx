@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '../components/Footer';
+import { AUTH_CHANGE_EVENT, isAdminLoggedIn } from '../lib/auth';
 
 interface Project {
   id: number;
@@ -112,11 +113,10 @@ const Portfolio: React.FC = () => {
   });
 
   React.useEffect(() => {
-    const check = () => setIsLoggedIn(localStorage.getItem('blogAdminLoggedIn') === 'true');
+    const check = () => setIsLoggedIn(isAdminLoggedIn());
     check();
-    window.addEventListener('storage', check);
-    const iv = setInterval(check, 1000);
-    return () => { window.removeEventListener('storage', check); clearInterval(iv); };
+    window.addEventListener(AUTH_CHANGE_EVENT, check);
+    return () => window.removeEventListener(AUTH_CHANGE_EVENT, check);
   }, []);
 
   const saveProjects = (p: Project[]) => {
