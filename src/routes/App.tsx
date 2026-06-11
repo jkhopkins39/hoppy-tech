@@ -37,13 +37,14 @@ function HomePage() {
   return (
     <>
       {/* ─── Hero ────────────────────────────────────────── */}
-      <section className="relative min-h-[calc(100vh-68px)] overflow-hidden">
-        {/* Full-bleed photo — absolutely positioned right half */}
+      {/* Mobile: flex column (photo on top, text below). Desktop: photo absolutely positioned on right half. */}
+      <section className="relative overflow-hidden flex flex-col md:block">
+        {/* Full-bleed photo */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
-          className="absolute inset-y-0 right-0 w-full md:w-[55%] z-0"
+          className="relative flex-none h-[52vh] w-full md:absolute md:inset-y-0 md:right-0 md:h-auto md:w-[55%] z-0"
         >
           <img
             src="/Introduction.jpg"
@@ -60,24 +61,24 @@ function HomePage() {
           >
             <source src="/video/output.webm" type="video/webm" />
           </video>
-          {/* Left gradient — blends into text area */}
+          {/* Left gradient — desktop only, blends into text area */}
           <div
-            className="absolute inset-y-0 left-0 w-2/3 z-10"
+            className="hidden md:block absolute inset-y-0 left-0 w-2/3 z-10"
             style={{ background: "linear-gradient(to right, var(--canvas) 10%, color-mix(in srgb, var(--canvas) 60%, transparent) 60%, transparent 100%)" }}
           />
-          {/* Right gradient — fades to nothing at edge (no hard cutoff) */}
+          {/* Right gradient — desktop only */}
           <div
-            className="absolute inset-y-0 right-0 w-1/4 z-10"
+            className="hidden md:block absolute inset-y-0 right-0 w-1/4 z-10"
             style={{ background: "linear-gradient(to left, var(--canvas) 0%, transparent 100%)" }}
           />
-          {/* Bottom gradient */}
+          {/* Bottom gradient — fades photo into text section on both mobile and desktop */}
           <div
-            className="absolute inset-x-0 bottom-0 h-48 z-10"
+            className="absolute inset-x-0 bottom-0 h-20 z-10"
             style={{ background: "linear-gradient(to top, var(--canvas) 0%, transparent 100%)" }}
           />
-          {/* Top gradient — subtle */}
+          {/* Top gradient — desktop only */}
           <div
-            className="absolute inset-x-0 top-0 h-24 z-10"
+            className="hidden md:block absolute inset-x-0 top-0 h-24 z-10"
             style={{ background: "linear-gradient(to bottom, var(--canvas) 0%, transparent 100%)" }}
           />
         </motion.div>
@@ -91,9 +92,8 @@ function HomePage() {
         />
 
         {/* Text content */}
-        <div className="relative z-[5] flex flex-col justify-center min-h-[calc(100vh-68px)] max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-24">
-          {/* On small screens the photo is full-bleed behind copy; a frosted canvas panel keeps text readable over any crop. */}
-          <div className="md:w-[52%] max-md:rounded-2xl max-md:px-4 max-md:py-7 max-md:-mx-1 max-md:backdrop-blur-md max-md:shadow-[0_12px_40px_rgba(0,0,0,0.25)] max-md:bg-[color-mix(in_srgb,var(--canvas)_82%,transparent)] max-md:ring-1 max-md:ring-[color-mix(in_srgb,var(--ink)_8%,transparent)]">
+        <div className="relative z-[5] flex flex-col justify-center flex-1 md:min-h-[calc(100vh-68px)] max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-24">
+          <div className="md:w-[52%]">
             {/* Heading */}
             <motion.h1
               custom={1}
@@ -181,7 +181,7 @@ function HomePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-muted z-[5]"
+          className="hidden md:flex md:flex-col absolute bottom-6 left-1/2 -translate-x-1/2 items-center gap-1.5 text-muted z-[5]"
         >
           <span className="text-[11px] uppercase tracking-widest">Scroll</span>
           <motion.div
