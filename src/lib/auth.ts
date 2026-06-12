@@ -17,7 +17,7 @@ export function notifyAuthChange(): void {
 }
 
 export function initAdminAuth(): void {
-  if (listenerStarted) return;
+  if (listenerStarted || !supabase) return;
   listenerStarted = true;
 
   supabase.auth.getSession().then(({ data: { session } }) => {
@@ -41,6 +41,7 @@ export function authHeaders(): Record<string, string> {
 }
 
 export async function signInAdmin(email: string, password: string): Promise<void> {
+  if (!supabase) throw new Error('Admin login is not configured.');
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
   if (!isAllowedAdmin(data.session)) {
@@ -54,7 +55,7 @@ export async function signInAdmin(email: string, password: string): Promise<void
 }
 
 export async function clearAdminAuth(): Promise<void> {
-  await supabase.auth.signOut();
+  if (supabase) await supabase.auth.signOut();
   cachedSession = null;
   localStorage.removeItem('blogAdminLoggedIn');
   notifyAuthChange();

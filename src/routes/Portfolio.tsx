@@ -11,6 +11,8 @@ interface Project {
   image: string;
   imageWebP?: string;
   imageFallback?: string;
+  imageDark?: string;
+  imageDarkWebP?: string;
   technologies: string[];
   repoUrl?: string;
   liveUrl?: string;
@@ -84,6 +86,36 @@ const initialProjects: Project[] = [
     liveUrl: "https://joshua19lawfirm.com",
     category: "web",
   },
+  {
+    id: 5,
+    title: "Agentic Customer Service System",
+    description:
+      "This was my capstone project at KSU; my team designed a horizontally scalable, agentic system that uses LangGraph to create various agents who communicate with each other to automate common customer service tasks. These tasks included retrieving and updating user information, retrieving order details, using RAG (retrieval-augmented generation) to answer policy questions, and more!",
+    shortDescription: "KSU capstone — multi-agent customer service automation",
+    image: "/images/projects/capstone.webp",
+    imageWebP: "/images/projects/capstone.webp",
+    imageFallback: "/images/projects/capstone.png",
+    technologies: ["LangGraph", "Python", "RAG", "AI Agents"],
+    repoUrl: "",
+    liveUrl: "https://digitalcommons.kennesaw.edu/cgi/viewcontent.cgi?article=1687&context=cday",
+    category: "ai",
+  },
+  {
+    id: 6,
+    title: "One Talent Productions",
+    description:
+      "A responsive website for a production company based in Georgia. Main features include a dynamic background, client testimonies, contact form, blog page, and admin dashboard for editing content.",
+    shortDescription: "Production company website",
+    image: "/images/projects/OTP light.webp",
+    imageWebP: "/images/projects/OTP light.webp",
+    imageFallback: "/images/projects/OTP light.png",
+    imageDark: "/images/projects/OTP dark.png",
+    imageDarkWebP: "/images/projects/OTP dark.webp",
+    technologies: ["React", "Tailwind CSS", "Node.js"],
+    repoUrl: "",
+    liveUrl: "https://www.onetalentproductions.com",
+    category: "web",
+  },
 ];
 
 const categories = [
@@ -97,6 +129,16 @@ const categories = [
 const Portfolio: React.FC = () => {
   const [expandedProject, setExpandedProject] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [darkImageIds, setDarkImageIds] = useState<Set<number>>(new Set());
+
+  const toggleDarkImage = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDarkImageIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAddingProject, setIsAddingProject] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -341,6 +383,8 @@ const Portfolio: React.FC = () => {
               const bg = CATEGORY_BG[project.category] || 'rgba(232,151,26,0.1)';
               const isExpanded = expandedProject === project.id;
 
+              const showDark = darkImageIds.has(project.id) && !!project.imageDark;
+
               return (
                 <motion.div
                   key={project.id}
@@ -353,28 +397,49 @@ const Portfolio: React.FC = () => {
                 >
                   {/* Image */}
                   <div className="relative h-48 overflow-hidden flex-none">
-                    {isLoggedIn && (
-                      <div className="absolute top-3 right-3 z-20 flex gap-2">
-                        <button onClick={(e) => { e.stopPropagation(); handleEditProject(project); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-blue-400/40 transition-all">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                    <div className="absolute top-3 right-3 z-20 flex gap-2">
+                      {project.imageDark && (
+                        <button
+                          onClick={(e) => toggleDarkImage(project.id, e)}
+                          title={showDark ? 'Switch to light' : 'Switch to dark'}
+                          className="p-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-white/30 transition-all"
+                        >
+                          {showDark ? (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71m12.02 0-.71-.71M6.34 6.34l-.71-.71M12 7a5 5 0 100 10A5 5 0 0012 7z" />
+                            </svg>
+                          ) : (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                            </svg>
+                          )}
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-red-400/40 transition-all">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                        </button>
-                      </div>
-                    )}
+                      )}
+                      {isLoggedIn && (
+                        <>
+                          <button onClick={(e) => { e.stopPropagation(); handleEditProject(project); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-blue-400/40 transition-all">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                          </button>
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-red-400/40 transition-all">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                          </button>
+                        </>
+                      )}
+                    </div>
                     <picture>
-                      {project.imageWebP ? (
-                        <source srcSet={project.imageWebP} type="image/webp" />
-                      ) : null}
+                      {showDark ? (
+                        project.imageDarkWebP ? <source srcSet={project.imageDarkWebP} type="image/webp" /> : null
+                      ) : (
+                        project.imageWebP ? <source srcSet={project.imageWebP} type="image/webp" /> : null
+                      )}
                       <img
-                        src={project.imageFallback || project.image}
+                        src={showDark ? project.imageDark! : (project.imageFallback || project.image)}
                         alt={project.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                         onError={(e) => {
                           const t = e.target as HTMLImageElement;
-                          if (project.imageFallback && project.imageFallback !== project.image) t.src = project.imageFallback;
+                          if (!showDark && project.imageFallback && project.imageFallback !== project.image) t.src = project.imageFallback;
                           else t.style.display = 'none';
                         }}
                       />
