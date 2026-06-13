@@ -131,7 +131,7 @@ const Contact: React.FC = () => {
     }
   };
 
-  const inputClass = "w-full px-4 py-3.5 bg-white/[0.03] border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle focus:bg-white/[0.05] transition-all text-sm";
+  const inputClass = "w-full px-4 py-3.5 bg-surface-2 border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle focus:bg-surface-3 transition-all text-sm";
   const labelClass = "block text-[11px] uppercase tracking-widest text-muted font-semibold mb-2";
 
   return (
@@ -176,10 +176,7 @@ const Contact: React.FC = () => {
           >
             <div className="rounded-2xl border border-subtle bg-surface p-6 md:p-8">
               <div className="flex items-center gap-3 mb-7">
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-none"
-                  style={{ background: 'rgba(232,151,26,0.1)' }}
-                >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-none bg-accent-subtle">
                   <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
@@ -255,10 +252,7 @@ const Contact: React.FC = () => {
               href="mailto:jeremy@hoppytech.com"
               className="group flex items-center gap-4 p-5 rounded-2xl border border-subtle bg-surface hover:border-accent-subtle hover:bg-accent-subtle-2 transition-all duration-200"
             >
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center flex-none"
-                style={{ background: 'rgba(232,151,26,0.1)' }}
-              >
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-none bg-accent-subtle">
                 <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
@@ -285,12 +279,9 @@ const Contact: React.FC = () => {
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 + i * 0.07 }}
-                    className="group flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-all duration-200"
+                    className="group flex items-center gap-3 p-3 rounded-xl hover:bg-surface-alpha transition-all duration-200"
                   >
-                    <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-none text-muted group-hover:text-ink transition-colors"
-                      style={{ background: 'rgba(255,255,255,0.04)' }}
-                    >
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-none text-muted group-hover:text-ink transition-colors bg-surface-2">
                       {social.icon}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -306,18 +297,9 @@ const Contact: React.FC = () => {
             </div>
 
             {/* Response note */}
-            <div
-              className="p-5 rounded-2xl border"
-              style={{
-                background: 'rgba(232,151,26,0.05)',
-                borderColor: 'rgba(232,151,26,0.15)',
-              }}
-            >
+            <div className="p-5 rounded-2xl border border-accent-subtle-2 bg-accent-subtle-2">
               <div className="flex items-start gap-3">
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-none mt-0.5"
-                  style={{ background: 'rgba(232,151,26,0.1)' }}
-                >
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-none mt-0.5 bg-accent-subtle">
                   <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>

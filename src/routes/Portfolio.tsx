@@ -28,9 +28,28 @@ const categories = [
   { id: 'other', label: 'Other' },
 ];
 
+function getCategoryStyle(category: string) {
+  const color = CATEGORY_COLORS[category] || '#E8971A';
+  const bg = CATEGORY_BG[category] || 'rgba(232,151,26,0.1)';
+  return { color, bg, border: `${color}33` };
+}
+
+function TechTag({ tech, category }: { tech: string; category: Project['category'] }) {
+  const { color, bg, border } = getCategoryStyle(category);
+  return (
+    <span
+      className="px-2.5 py-1 rounded-lg text-[11px] font-medium"
+      style={{ background: bg, color, border: `1px solid ${border}` }}
+    >
+      {tech}
+    </span>
+  );
+}
+
 const Portfolio: React.FC = () => {
   const [flippedProject, setFlippedProject] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [darkImageIds, setDarkImageIds] = useState<Set<number>>(new Set());
 
   const toggleDarkImage = (id: number, e: React.MouseEvent) => {
@@ -66,7 +85,12 @@ const Portfolio: React.FC = () => {
 
   React.useEffect(() => {
     setFlippedProject(null);
+    setSelectedTag(null);
   }, [selectedCategory]);
+
+  React.useEffect(() => {
+    setFlippedProject(null);
+  }, [selectedTag]);
 
   const saveProjects = (p: Project[]) => {
     setProjects(p);
@@ -127,9 +151,22 @@ const Portfolio: React.FC = () => {
     setNewProject(prev => ({ ...prev, technologies: (prev.technologies || []).filter(x => x !== t) }));
   };
 
-  const filteredProjects = selectedCategory === 'all'
+  const categoryProjects = selectedCategory === 'all'
     ? projects
     : projects.filter(p => p.category === selectedCategory);
+
+  const availableTags = [...new Set(categoryProjects.flatMap(p => p.technologies))].sort();
+
+  const filteredProjects = selectedTag
+    ? categoryProjects.filter(p => p.technologies.includes(selectedTag))
+    : categoryProjects;
+
+  const activeFilterColor = selectedCategory !== 'all'
+    ? CATEGORY_COLORS[selectedCategory]
+    : undefined;
+  const activeFilterBg = selectedCategory !== 'all'
+    ? CATEGORY_BG[selectedCategory]
+    : undefined;
 
   const inputClass = "w-full px-4 py-3 bg-surface border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle transition-colors text-sm";
   const labelClass = "block text-[11px] uppercase tracking-widest text-muted font-semibold mb-2";
@@ -233,12 +270,19 @@ const Portfolio: React.FC = () => {
                     <div>
                       <label className={labelClass}>Technologies (Enter to add)</label>
                       <div className={`${inputClass} flex flex-wrap gap-2 min-h-[46px]`} style={{ padding: '8px 12px' }}>
-                        {newProject.technologies?.map(t => (
-                          <span key={t} className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-accent-subtle text-accent text-xs">
+                        {newProject.technologies?.map(t => {
+                          const { color, bg, border } = getCategoryStyle(newProject.category || 'web');
+                          return (
+                          <span
+                            key={t}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs"
+                            style={{ background: bg, color, border: `1px solid ${border}` }}
+                          >
                             {t}
-                            <button type="button" onClick={() => removeTech(t)} className="hover:text-white">×</button>
+                            <button type="button" onClick={() => removeTech(t)} className="opacity-60 hover:opacity-100">×</button>
                           </span>
-                        ))}
+                          );
+                        })}
                         <input type="text" value={techInput} onChange={e => setTechInput(e.target.value)} onKeyDown={handleAddTech} className="bg-transparent outline-none flex-1 min-w-[80px] text-sm" placeholder="Type & Enter" />
                       </div>
                     </div>
@@ -262,21 +306,64 @@ const Portfolio: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Category filter */}
-        <div className="flex gap-2 flex-wrap mb-10">
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 ${
-                selectedCategory === cat.id
-                  ? 'bg-accent text-on-accent'
-                  : 'border border-subtle bg-surface text-muted hover:text-ink hover:border-white/[0.12]'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
+        {/* Filters */}
+        <div className="mb-10">
+          <div className="flex gap-2 flex-wrap mb-4">
+            {categories.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 ${
+                  selectedCategory === cat.id
+                    ? 'bg-accent text-on-accent'
+                    : 'border border-subtle bg-surface text-muted hover:text-ink hover:border-white/[0.12]'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          {availableTags.length > 0 && (
+            <div>
+              <div className="flex items-center gap-3 mb-3">
+                <p className="text-[11px] uppercase tracking-widest text-muted font-semibold">Technologies</p>
+                {selectedTag && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTag(null)}
+                    className="text-[11px] text-muted-2 hover:text-ink transition-colors"
+                  >
+                    Clear filter
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {availableTags.map(tag => {
+                  const isSelected = selectedTag === tag;
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setSelectedTag(isSelected ? null : tag)}
+                      className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all duration-200 ${
+                        isSelected
+                          ? ''
+                          : 'border border-subtle bg-surface text-muted hover:text-ink'
+                      }`}
+                      style={isSelected ? {
+                        background: activeFilterBg ?? 'color-mix(in srgb, var(--accent) 12%, transparent)',
+                        color: activeFilterColor ?? 'var(--accent)',
+                        border: `1px solid ${activeFilterColor ? `${activeFilterColor}44` : 'color-mix(in srgb, var(--accent) 30%, transparent)'}`,
+                      } : undefined}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Projects grid */}
@@ -377,12 +464,17 @@ const Portfolio: React.FC = () => {
                         <p className="text-muted text-sm leading-relaxed mb-4 line-clamp-2">{project.shortDescription}</p>
                         <div className="flex flex-wrap gap-1.5 mb-4">
                           {project.technologies.slice(0, 3).map(t => (
-                            <span key={t} className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-muted bg-white/[0.04] border border-white/[0.05]">
-                              {t}
-                            </span>
+                            <TechTag key={t} tech={t} category={project.category} />
                           ))}
                           {project.technologies.length > 3 && (
-                            <span className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-muted bg-white/[0.04] border border-white/[0.05]">
+                            <span
+                              className="px-2.5 py-1 rounded-lg text-[11px] font-medium"
+                              style={{
+                                background: bg,
+                                color,
+                                border: `1px solid ${color}33`,
+                              }}
+                            >
                               +{project.technologies.length - 3}
                             </span>
                           )}
@@ -428,9 +520,7 @@ const Portfolio: React.FC = () => {
 
                       <div className="flex flex-wrap gap-1.5 mb-4 flex-none">
                         {project.technologies.map(t => (
-                          <span key={t} className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-muted bg-white/[0.04] border border-white/[0.05]">
-                            {t}
-                          </span>
+                          <TechTag key={t} tech={t} category={project.category} />
                         ))}
                       </div>
 
@@ -472,7 +562,7 @@ const Portfolio: React.FC = () => {
             <svg className="w-12 h-12 mx-auto mb-4 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
-            <p>No projects in this category yet.</p>
+            <p>{selectedTag ? 'No projects match this technology filter.' : 'No projects in this category yet.'}</p>
           </div>
         )}
       </div>
