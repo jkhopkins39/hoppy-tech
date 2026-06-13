@@ -22,6 +22,31 @@ const fadeUp: Variants = {
   }),
 };
 
+const cardsContainer: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.14,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+const cardItem: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 16,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.7,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
+
 function HomePage() {
   const navigate = useNavigate();
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -211,7 +236,13 @@ function HomePage() {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={cardsContainer}
+        >
           {[
             {
               icon: (
@@ -244,14 +275,11 @@ function HomePage() {
               desc: "My goal is to deliver the best product possible. Every solution is customized to fit your needs, with best practices, clean documentation, and ongoing support.",
               accent: "#0EA5E9",
             },
-          ].map((card, i) => (
+          ].map((card) => (
             <motion.div
               key={card.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="group relative p-6 rounded-2xl border transition-all duration-300"
+              variants={cardItem}
+              className="group relative p-6 rounded-2xl border transition-[border-color] duration-300"
               style={{
                 borderColor: "var(--border-color)",
                 backgroundColor: "var(--surface)",
@@ -285,7 +313,7 @@ function HomePage() {
               )}
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       {/* ─── CTA banner ──────────────────────────────────────── */}
