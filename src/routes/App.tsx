@@ -145,7 +145,7 @@ function HomePage() {
                 className="px-7 py-3.5 font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] text-[15px]"
                 style={{
                   backgroundColor: "var(--accent)",
-                  color: "var(--canvas)",
+                  color: "var(--accent-foreground)",
                   boxShadow: "0 0 0 0 color-mix(in srgb, var(--accent) 30%, transparent)",
                 }}
                 onMouseEnter={(e) => {
@@ -334,7 +334,7 @@ function HomePage() {
             <a
               href={`mailto:${contactInfo.email}`}
               className="px-6 py-3 font-semibold rounded-xl transition-all duration-200 text-[14px]"
-              style={{ backgroundColor: "var(--accent)", color: "var(--canvas)" }}
+              style={{ backgroundColor: "var(--accent)", color: "var(--accent-foreground)" }}
             >
               Send Email
             </a>

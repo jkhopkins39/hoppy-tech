@@ -141,7 +141,7 @@ const Dashboard: React.FC = () => {
                 onClick={() => setFilter(f)}
                 className={`px-4 py-2 rounded-xl text-[13px] font-medium capitalize transition-all duration-200 ${
                   filter === f
-                    ? 'bg-accent text-canvas'
+                    ? 'bg-accent text-on-accent'
                     : 'border border-subtle bg-surface text-muted hover:text-ink'
                 }`}
               >

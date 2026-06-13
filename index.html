@@ -46,8 +46,15 @@
     <meta property="twitter:image" content="https://www.hoppytech.com/Introduction.jpg" />
     
     <!-- Additional SEO Meta Tags -->
-    <meta name="theme-color" content="#000000" />
-    <meta name="msapplication-TileColor" content="#000000" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <meta name="msapplication-TileColor" content="#FFFFFF" />
+    <script>
+      (function () {
+        if (localStorage.getItem('theme') !== 'dark') {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Hoppy Tech" />

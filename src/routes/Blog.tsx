@@ -277,7 +277,7 @@ const Blog: React.FC = () => {
                     <input type="text" value={postForm.tags} onChange={e => setPostForm({...postForm, tags: e.target.value})} className={inputClass} placeholder="AI, React, Web Development" />
                   </div>
                   <div className="flex gap-3 pt-2">
-                    <button type="submit" disabled={isPublishing} className="flex-1 py-3.5 bg-accent hover:bg-accent-light text-canvas font-semibold rounded-xl transition-colors duration-200 text-[14px] disabled:opacity-50">
+                    <button type="submit" disabled={isPublishing} className="flex-1 py-3.5 bg-accent hover:bg-accent-light text-on-accent font-semibold rounded-xl transition-colors duration-200 text-[14px] disabled:opacity-50">
                       {editingPostId ? 'Update & Publish' : 'Publish Post'}
                     </button>
                     {editingPostId && (

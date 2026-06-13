@@ -157,7 +157,7 @@ const ResumeSection: React.FC = () => {
                     href="/documents/resume.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-5 py-3 bg-accent text-canvas rounded-xl font-semibold"
+                    className="px-5 py-3 bg-accent text-on-accent rounded-xl font-semibold"
                   >
                     Open PDF
                   </a>

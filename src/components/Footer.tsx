@@ -209,7 +209,7 @@ const Footer: React.FC = () => {
                         type="submit"
                         disabled={isLoggingIn}
                         className="w-full py-2 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
-                        style={{ backgroundColor: 'var(--accent)', color: 'var(--canvas)' }}
+                        style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}
                       >
                         {isLoggingIn ? 'Signing in…' : 'Login'}
                       </button>

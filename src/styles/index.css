@@ -15,8 +15,9 @@
   --muted:           #C8C8E0;
   --muted-2:         #9898B8;
   --muted-3:         #747490;
-  --accent:          #E8971A;
-  --accent-light:    #FFBE3D;
+  --accent:          #80C0FF;
+  --accent-light:    #B2D8FF;
+  --accent-foreground: var(--canvas);
   --border-color:    rgba(255, 255, 255, 0.08);
   --border-hover:    rgba(255, 255, 255, 0.16);
   --surface-alpha:   rgba(255, 255, 255, 0.04);
@@ -35,16 +36,17 @@
 
 /* ─── Design tokens — LIGHT override ────────────────────── */
 [data-theme="light"] {
-  --canvas:          #F5F1EA;
+  --canvas:          #FFFFFF;
   --surface:         #FFFFFF;
-  --surface-2:       #EDE9E0;
-  --surface-3:       #E4E0D6;
+  --surface-2:       #F5F7FA;
+  --surface-3:       #EEF1F5;
   --ink:             #0D0D18;
   --muted:           #383850;
   --muted-2:         #5E5E78;
   --muted-3:         #808098;
-  --accent:          #B86800;
-  --accent-light:    #D47A10;
+  --accent:          #80C0FF;
+  --accent-light:    #B2D8FF;
+  --accent-foreground: var(--ink);
   --border-color:    rgba(0, 0, 0, 0.10);
   --border-hover:    rgba(0, 0, 0, 0.20);
   --surface-alpha:   rgba(0, 0, 0, 0.03);
@@ -77,6 +79,7 @@ h1, h2, h3, h4, h5, h6 {
   .text-muted-3 { color: var(--muted-3); }
   .text-accent  { color: var(--accent); }
   .text-accent-light { color: var(--accent-light); }
+  .text-on-accent { color: var(--accent-foreground); }
 
   .border-subtle      { border-color: var(--border-color); }
   .border-subtle-hover:hover { border-color: var(--border-hover); }

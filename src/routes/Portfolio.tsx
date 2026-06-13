@@ -253,7 +253,7 @@ const Portfolio: React.FC = () => {
                       <input type="text" value={newProject.repoUrl} onChange={e => setNewProject({...newProject, repoUrl: e.target.value})} className={inputClass} placeholder="https://github.com/..." />
                     </div>
                   </div>
-                  <button type="submit" className="w-full py-3.5 bg-accent hover:bg-accent-light text-canvas font-semibold rounded-xl transition-colors duration-200 text-[14px]">
+                  <button type="submit" className="w-full py-3.5 bg-accent hover:bg-accent-light text-on-accent font-semibold rounded-xl transition-colors duration-200 text-[14px]">
                     {editingId ? 'Update Project' : 'Save Project'}
                   </button>
                 </form>
@@ -270,7 +270,7 @@ const Portfolio: React.FC = () => {
               onClick={() => setSelectedCategory(cat.id)}
               className={`px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 ${
                 selectedCategory === cat.id
-                  ? 'bg-accent text-canvas'
+                  ? 'bg-accent text-on-accent'
                   : 'border border-subtle bg-surface text-muted hover:text-ink hover:border-white/[0.12]'
               }`}
             >
