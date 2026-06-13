@@ -7,7 +7,7 @@ import {
   isAdminLoggedIn,
   signInAdmin,
 } from '../lib/auth';
-import { WEBSITE_LOGO, WEBSITE_LOGO_ALT } from '../config/brand';
+import { WEBSITE_LOGO_URL, WEBSITE_LOGO_ALT } from '../config/brand';
 
 const Footer: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -95,7 +95,7 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="md:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-4 group w-fit">
-              <img src={WEBSITE_LOGO} alt={WEBSITE_LOGO_ALT} className="w-8 h-8 object-contain" />
+              <img src={WEBSITE_LOGO_URL} alt={WEBSITE_LOGO_ALT} className="w-8 h-8 object-contain" />
               <span className="font-semibold text-ink text-[15px]">Jeremy Hopkins</span>
             </Link>
             <p className="text-muted text-sm leading-relaxed max-w-xs">

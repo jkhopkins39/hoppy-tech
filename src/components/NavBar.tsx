@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import DarkModeToggle from "./DarkModeToggle";
 import { AUTH_CHANGE_EVENT, isAdminLoggedIn } from "../lib/auth";
-import { WEBSITE_LOGO, WEBSITE_LOGO_ALT } from "../config/brand";
+import { WEBSITE_LOGO_URL, WEBSITE_LOGO_ALT } from "../config/brand";
 
 const NAV_LINKS = [
   { label: "About", path: "/about" },
@@ -95,7 +95,7 @@ const NavBar = () => {
           >
             <div className="relative">
               <img
-                src={WEBSITE_LOGO}
+                src={WEBSITE_LOGO_URL}
                 alt={WEBSITE_LOGO_ALT}
                 className="w-9 h-9 object-contain transition-transform duration-300 group-hover:scale-105"
               />
@@ -214,7 +214,7 @@ const NavBar = () => {
               className="flex items-center gap-2"
               onClick={() => setIsMenuOpen(false)}
             >
-              <img src={WEBSITE_LOGO} alt={WEBSITE_LOGO_ALT} className="w-8 h-8 object-contain" />
+              <img src={WEBSITE_LOGO_URL} alt={WEBSITE_LOGO_ALT} className="w-8 h-8 object-contain" />
               <span className="font-sans font-semibold text-[15px] text-ink">Jeremy Hopkins</span>
             </Link>
             <button
