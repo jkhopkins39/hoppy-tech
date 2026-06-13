@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import DarkModeToggle from "./DarkModeToggle";
 import { AUTH_CHANGE_EVENT, isAdminLoggedIn } from "../lib/auth";
 import { WEBSITE_LOGO_URL, WEBSITE_LOGO_ALT } from "../config/brand";
+import { useCrackMode } from "../context/CrackModeContext";
 
 const NAV_LINKS = [
   { label: "About", path: "/about" },
@@ -14,6 +15,7 @@ const NAV_LINKS = [
 const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { registerLogoClick } = useCrackMode();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -91,7 +93,10 @@ const NavBar = () => {
           <Link
             to="/"
             className="flex items-center gap-3 group"
-            onClick={() => setIsMenuOpen(false)}
+            onClick={() => {
+              setIsMenuOpen(false);
+              registerLogoClick();
+            }}
           >
             <div className="relative">
               <img
@@ -212,7 +217,10 @@ const NavBar = () => {
             <Link
               to="/"
               className="flex items-center gap-2"
-              onClick={() => setIsMenuOpen(false)}
+              onClick={() => {
+                setIsMenuOpen(false);
+                registerLogoClick();
+              }}
             >
               <img src={WEBSITE_LOGO_URL} alt={WEBSITE_LOGO_ALT} className="w-8 h-8 object-contain" />
               <span className="font-sans font-semibold text-[15px] text-ink">Jeremy Hopkins</span>

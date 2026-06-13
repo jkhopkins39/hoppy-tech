@@ -1,0 +1,324 @@
+/* ═══════════════════════════════════════════════════════════
+   CRACK MODE — intentional design crimes. Colors stay on-brand.
+   Activated via typing "crack" or clicking the logo 7× quickly.
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes crack-wobble {
+  0%, 100% { transform: rotate(-2deg) scale(1.02); }
+  25% { transform: rotate(3deg) scale(0.98) translateX(4px); }
+  50% { transform: rotate(-4deg) scale(1.04) translateY(-3px); }
+  75% { transform: rotate(2deg) scale(0.97) translateX(-5px); }
+}
+
+@keyframes crack-spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes crack-bounce {
+  0%, 100% { transform: translateY(0) scaleX(1.08); }
+  50% { transform: translateY(-14px) scaleX(0.92); }
+}
+
+@keyframes crack-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px) rotate(1deg); }
+  40% { transform: translateX(8px) rotate(-2deg); }
+  60% { transform: translateX(-4px) rotate(2deg); }
+  80% { transform: translateX(5px); }
+}
+
+@keyframes crack-rainbow-border {
+  0% { border-color: var(--accent); box-shadow: 4px 4px 0 var(--accent-light); }
+  33% { border-color: var(--accent-light); box-shadow: -6px 2px 0 var(--accent); }
+  66% { border-color: var(--muted-2); box-shadow: 2px -5px 0 var(--accent); }
+  100% { border-color: var(--accent); box-shadow: 4px 4px 0 var(--accent-light); }
+}
+
+@keyframes crack-marquee-bg {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes crack-pulse-scale {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.15) rotate(5deg); }
+}
+
+@keyframes crack-skew-wave {
+  0%, 100% { transform: skewX(-4deg) skewY(1deg); }
+  50% { transform: skewX(5deg) skewY(-2deg); }
+}
+
+/* Exit button — immune to the chaos */
+.crack-mode-exit {
+  position: fixed !important;
+  top: 12px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 2147483647 !important;
+  margin: 0 !important;
+  padding: 10px 20px !important;
+  font-family: 'DM Sans', system-ui, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  line-height: 1.4 !important;
+  color: var(--accent-foreground) !important;
+  background: var(--accent) !important;
+  border: 3px solid var(--ink) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--accent) 50%, transparent) !important;
+  cursor: pointer !important;
+  animation: none !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+  white-space: nowrap !important;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.crack-mode-exit:hover {
+  transform: translateX(-50%) scale(1.05) !important;
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--accent) 60%, transparent) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-crack-mode="true"] *:not(.crack-mode-exit) {
+    animation: none !important;
+  }
+}
+
+[data-crack-mode="true"] {
+  scroll-behavior: auto !important;
+}
+
+[data-crack-mode="true"] body {
+  overflow-x: hidden;
+}
+
+/* Global typography crimes */
+[data-crack-mode="true"] h1,
+[data-crack-mode="true"] h2 {
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  animation: crack-shake 2.8s ease-in-out infinite !important;
+}
+
+[data-crack-mode="true"] h3,
+[data-crack-mode="true"] h4 {
+  font-family: Papyrus, fantasy !important;
+  font-style: italic !important;
+  transform: rotate(-2deg) !important;
+}
+
+[data-crack-mode="true"] p,
+[data-crack-mode="true"] span,
+[data-crack-mode="true"] li,
+[data-crack-mode="true"] label {
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif !important;
+  letter-spacing: 0.04em !important;
+}
+
+[data-crack-mode="true"] .font-mono,
+[data-crack-mode="true"] code {
+  font-family: 'Courier New', monospace !important;
+  font-size: 1.2em !important;
+}
+
+/* Nav bar */
+[data-crack-mode="true"] nav {
+  animation: crack-wobble 3.5s ease-in-out infinite !important;
+  border-bottom-width: 5px !important;
+  border-bottom-style: dashed !important;
+  border-bottom-color: var(--accent) !important;
+  transform: rotate(-0.8deg) !important;
+}
+
+[data-crack-mode="true"] nav .max-w-7xl {
+  flex-direction: row-reverse !important;
+  gap: 2rem !important;
+}
+
+[data-crack-mode="true"] nav img {
+  animation: crack-spin-slow 12s linear infinite !important;
+  border-radius: 0 !important;
+  transform: scale(1.4) !important;
+}
+
+[data-crack-mode="true"] nav button,
+[data-crack-mode="true"] nav a {
+  animation: crack-bounce 1.4s ease-in-out infinite !important;
+  border-radius: 0 18px 0 18px !important;
+  transform: skewX(-6deg) !important;
+}
+
+[data-crack-mode="true"] nav button:nth-child(odd) {
+  animation-delay: 0.2s !important;
+  transform: skewX(8deg) scale(1.1) !important;
+}
+
+/* Buttons site-wide */
+[data-crack-mode="true"] button:not(.crack-mode-exit),
+[data-crack-mode="true"] a[class*="rounded"] {
+  animation: crack-rainbow-border 1.2s linear infinite, crack-pulse-scale 2s ease-in-out infinite !important;
+  border-width: 4px !important;
+  border-style: double !important;
+  padding: 0.6rem 2.2rem 0.2rem 0.8rem !important;
+  text-align: left !important;
+}
+
+[data-crack-mode="true"] button:nth-of-type(even):not(.crack-mode-exit) {
+  border-radius: 50% 10% 50% 10% !important;
+  animation-direction: reverse !important;
+}
+
+/* Cards & surfaces */
+[data-crack-mode="true"] .rounded-2xl,
+[data-crack-mode="true"] .rounded-xl {
+  animation: crack-skew-wave 4s ease-in-out infinite !important;
+  border-width: 6px !important;
+  border-style: groove !important;
+  border-color: var(--accent) !important;
+  box-shadow: 8px -4px 0 var(--accent-light), -4px 6px 0 var(--muted-2) !important;
+}
+
+[data-crack-mode="true"] .rounded-2xl:nth-child(odd),
+[data-crack-mode="true"] .grid > *:nth-child(odd) {
+  transform: rotate(2.5deg) translateX(8px) !important;
+  margin-top: -12px !important;
+}
+
+[data-crack-mode="true"] .rounded-2xl:nth-child(even),
+[data-crack-mode="true"] .grid > *:nth-child(even) {
+  transform: rotate(-3deg) translateX(-14px) !important;
+  margin-bottom: 20px !important;
+}
+
+[data-crack-mode="true"] .grid {
+  gap: 0.25rem 3rem !important;
+  align-items: start !important;
+}
+
+[data-crack-mode="true"] .grid-cols-1 {
+  grid-template-columns: 1fr 0.9fr !important;
+}
+
+@media (min-width: 768px) {
+  [data-crack-mode="true"] .md\:grid-cols-3 {
+    grid-template-columns: 1.2fr 0.8fr 1.4fr !important;
+  }
+
+  [data-crack-mode="true"] .md\:grid-cols-2 {
+    grid-template-columns: 0.7fr 1.3fr !important;
+  }
+}
+
+/* Images */
+[data-crack-mode="true"] img:not(.crack-mode-exit *) {
+  animation: crack-wobble 2.2s ease-in-out infinite !important;
+  border: 5px dotted var(--accent) !important;
+  filter: contrast(1.3) saturate(1.4) !important;
+}
+
+[data-crack-mode="true"] img:nth-of-type(even) {
+  transform: scaleX(-1) rotate(4deg) !important;
+  animation: crack-spin-slow 18s linear infinite reverse !important;
+}
+
+/* Hero */
+[data-crack-mode="true"] section:first-of-type h1 {
+  font-size: clamp(1.8rem, 4vw, 3rem) !important;
+  line-height: 0.85 !important;
+  transform: rotate(3deg) !important;
+  text-shadow: 3px 3px 0 var(--accent), -2px -2px 0 var(--accent-light) !important;
+}
+
+/* Footer */
+[data-crack-mode="true"] footer {
+  animation: crack-shake 1.8s ease-in-out infinite !important;
+  border-top: 8px solid var(--accent) !important;
+  transform: rotate(1deg) scale(1.02) !important;
+  margin-top: 4rem !important;
+}
+
+[data-crack-mode="true"] footer .grid {
+  flex-direction: column-reverse !important;
+  display: flex !important;
+}
+
+/* Inputs */
+[data-crack-mode="true"] input,
+[data-crack-mode="true"] textarea,
+[data-crack-mode="true"] select {
+  font-family: 'Courier New', monospace !important;
+  border-radius: 0 !important;
+  border-width: 5px !important;
+  border-style: ridge !important;
+  border-color: var(--accent) !important;
+  transform: skewX(-3deg) !important;
+  animation: crack-shake 3s ease-in-out infinite !important;
+}
+
+/* Chatbot */
+[data-crack-mode="true"] .fixed.bottom-6.right-6 {
+  animation: crack-bounce 0.9s ease-in-out infinite !important;
+  left: 1rem !important;
+  right: auto !important;
+  bottom: 5rem !important;
+  transform: scale(1.3) rotate(-15deg) !important;
+}
+
+/* Bottom banner */
+[data-crack-mode="true"]::before {
+  content: '⚠️ CRACK MODE ACTIVE — DESIGN INTEGRITY COMPROMISED ⚠️';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2147483646;
+  padding: 6px 0;
+  font-family: 'Comic Sans MS', cursive;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-foreground);
+  background: linear-gradient(90deg, var(--accent), var(--accent-light), var(--accent));
+  background-size: 200% 100%;
+  animation: crack-marquee-bg 3s linear infinite;
+  overflow: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  text-align: center;
+}
+
+/* Misaligned containers */
+[data-crack-mode="true"] .max-w-7xl {
+  max-width: 92% !important;
+  padding-left: 2rem !important;
+  padding-right: 0.5rem !important;
+}
+
+[data-crack-mode="true"] .max-w-7xl:nth-of-type(even) {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+  transform: translateX(-20px) !important;
+}
+
+[data-crack-mode="true"] .max-w-7xl:nth-of-type(odd) {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  transform: translateX(24px) !important;
+}
+
+/* Gradient headings */
+[data-crack-mode="true"] .italic[style*="gradient"],
+[data-crack-mode="true"] [style*="WebkitBackgroundClip"] {
+  -webkit-text-fill-color: var(--accent) !important;
+  color: var(--accent) !important;
+  background: none !important;
+  text-decoration: underline wavy var(--accent-light) !important;
+}
