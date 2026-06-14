@@ -1,7 +1,7 @@
 [
   {
     "id": "1781410739509",
-    "title": "When security matters",
+    "title": "When Security Matters: Utilizing AI to Stay Ahead",
     "content": "In this day and age, developers have access to intelligent tools that are orders of magnitude smarter than humans. This puts enormous pressure on developers to utilize as much intelligence as possible to keep up with the times. AI is a great gun to point at a problem, but failing to utilize it properly, not knowing where to aim the gun, that’s when data breaches occur, rate limits are exceeded, and user experience is degraded.\n\nAll this means that at Hoppy Tech, the emphasis isn’t just on turn-around speed, it’s about ensuring your systems are impenetrable and reliable.\n\nA recent example:\nA client of mine needed a secure backend in which he could sign in on a public-facing page.\nWe implemented encryption and utilized Supabase’s security features to ensure nobody else could log in except myself and him.",
     "excerpt": "Some brief thoughts about security when designing systems",
     "author": "Jeremy Hopkins",
