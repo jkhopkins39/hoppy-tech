@@ -143,14 +143,9 @@ const NavBar = () => {
               </button>
             )}
 
-            {/* Theme toggle */}
-            <div className="ml-2 flex items-center">
-              <DarkModeToggle />
-            </div>
-
             <button
               onClick={() => handleNav(CONTACT_PATH)}
-              className={`ml-3 px-5 py-2 text-[14px] font-semibold rounded-lg border border-accent transition-all duration-200 hover:scale-[1.02] ${
+              className={`ml-2 px-5 py-2 text-[14px] font-semibold rounded-lg border border-accent transition-all duration-200 hover:scale-[1.02] ${
                 isActive(CONTACT_PATH)
                   ? "bg-accent-subtle text-accent"
                   : "text-accent hover:bg-accent-subtle"
@@ -158,6 +153,11 @@ const NavBar = () => {
             >
               Contact
             </button>
+
+            {/* Theme toggle */}
+            <div className="ml-2 flex items-center">
+              <DarkModeToggle />
+            </div>
           </div>
 
           {/* Mobile: toggle + hamburger */}
