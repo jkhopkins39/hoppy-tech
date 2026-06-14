@@ -145,11 +145,18 @@ const NavBar = () => {
 
             <button
               onClick={() => handleNav(CONTACT_PATH)}
-              className={`ml-2 px-5 py-2 text-[14px] font-semibold rounded-lg border border-accent transition-all duration-200 hover:scale-[1.02] ${
-                isActive(CONTACT_PATH)
-                  ? "bg-accent-subtle text-accent"
-                  : "text-accent hover:bg-accent-subtle"
-              }`}
+              className="ml-2 px-5 py-2 font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] text-[14px]"
+              style={{
+                backgroundColor: "var(--accent)",
+                color: "var(--accent-foreground)",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                  "0 8px 30px color-mix(in srgb, var(--accent) 30%, transparent)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+              }}
             >
               Contact
             </button>
@@ -285,11 +292,18 @@ const NavBar = () => {
             )}
             <button
               onClick={() => handleNav(CONTACT_PATH)}
-              className={`w-full text-left px-4 py-3 rounded-xl text-[15px] font-semibold transition-all duration-200 border border-accent ${
-                isActive(CONTACT_PATH)
-                  ? "text-accent bg-accent-subtle"
-                  : "text-accent hover:bg-accent-subtle"
-              }`}
+              className="w-full py-3 font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] text-[15px]"
+              style={{
+                backgroundColor: "var(--accent)",
+                color: "var(--accent-foreground)",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                  "0 8px 30px color-mix(in srgb, var(--accent) 30%, transparent)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+              }}
             >
               Contact
             </button>
