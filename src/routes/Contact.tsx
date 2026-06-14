@@ -100,20 +100,29 @@ const Contact: React.FC = () => {
 
     if (!email || !message) return;
 
+    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+    if (!accessKey) {
+      setSubmitError('Contact form is not configured. Please email directly.');
+      return;
+    }
+
     storeSubmission(email, message);
     setIsSubmitting(true);
 
+    const subject = subjectLine
+      ? `New Contact: ${subjectLine.slice(0, 120)}`
+      : 'New Contact Form Submission';
+
     try {
-      const response = await fetch('/api/contact', {
+      const response = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
+          access_key: accessKey,
           email,
-          name,
-          subject_line: subjectLine,
+          name: name.slice(0, 120),
+          subject,
           message,
-          contact_website: honeypot1,
-          contact_fax: honeypot2,
         }),
       });
       const result = await response.json().catch(() => ({})) as { success?: boolean; message?: string };

@@ -89,6 +89,7 @@ Add these environment variables in your Vercel project settings:
 - `VITE_SUPABASE_URL`: Supabase project URL
 - `VITE_SUPABASE_ANON_KEY`: Supabase publishable (anon) key
 - `VITE_ADMIN_EMAIL`: Admin email allowlist for UI (e.g. `jeremy@hoppytech.com`)
+- `VITE_WEB3FORMS_ACCESS_KEY`: Web3Forms access key (submitted from the browser; restrict by domain in Web3Forms dashboard)
 
 **Server only (never prefix with `VITE_`):**
 - `SUPABASE_URL`: Same Supabase project URL
@@ -96,7 +97,6 @@ Add these environment variables in your Vercel project settings:
 - `ADMIN_EMAIL`: Admin email verified on API routes (e.g. `jeremy@hoppytech.com`)
 - `GEMINI_API_KEY`: Chatbot
 - `GITHUB_TOKEN`: Authenticated blog publishing
-- `WEB3FORMS_ACCESS_KEY`: Contact form proxy
 
 Admin login uses **Supabase Auth** — do not store `USERNAME` / `PASSWORD` in Vercel.
 
@@ -107,11 +107,11 @@ Copy `.env.example` to `.env` and fill in values:
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your_publishable_key
 VITE_ADMIN_EMAIL=jeremy@hoppytech.com
+VITE_WEB3FORMS_ACCESS_KEY=your_web3forms_access_key_here
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_secret_key
 ADMIN_EMAIL=jeremy@hoppytech.com
 GEMINI_API_KEY=your_gemini_api_key_here
-WEB3FORMS_ACCESS_KEY=your_web3forms_access_key_here
 GITHUB_TOKEN=your_github_token_here
 PORT=3001
 ``` 
