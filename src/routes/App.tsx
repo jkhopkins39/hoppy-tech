@@ -88,23 +88,23 @@ function HomePage() {
           </video>
           {/* Left gradient — desktop only, blends into text area */}
           <div
-            className="hidden md:block absolute inset-y-0 left-0 w-2/3 z-10"
-            style={{ background: "linear-gradient(to right, var(--canvas) 10%, color-mix(in srgb, var(--canvas) 60%, transparent) 60%, transparent 100%)" }}
+            className="hidden md:block absolute inset-y-0 left-0 w-2/5 z-10"
+            style={{ background: "linear-gradient(to right, var(--canvas) 0%, color-mix(in srgb, var(--canvas) 75%, transparent) 40%, transparent 72%)" }}
           />
           {/* Right gradient — desktop only */}
           <div
-            className="hidden md:block absolute inset-y-0 right-0 w-1/4 z-10"
-            style={{ background: "linear-gradient(to left, var(--canvas) 0%, transparent 100%)" }}
+            className="hidden md:block absolute inset-y-0 right-0 w-[14%] z-10"
+            style={{ background: "linear-gradient(to left, var(--canvas) 0%, transparent 65%)" }}
           />
           {/* Bottom gradient — fades photo into text section on both mobile and desktop */}
           <div
-            className="absolute inset-x-0 bottom-0 h-20 z-10"
-            style={{ background: "linear-gradient(to top, var(--canvas) 0%, transparent 100%)" }}
+            className="absolute inset-x-0 bottom-0 h-14 z-10"
+            style={{ background: "linear-gradient(to top, var(--canvas) 0%, transparent 70%)" }}
           />
           {/* Top gradient — desktop only */}
           <div
-            className="hidden md:block absolute inset-x-0 top-0 h-24 z-10"
-            style={{ background: "linear-gradient(to bottom, var(--canvas) 0%, transparent 100%)" }}
+            className="hidden md:block absolute inset-x-0 top-0 h-16 z-10"
+            style={{ background: "linear-gradient(to bottom, var(--canvas) 0%, transparent 65%)" }}
           />
         </motion.div>
 
@@ -112,7 +112,7 @@ function HomePage() {
         <div
           className="pointer-events-none absolute inset-0 z-[1] transition-transform duration-700"
           style={{
-            background: `radial-gradient(ellipse 80% 60% at ${30 + mousePos.x * 5}% ${40 + mousePos.y * 5}%, color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 70%)`,
+            background: `radial-gradient(ellipse 38% 32% at ${30 + mousePos.x * 5}% ${40 + mousePos.y * 5}%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, color-mix(in srgb, var(--accent) 3%, transparent) 38%, transparent 52%)`,
           }}
         />
 

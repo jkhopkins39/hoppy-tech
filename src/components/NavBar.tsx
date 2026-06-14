@@ -158,7 +158,7 @@ const NavBar = () => {
                 (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
               }}
             >
-              Contact
+              Contact Me
             </button>
 
             {/* Theme toggle */}
@@ -305,7 +305,7 @@ const NavBar = () => {
                 (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
               }}
             >
-              Contact
+              Contact Me
             </button>
           </div>
 
