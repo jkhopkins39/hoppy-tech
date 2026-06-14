@@ -9,8 +9,9 @@ const NAV_LINKS = [
   { label: "About", path: "/about" },
   { label: "Portfolio", path: "/portfolio" },
   { label: "Blog", path: "/blog" },
-  { label: "Contact", path: "/contact" },
 ];
+
+const CONTACT_PATH = "/contact";
 
 const NavBar = () => {
   const navigate = useNavigate();
@@ -92,7 +93,8 @@ const NavBar = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-3 group"
+            aria-label="Home"
+            className="flex items-center group"
             onClick={() => {
               setIsMenuOpen(false);
               registerLogoClick();
@@ -105,9 +107,6 @@ const NavBar = () => {
                 className="w-9 h-9 object-contain transition-transform duration-300 group-hover:scale-105"
               />
             </div>
-            <span className="font-sans font-semibold text-[15px] tracking-tight text-ink hidden sm:block">
-              Home
-            </span>
           </Link>
 
           {/* Desktop nav */}
@@ -150,14 +149,14 @@ const NavBar = () => {
             </div>
 
             <button
-              onClick={() => handleNav("/contact")}
-              className="ml-3 px-5 py-2 text-[14px] font-semibold rounded-lg transition-all duration-200 hover:scale-[1.02]"
-              style={{
-                backgroundColor: "var(--accent)",
-                color: "var(--accent-foreground)",
-              }}
+              onClick={() => handleNav(CONTACT_PATH)}
+              className={`ml-3 px-5 py-2 text-[14px] font-semibold rounded-lg border border-accent transition-all duration-200 hover:scale-[1.02] ${
+                isActive(CONTACT_PATH)
+                  ? "bg-accent-subtle text-accent"
+                  : "text-accent hover:bg-accent-subtle"
+              }`}
             >
-              Hire Me
+              Contact
             </button>
           </div>
 
@@ -284,18 +283,21 @@ const NavBar = () => {
                 Dashboard
               </button>
             )}
+            <button
+              onClick={() => handleNav(CONTACT_PATH)}
+              className={`w-full text-left px-4 py-3 rounded-xl text-[15px] font-semibold transition-all duration-200 border border-accent ${
+                isActive(CONTACT_PATH)
+                  ? "text-accent bg-accent-subtle"
+                  : "text-accent hover:bg-accent-subtle"
+              }`}
+            >
+              Contact
+            </button>
           </div>
 
           {/* Drawer footer */}
           <div className="px-4 pb-8">
-            <button
-              onClick={() => handleNav("/contact")}
-              className="w-full py-3 font-semibold rounded-xl transition-all duration-200"
-              style={{ backgroundColor: "var(--accent)", color: "var(--accent-foreground)" }}
-            >
-              Hire Me
-            </button>
-            <p className="text-center text-muted text-xs mt-4">
+            <p className="text-center text-muted text-xs">
               © {new Date().getFullYear()} Jeremy Hopkins
             </p>
           </div>
