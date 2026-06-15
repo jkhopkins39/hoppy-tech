@@ -34,6 +34,14 @@ function getCategoryStyle(category: string) {
   return { color, bg, border: `${color}33` };
 }
 
+const cardTransition = { duration: 0.32, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
+
+const cardContentVariants = {
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -10 },
+};
+
 function TechTag({ tech, category }: { tech: string; category: Project['category'] }) {
   const { color, bg, border } = getCategoryStyle(category);
   return (
@@ -47,7 +55,7 @@ function TechTag({ tech, category }: { tech: string; category: Project['category
 }
 
 const Portfolio: React.FC = () => {
-  const [flippedProject, setFlippedProject] = useState<number | null>(null);
+  const [expandedProject, setExpandedProject] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [darkImageIds, setDarkImageIds] = useState<Set<number>>(new Set());
@@ -84,12 +92,12 @@ const Portfolio: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    setFlippedProject(null);
+    setExpandedProject(null);
     setSelectedTag(null);
   }, [selectedCategory]);
 
   React.useEffect(() => {
-    setFlippedProject(null);
+    setExpandedProject(null);
   }, [selectedTag]);
 
   const saveProjects = (p: Project[]) => {
@@ -372,7 +380,7 @@ const Portfolio: React.FC = () => {
             {filteredProjects.map((project, index) => {
               const color = CATEGORY_COLORS[project.category] || '#E8971A';
               const bg = CATEGORY_BG[project.category] || 'rgba(232,151,26,0.1)';
-              const isFlipped = flippedProject === project.id;
+              const isExpanded = expandedProject === project.id;
               const showDark = darkImageIds.has(project.id) && !!project.imageDark;
 
               return (
@@ -382,175 +390,174 @@ const Portfolio: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4, delay: index * 0.07 }}
-                  className="relative h-[460px]"
-                  style={{ perspective: '1000px' }}
+                  className="relative h-[460px] rounded-2xl border border-subtle bg-surface overflow-hidden hover:border-white/[0.12] transition-colors duration-300"
                 >
-                  <motion.div
-                    animate={{ rotateY: isFlipped ? 180 : 0 }}
-                    transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                    className="relative w-full h-full"
-                    style={{ transformStyle: 'preserve-3d' }}
-                  >
-                    {/* Front */}
-                    <div
-                      className="absolute inset-0 rounded-2xl border border-subtle bg-surface overflow-hidden flex flex-col group hover:border-white/[0.12] transition-colors duration-300"
-                      style={{
-                        backfaceVisibility: 'hidden',
-                        WebkitBackfaceVisibility: 'hidden',
-                      }}
-                    >
-                      <div className="relative h-48 overflow-hidden flex-none">
-                        <div className="absolute top-3 right-3 z-20 flex gap-2">
-                          {project.imageDark && (
-                            <button
-                              onClick={(e) => toggleDarkImage(project.id, e)}
-                              title={showDark ? 'Switch to light' : 'Switch to dark'}
-                              className="p-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-white/30 transition-all"
+                  <AnimatePresence mode="wait" initial={false}>
+                    {!isExpanded ? (
+                      <motion.div
+                        key="summary"
+                        variants={cardContentVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        transition={cardTransition}
+                        className="absolute inset-0 flex flex-col group"
+                      >
+                        <div className="relative h-48 overflow-hidden flex-none">
+                          <div className="absolute top-3 right-3 z-20 flex gap-2">
+                            {project.imageDark && (
+                              <button
+                                onClick={(e) => toggleDarkImage(project.id, e)}
+                                title={showDark ? 'Switch to light' : 'Switch to dark'}
+                                className="p-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-white/30 transition-all"
+                              >
+                                {showDark ? (
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71m12.02 0-.71-.71M6.34 6.34l-.71-.71M12 7a5 5 0 100 10A5 5 0 0012 7z" />
+                                  </svg>
+                                ) : (
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                                  </svg>
+                                )}
+                              </button>
+                            )}
+                            {isLoggedIn && (
+                              <>
+                                <button onClick={(e) => { e.stopPropagation(); handleEditProject(project); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-blue-400/40 transition-all">
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-red-400/40 transition-all">
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                              </>
+                            )}
+                          </div>
+                          <picture>
+                            {showDark ? (
+                              project.imageDarkWebP ? <source srcSet={project.imageDarkWebP} type="image/webp" /> : null
+                            ) : (
+                              project.imageWebP ? <source srcSet={project.imageWebP} type="image/webp" /> : null
+                            )}
+                            <img
+                              src={showDark ? project.imageDark! : (project.imageFallback || project.image)}
+                              alt={project.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              loading="lazy"
+                              onError={(e) => {
+                                const t = e.target as HTMLImageElement;
+                                if (!showDark && project.imageFallback && project.imageFallback !== project.image) t.src = project.imageFallback;
+                                else t.style.display = 'none';
+                              }}
+                            />
+                          </picture>
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#111119] via-transparent to-transparent opacity-70" />
+                          <div className="absolute bottom-3 left-3">
+                            <span
+                              className="px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-wider"
+                              style={{ background: bg, color }}
                             >
-                              {showDark ? (
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71m12.02 0-.71-.71M6.34 6.34l-.71-.71M12 7a5 5 0 100 10A5 5 0 0012 7z" />
-                                </svg>
-                              ) : (
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-                                </svg>
-                              )}
-                            </button>
-                          )}
-                          {isLoggedIn && (
-                            <>
-                              <button onClick={(e) => { e.stopPropagation(); handleEditProject(project); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-blue-400/40 transition-all">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                              </button>
-                              <button onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-red-400/40 transition-all">
-                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                              </button>
-                            </>
-                          )}
+                              {project.category}
+                            </span>
+                          </div>
                         </div>
-                        <picture>
-                          {showDark ? (
-                            project.imageDarkWebP ? <source srcSet={project.imageDarkWebP} type="image/webp" /> : null
-                          ) : (
-                            project.imageWebP ? <source srcSet={project.imageWebP} type="image/webp" /> : null
-                          )}
-                          <img
-                            src={showDark ? project.imageDark! : (project.imageFallback || project.image)}
-                            alt={project.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                            onError={(e) => {
-                              const t = e.target as HTMLImageElement;
-                              if (!showDark && project.imageFallback && project.imageFallback !== project.image) t.src = project.imageFallback;
-                              else t.style.display = 'none';
-                            }}
-                          />
-                        </picture>
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#111119] via-transparent to-transparent opacity-70" />
-                        <div className="absolute bottom-3 left-3">
-                          <span
-                            className="px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-wider"
-                            style={{ background: bg, color }}
-                          >
-                            {project.category}
-                          </span>
-                        </div>
-                      </div>
 
-                      <div className="flex flex-col flex-1 p-5 min-h-0">
-                        <div className="h-[2px] w-8 mb-4 rounded-full flex-none" style={{ background: color }} />
-                        <h3 className="font-semibold text-[17px] text-ink mb-1.5 leading-snug">{project.title}</h3>
-                        <p className="text-muted text-sm leading-relaxed mb-4 line-clamp-2">{project.shortDescription}</p>
-                        <div className="flex flex-wrap gap-1.5 mb-4">
-                          {project.technologies.slice(0, 3).map(t => (
+                        <div className="flex flex-col flex-1 p-5 min-h-0">
+                          <div className="h-[2px] w-8 mb-4 rounded-full flex-none" style={{ background: color }} />
+                          <h3 className="font-semibold text-[17px] text-ink mb-1.5 leading-snug">{project.title}</h3>
+                          <p className="text-muted text-sm leading-relaxed mb-4 line-clamp-2">{project.shortDescription}</p>
+                          <div className="flex flex-wrap gap-1.5 mb-4">
+                            {project.technologies.slice(0, 3).map(t => (
+                              <TechTag key={t} tech={t} category={project.category} />
+                            ))}
+                            {project.technologies.length > 3 && (
+                              <span
+                                className="px-2.5 py-1 rounded-lg text-[11px] font-medium"
+                                style={{
+                                  background: bg,
+                                  color,
+                                  border: `1px solid ${color}33`,
+                                }}
+                              >
+                                +{project.technologies.length - 3}
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => setExpandedProject(project.id)}
+                            className="mt-auto w-full py-2.5 rounded-xl border border-subtle hover:border-white/[0.12] text-[13px] font-medium text-muted hover:text-ink transition-all duration-200 flex items-center justify-center gap-1.5"
+                          >
+                            Learn more
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="detail"
+                        variants={cardContentVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        transition={cardTransition}
+                        className="absolute inset-0 flex flex-col p-5 min-h-0"
+                        style={{
+                          borderColor: `${color}40`,
+                          background: `linear-gradient(135deg, ${color}0A 0%, ${color}04 100%)`,
+                        }}
+                      >
+                        <div className="flex items-center justify-between mb-3 flex-none">
+                          <h3 className="font-semibold text-[15px] text-ink leading-snug pr-2">{project.title}</h3>
+                          <button
+                            onClick={() => setExpandedProject(null)}
+                            className="flex items-center gap-1 text-xs font-medium flex-none"
+                            style={{ color }}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Back
+                          </button>
+                        </div>
+
+                        <p className="text-muted text-sm leading-relaxed flex-1 overflow-y-auto mb-4">{project.description}</p>
+
+                        <div className="flex flex-wrap gap-1.5 mb-4 flex-none">
+                          {project.technologies.map(t => (
                             <TechTag key={t} tech={t} category={project.category} />
                           ))}
-                          {project.technologies.length > 3 && (
-                            <span
-                              className="px-2.5 py-1 rounded-lg text-[11px] font-medium"
-                              style={{
-                                background: bg,
-                                color,
-                                border: `1px solid ${color}33`,
-                              }}
+                        </div>
+
+                        <div className="flex gap-3 flex-none">
+                          {project.repoUrl && (
+                            <a
+                              href={project.repoUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 py-2.5 flex items-center justify-center gap-2 rounded-xl border border-subtle text-[13px] font-medium text-muted hover:text-ink hover:border-white/[0.15] transition-all"
                             >
-                              +{project.technologies.length - 3}
-                            </span>
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /></svg>
+                              Repo
+                            </a>
+                          )}
+                          {project.liveUrl && (
+                            <a
+                              href={project.liveUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 py-2.5 flex items-center justify-center gap-2 rounded-xl text-[13px] font-semibold text-canvas transition-all hover:scale-[1.02]"
+                              style={{ background: LIVE_BUTTON_GRADIENT }}
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                              Live
+                            </a>
                           )}
                         </div>
-                        <button
-                          onClick={() => setFlippedProject(project.id)}
-                          className="mt-auto w-full py-2.5 rounded-xl border border-subtle hover:border-white/[0.12] text-[13px] font-medium text-muted hover:text-ink transition-all duration-200 flex items-center justify-center gap-1.5"
-                        >
-                          Learn more
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Back */}
-                    <div
-                      className="absolute inset-0 rounded-2xl border flex flex-col p-5 min-h-0"
-                      style={{
-                        backfaceVisibility: 'hidden',
-                        WebkitBackfaceVisibility: 'hidden',
-                        transform: 'rotateY(180deg)',
-                        borderColor: `${color}40`,
-                        background: `linear-gradient(135deg, ${color}0A 0%, ${color}04 100%)`,
-                      }}
-                    >
-                      <div className="flex items-center justify-between mb-3 flex-none">
-                        <h3 className="font-semibold text-[15px] text-ink leading-snug pr-2">{project.title}</h3>
-                        <button
-                          onClick={() => setFlippedProject(null)}
-                          className="flex items-center gap-1 text-xs font-medium flex-none"
-                          style={{ color }}
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                          </svg>
-                          Back
-                        </button>
-                      </div>
-
-                      <p className="text-muted text-sm leading-relaxed flex-1 overflow-y-auto mb-4">{project.description}</p>
-
-                      <div className="flex flex-wrap gap-1.5 mb-4 flex-none">
-                        {project.technologies.map(t => (
-                          <TechTag key={t} tech={t} category={project.category} />
-                        ))}
-                      </div>
-
-                      <div className="flex gap-3 flex-none">
-                        {project.repoUrl && (
-                          <a
-                            href={project.repoUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-1 py-2.5 flex items-center justify-center gap-2 rounded-xl border border-subtle text-[13px] font-medium text-muted hover:text-ink hover:border-white/[0.15] transition-all"
-                          >
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /></svg>
-                            Repo
-                          </a>
-                        )}
-                        {project.liveUrl && (
-                          <a
-                            href={project.liveUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-1 py-2.5 flex items-center justify-center gap-2 rounded-xl text-[13px] font-semibold text-canvas transition-all hover:scale-[1.02]"
-                            style={{ background: LIVE_BUTTON_GRADIENT }}
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                            Live
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               );
             })}
