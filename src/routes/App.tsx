@@ -69,7 +69,7 @@ function HomePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
-          className="relative flex-none h-[52vh] w-full md:absolute md:inset-y-0 md:right-0 md:h-auto md:w-[55%] z-0"
+          className="relative flex-none h-[52vh] w-full md:absolute md:inset-y-0 md:right-0 md:h-auto md:w-[55%] z-0 md:[mask-image:linear-gradient(to_right,transparent_0%,black_28%)] md:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_28%)]"
         >
           <img
             src="/Introduction.jpg"
@@ -86,10 +86,10 @@ function HomePage() {
           >
             <source src="/video/output.webm" type="video/webm" />
           </video>
-          {/* Left gradient — desktop only, blends into text area */}
+          {/* Left blend — softens photo into the text area on desktop */}
           <div
-            className="hidden md:block absolute inset-y-0 left-0 w-2/5 z-10"
-            style={{ background: "linear-gradient(to right, var(--canvas) 0%, color-mix(in srgb, var(--canvas) 75%, transparent) 40%, transparent 72%)" }}
+            className="hidden md:block absolute inset-y-0 left-0 w-1/2 z-10 pointer-events-none"
+            style={{ background: "linear-gradient(to right, var(--canvas) 0%, color-mix(in srgb, var(--canvas) 85%, transparent) 35%, transparent 100%)" }}
           />
           {/* Right gradient — desktop only */}
           <div
