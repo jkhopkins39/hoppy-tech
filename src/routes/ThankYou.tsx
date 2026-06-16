@@ -22,9 +22,9 @@ const ThankYou: React.FC = () => {
           >
             <div
               className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto"
-              style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' }}
+              style={{ background: 'rgba(73, 169, 225, 0.12)', border: '1px solid rgba(73, 169, 225, 0.25)' }}
             >
-              <svg className="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-10 h-10 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <motion.path
                   strokeLinecap="round"
                   strokeLinejoin="round"

@@ -3,22 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '../components/Footer';
 import { AUTH_CHANGE_EVENT, isAdminLoggedIn } from '../lib/auth';
 import { initialProjects, isRemovedProject, type Project } from '../data/portfolioProjects';
-
-const CATEGORY_COLORS: Record<string, string> = {
-  web: '#E8971A',
-  mobile: '#0EA5E9',
-  ai: '#7C5CBF',
-  other: '#10B981',
-};
-
-const CATEGORY_BG: Record<string, string> = {
-  web: 'rgba(232,151,26,0.1)',
-  mobile: 'rgba(14,165,233,0.1)',
-  ai: 'rgba(124,92,191,0.1)',
-  other: 'rgba(16,185,129,0.1)',
-};
-
-const LIVE_BUTTON_GRADIENT = 'linear-gradient(135deg, #FFBE3D, #7C5CBF)';
+import { BRAND, CATEGORY_COLORS, CATEGORY_BG, LIVE_BUTTON_GRADIENT } from '../config/brandColors';
 
 const categories = [
   { id: 'all', label: 'All' },
@@ -29,8 +14,8 @@ const categories = [
 ];
 
 function getCategoryStyle(category: string) {
-  const color = CATEGORY_COLORS[category] || '#E8971A';
-  const bg = CATEGORY_BG[category] || 'rgba(232,151,26,0.1)';
+  const color = CATEGORY_COLORS[category] || BRAND.skyBlue;
+  const bg = CATEGORY_BG[category] || CATEGORY_BG.web;
   return { color, bg, border: `${color}33` };
 }
 
@@ -223,7 +208,7 @@ const Portfolio: React.FC = () => {
                 if (isAddingProject) { setIsAddingProject(false); setEditingId(null); }
                 else setIsAddingProject(true);
               }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-subtle bg-surface hover:border-emerald-500/30 hover:bg-emerald-500/5 text-[14px] font-medium text-ink transition-all duration-200"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-subtle bg-surface hover:border-accent-subtle hover:bg-accent-subtle-2 text-[14px] font-medium text-ink transition-all duration-200"
             >
               {isAddingProject ? (
                 <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>Cancel</>
@@ -378,8 +363,8 @@ const Portfolio: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence mode="popLayout">
             {filteredProjects.map((project, index) => {
-              const color = CATEGORY_COLORS[project.category] || '#E8971A';
-              const bg = CATEGORY_BG[project.category] || 'rgba(232,151,26,0.1)';
+              const color = CATEGORY_COLORS[project.category] || BRAND.skyBlue;
+              const bg = CATEGORY_BG[project.category] || CATEGORY_BG.web;
               const isExpanded = expandedProject === project.id;
               const showDark = darkImageIds.has(project.id) && !!project.imageDark;
 
@@ -451,7 +436,7 @@ const Portfolio: React.FC = () => {
                               }}
                             />
                           </picture>
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#111119] via-transparent to-transparent opacity-70" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--canvas)] via-transparent to-transparent opacity-70" />
                           <div className="absolute bottom-3 left-3">
                             <span
                               className="px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-wider"

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import { clearAdminAuth, isAdminLoggedIn } from "../lib/auth";
+import { BRAND } from "../config/brandColors";
 
 interface ContactSubmission {
   id: string;
@@ -108,9 +109,9 @@ const Dashboard: React.FC = () => {
           className="grid grid-cols-3 gap-4 mb-8"
         >
           {[
-            { label: 'Total', value: submissions.length, color: '#E8971A', bg: 'rgba(232,151,26,0.1)' },
-            { label: 'Unread', value: unreadCount, color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
-            { label: 'Read', value: submissions.length - unreadCount, color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
+            { label: 'Total', value: submissions.length, color: BRAND.skyBlue, bg: 'rgba(142, 202, 230, 0.14)' },
+            { label: 'Unread', value: unreadCount, color: BRAND.orange, bg: 'rgba(251, 133, 0, 0.14)' },
+            { label: 'Read', value: submissions.length - unreadCount, color: BRAND.navyMid, bg: 'rgba(3, 69, 99, 0.14)' },
           ].map((stat) => (
             <div key={stat.label} className="rounded-2xl border border-subtle bg-surface p-5">
               <div
@@ -147,7 +148,7 @@ const Dashboard: React.FC = () => {
               >
                 {f}
                 {f === 'unread' && unreadCount > 0 && (
-                  <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-amber-500 text-canvas font-bold">{unreadCount}</span>
+                  <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-accent text-on-accent font-bold">{unreadCount}</span>
                 )}
               </button>
             ))}
@@ -194,7 +195,7 @@ const Dashboard: React.FC = () => {
                     }}
                     className={`w-full text-left px-4 py-3.5 border-b border-white/[0.04] transition-all duration-200 ${
                       selectedSubmission?.id === sub.id ? 'bg-accent-subtle' : 'hover:bg-surface-alpha'
-                    } ${!sub.read ? 'border-l-2 border-l-amber-500' : ''}`}
+                    } ${!sub.read ? 'border-l-2 border-l-accent' : ''}`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-1 min-w-0">
@@ -204,7 +205,7 @@ const Dashboard: React.FC = () => {
                         <p className="text-[12px] text-muted-2 truncate mt-0.5">{sub.message}</p>
                         <p className="text-[11px] text-muted-3 mt-1">{formatDate(sub.date)}</p>
                       </div>
-                      {!sub.read && <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-none" />}
+                      {!sub.read && <span className="w-2 h-2 rounded-full bg-accent mt-1.5 flex-none" />}
                     </div>
                   </button>
                 ))

@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import DarkModeToggle from "./DarkModeToggle";
 import { AUTH_CHANGE_EVENT, isAdminLoggedIn } from "../lib/auth";
-import { WEBSITE_LOGO_URL, WEBSITE_LOGO_ALT } from "../config/brand";
+import { LETTERMARK_URL, WEBSITE_LOGO_ALT } from "../config/brand";
 import { useCrackMode } from "../context/CrackModeContext";
 
 const NAV_LINKS = [
@@ -102,9 +102,9 @@ const NavBar = () => {
           >
             <div className="relative">
               <img
-                src={WEBSITE_LOGO_URL}
+                src={LETTERMARK_URL}
                 alt={WEBSITE_LOGO_ALT}
-                className="w-9 h-9 object-contain transition-transform duration-300 group-hover:scale-105"
+                className="brand-lettermark h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
               />
             </div>
           </Link>
@@ -228,8 +228,8 @@ const NavBar = () => {
                 registerLogoClick();
               }}
             >
-              <img src={WEBSITE_LOGO_URL} alt={WEBSITE_LOGO_ALT} className="w-8 h-8 object-contain" />
-              <span className="font-sans font-semibold text-[15px] text-ink">Jeremy Hopkins</span>
+              <img src={LETTERMARK_URL} alt={WEBSITE_LOGO_ALT} className="brand-lettermark h-9 w-auto object-contain" />
+              <span className="font-sans font-semibold text-[15px] text-ink">Hoppy Tech</span>
             </Link>
             <button
               onClick={() => setIsMenuOpen(false)}

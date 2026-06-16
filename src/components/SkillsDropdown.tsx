@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BRAND } from '../config/brandColors';
 
 const SkillsDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -7,26 +8,26 @@ const SkillsDropdown: React.FC = () => {
   const skillGroups = [
     {
       category: "Languages",
-      accent: "#E8971A",
-      bg: "rgba(232,151,26,0.08)",
+      accent: BRAND.skyBlue,
+      bg: "rgba(142, 202, 230, 0.1)",
       items: ["JavaScript", "TypeScript", "Python", "Java", "C#", "HTML", "CSS"],
     },
     {
       category: "Frameworks",
-      accent: "#7C5CBF",
-      bg: "rgba(124,92,191,0.08)",
+      accent: BRAND.orange,
+      bg: "rgba(251, 133, 0, 0.1)",
       items: ["React", "Node.js", "Next.js", "Tailwind CSS", "PyTorch"],
     },
     {
       category: "Tools",
-      accent: "#0EA5E9",
-      bg: "rgba(14,165,233,0.08)",
+      accent: BRAND.skyBlueLight,
+      bg: "rgba(181, 219, 240, 0.12)",
       items: ["Git", "SQL", "Linux", "OpenAI API", "MS Office"],
     },
     {
       category: "Soft Skills",
-      accent: "#10B981",
-      bg: "rgba(16,185,129,0.08)",
+      accent: BRAND.navyMid,
+      bg: "rgba(3, 69, 99, 0.12)",
       items: ["Problem Solving", "Leadership", "Communication", "Project Mgmt", "Detail-Oriented"],
     },
   ];

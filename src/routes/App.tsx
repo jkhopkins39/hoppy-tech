@@ -12,6 +12,7 @@ import ThankYou from "./ThankYou";
 import AISolutions from "./AISolutions";
 import Footer from "../components/Footer";
 import { socialLinks, contactInfo } from "../config/socialLinks";
+import { BRAND } from "../config/brandColors";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -47,6 +48,10 @@ const cardItem: Variants = {
   },
 };
 
+/** Focal point in Introduction.jpg / output.webm (face) — keeps overlay animation aligned when cropped */
+const HERO_MEDIA_FOCUS = { x: 56, y: 27 };
+const heroMediaPosition = `${HERO_MEDIA_FOCUS.x}% ${HERO_MEDIA_FOCUS.y}%`;
+
 function HomePage() {
   const navigate = useNavigate();
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -74,7 +79,8 @@ function HomePage() {
           <img
             src="/Introduction.jpg"
             alt="Jeremy Hopkins, founder of Hoppy Tech"
-            className="w-full h-full object-cover object-top"
+            className="absolute inset-0 h-full w-full object-cover"
+            style={{ objectPosition: heroMediaPosition }}
             loading="eager"
           />
           <video
@@ -82,7 +88,8 @@ function HomePage() {
             loop
             muted
             playsInline
-            className="absolute top-0 left-0 h-full w-full object-cover mix-blend-plus-lighter opacity-50"
+            className="absolute inset-0 h-full w-full object-cover mix-blend-plus-lighter opacity-50 pointer-events-none"
+            style={{ objectPosition: heroMediaPosition }}
           >
             <source src="/video/output.webm" type="video/webm" />
           </video>
@@ -262,7 +269,7 @@ function HomePage() {
               ),
               title: "AI & Machine Learning",
               desc: "Integrating intelligence into applications using TensorFlow, PyTorch, and Gemini; I believe AI is the next frontier!",
-              accent: "#7C5CBF",
+              accent: BRAND.skyBlue,
               learnMore: "/ai-solutions",
             },
             {
@@ -273,7 +280,7 @@ function HomePage() {
               ),
               title: "Software Engineering",
               desc: "My goal is to deliver the best product possible. Every solution is customized to fit your needs, with best practices, clean documentation, and ongoing support.",
-              accent: "#0EA5E9",
+              accent: BRAND.orange,
             },
           ].map((card) => (
             <motion.div

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
+import { BRAND } from "../config/brandColors";
 
 const solutions = [
   {
@@ -13,7 +14,7 @@ const solutions = [
     ),
     title: "AI Chatbots & Assistants",
     tagline: "Always-on support that actually helps",
-    accent: "#7C5CBF",
+    accent: BRAND.skyBlue,
     summary: "Deploy a custom AI assistant that knows your business inside out — answering questions, qualifying leads, and handling support 24/7.",
     details: [
       "Trained on your product docs, FAQs, and policies",
@@ -33,7 +34,7 @@ const solutions = [
     ),
     title: "Workflow Automation",
     tagline: "Eliminate the busywork",
-    accent: "#0EA5E9",
+    accent: BRAND.orange,
     summary: "Let AI handle repetitive tasks such as data entry, email routing, and report generation, so you can focus on high-value work.",
     details: [
       "Automated invoice processing and data extraction",
@@ -52,7 +53,7 @@ const solutions = [
     ),
     title: "Content Generation",
     tagline: "Scale your voice, not your headcount",
-    accent: "#E8971A",
+    accent: BRAND.skyBlueLight,
     summary: "Generate on-brand blog posts, product descriptions, social content, and marketing copy at scale — all in your unique voice.",
     details: [
       "Blog articles, SEO content, and landing pages",
@@ -71,7 +72,7 @@ const solutions = [
     ),
     title: "Intelligent Search",
     tagline: "Find anything, understand everything",
-    accent: "#10B981",
+    accent: BRAND.navyMid,
     summary: "Replace clunky keyword search with semantic AI search that understands intent — across your docs, products, or knowledge base.",
     details: [
       "Unified search platform to retrieve internal data from multiple sources",
@@ -90,7 +91,7 @@ const solutions = [
     ),
     title: "Computer Vision",
     tagline: "Teach your app to see",
-    accent: "#F43F5E",
+    accent: BRAND.orangeLight,
     summary: "Analyze images and video to detect objects, extract text, verify identities, or automate quality control processes.",
     details: [
       "Zoom meeting audio/video analysis for updating internal documentation and policies",
@@ -109,7 +110,7 @@ const solutions = [
     ),
     title: "Predictive Analytics",
     tagline: "Know what's coming before it arrives",
-    accent: "#F59E0B",
+    accent: BRAND.skyBlue,
     summary: "Use your historical data to forecast sales, anticipate churn, optimize inventory, and make smarter decisions faster.",
     details: [
       "Sales and demand forecasting",
@@ -142,7 +143,7 @@ export default function AISolutions() {
                 className="italic"
                 style={{
                   fontFamily: "'DM Serif Display', Georgia, serif",
-                  background: "linear-gradient(135deg, #A78BFA, #7C5CBF)",
+                  background: `linear-gradient(135deg, ${BRAND.skyBlueLight}, ${BRAND.skyBlue})`,
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
@@ -277,8 +278,8 @@ export default function AISolutions() {
             transition={{ duration: 0.5 }}
             className="relative rounded-2xl overflow-hidden p-10 md:p-14 text-center"
             style={{
-              background: "linear-gradient(135deg, color-mix(in srgb, #7C5CBF 12%, transparent) 0%, color-mix(in srgb, #7C5CBF 4%, transparent) 100%)",
-              border: "1px solid color-mix(in srgb, #7C5CBF 20%, transparent)",
+              background: "linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, transparent) 0%, color-mix(in srgb, var(--accent) 4%, transparent) 100%)",
+              border: "1px solid color-mix(in srgb, var(--accent) 20%, transparent)",
             }}
           >
             <h2
@@ -294,8 +295,8 @@ export default function AISolutions() {
               onClick={() => navigate("/contact")}
               className="px-8 py-4 font-semibold rounded-xl text-white transition-all duration-200 hover:scale-[1.02] text-[15px]"
               style={{
-                backgroundColor: "#7C5CBF",
-                boxShadow: "0 8px 30px rgba(124,92,191,0.35)",
+                backgroundColor: "var(--accent)",
+                boxShadow: "0 8px 30px color-mix(in srgb, var(--accent) 35%, transparent)",
               }}
             >
               Let's Talk

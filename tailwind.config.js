@@ -15,12 +15,12 @@ export default {
         ink:       'var(--ink)',
         muted:     { DEFAULT: 'var(--muted)', 2: 'var(--muted-2)', 3: 'var(--muted-3)' },
         accent:    { DEFAULT: 'var(--accent)', light: 'var(--accent-light)' },
-        // Keep amber for backward compat in any remaining uses
+        // Keep amber alias mapped to Picton Blue for any legacy Tailwind classes
         amber: {
-          glow:    '#F59E0B',
-          DEFAULT: '#E8971A',
-          light:   '#FFBE3D',
-          dark:    '#B36B00',
+          glow:    '#FFB703',
+          DEFAULT: '#FB8500',
+          light:   '#FFB703',
+          dark:    '#E67700',
         },
       },
       maxHeight: {

@@ -7,21 +7,33 @@
 
 /* ─── Design tokens — DARK (default) ────────────────────── */
 :root {
-  --canvas:          #09090F;
-  --surface:         #111119;
-  --surface-2:       #18181F;
-  --surface-3:       #1E1E27;
-  --ink:             #F0EDE8;
-  --muted:           #C8C8E0;
-  --muted-2:         #9898B8;
-  --muted-3:         #747490;
-  --accent:          #80C0FF;
-  --accent-light:    #B2D8FF;
-  --accent-foreground: var(--canvas);
-  --border-color:    rgba(255, 255, 255, 0.08);
-  --border-hover:    rgba(255, 255, 255, 0.16);
-  --surface-alpha:   rgba(255, 255, 255, 0.04);
-  --surface-alpha-h: rgba(255, 255, 255, 0.08);
+  /* Brand palette */
+  --sky-blue:        #8ECAE6;
+  --sky-blue-light:  #B5DBF0;
+  --navy:            #023047;
+  --navy-mid:        #034563;
+  --navy-light:      #045a7a;
+  --cream:           #FAF9F0;
+  --cream-dark:      #EDE8DC;
+  --orange:          #FB8500;
+  --orange-light:    #FFB703;
+
+  --canvas:          #023047;
+  --surface:         #034563;
+  --surface-2:       #045a7a;
+  --surface-3:       #05668d;
+  --ink:             #FAF9F0;
+  --muted:           #D1CDBC;
+  --muted-2:         #AFA791;
+  --muted-3:         #8F8A7C;
+  --accent:          #8ECAE6;
+  --accent-light:    #B5DBF0;
+  --accent-secondary:#FB8500;
+  --accent-foreground: #023047;
+  --border-color:    rgba(250, 249, 240, 0.10);
+  --border-hover:    rgba(250, 249, 240, 0.18);
+  --surface-alpha:   rgba(250, 249, 240, 0.05);
+  --surface-alpha-h: rgba(250, 249, 240, 0.09);
 
   font-family: 'DM Sans', system-ui, sans-serif;
   line-height: 1.6;
@@ -36,21 +48,22 @@
 
 /* ─── Design tokens — LIGHT override ────────────────────── */
 [data-theme="light"] {
-  --canvas:          #FFFFFF;
+  --canvas:          #FAF9F0;
   --surface:         #FFFFFF;
-  --surface-2:       #F5F7FA;
-  --surface-3:       #EEF1F5;
-  --ink:             #0D0D18;
-  --muted:           #383850;
-  --muted-2:         #5E5E78;
-  --muted-3:         #808098;
-  --accent:          #80C0FF;
-  --accent-light:    #B2D8FF;
-  --accent-foreground: var(--ink);
-  --border-color:    rgba(0, 0, 0, 0.10);
-  --border-hover:    rgba(0, 0, 0, 0.20);
-  --surface-alpha:   rgba(0, 0, 0, 0.03);
-  --surface-alpha-h: rgba(0, 0, 0, 0.07);
+  --surface-2:       #FAF9F0;
+  --surface-3:       #EDE8DC;
+  --ink:             #023047;
+  --muted:           #034563;
+  --muted-2:         #AFA791;
+  --muted-3:         #C4BEB0;
+  --accent:          #8ECAE6;
+  --accent-light:    #B5DBF0;
+  --accent-secondary:#FB8500;
+  --accent-foreground: #023047;
+  --border-color:    rgba(2, 48, 71, 0.12);
+  --border-hover:    rgba(2, 48, 71, 0.22);
+  --surface-alpha:   rgba(2, 48, 71, 0.04);
+  --surface-alpha-h: rgba(2, 48, 71, 0.08);
 }
 
 /* ─── Base styles ────────────────────────────────────────── */
@@ -79,6 +92,7 @@ h1, h2, h3, h4, h5, h6 {
   .text-muted-3 { color: var(--muted-3); }
   .text-accent  { color: var(--accent); }
   .text-accent-light { color: var(--accent-light); }
+  .text-accent-secondary { color: var(--accent-secondary); }
   .text-on-accent { color: var(--accent-foreground); }
 
   .border-subtle      { border-color: var(--border-color); }
@@ -99,6 +113,43 @@ h1, h2, h3, h4, h5, h6 {
   .border-t-accent { border-top-color: var(--accent); }
   .border-accent   { border-color: var(--accent); }
   .hover\:bg-surface-alpha:hover { background-color: var(--surface-alpha); }
+
+  /* Brand logo assets — subtle lift so navy outlines read on navy canvas */
+  .brand-lettermark {
+    filter: drop-shadow(0 2px 10px rgba(142, 202, 230, 0.22));
+  }
+  [data-theme="light"] .brand-lettermark {
+    filter: drop-shadow(0 2px 8px rgba(2, 48, 71, 0.12));
+  }
+  .brand-wordmark {
+    filter: drop-shadow(0 4px 18px rgba(142, 202, 230, 0.18));
+  }
+  [data-theme="light"] .brand-wordmark {
+    filter: drop-shadow(0 4px 14px rgba(2, 48, 71, 0.1));
+  }
+
+  /* Hero wordmark + single-line tagline that scales with logo width */
+  .hero-brand-block {
+    container-type: inline-size;
+    width: 100%;
+    max-width: min(100%, 17.5rem);
+  }
+  @media (min-width: 640px) {
+    .hero-brand-block {
+      max-width: min(100%, 20rem);
+    }
+  }
+  .hero-tagline {
+    margin-top: 0.875rem;
+    white-space: nowrap;
+    font-size: clamp(0.75rem, 6.5cqi, 2.125rem);
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
 
   /* Gradient text */
   .text-gradient-amber {

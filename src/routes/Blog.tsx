@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "../components/Footer";
 import { authHeaders, isAdminLoggedIn } from "../lib/auth";
+import { BRAND, BLOG_TAG_STYLES_DARK, BLOG_TAG_STYLES_LIGHT } from "../config/brandColors";
+import { useTheme } from "../context/ThemeContext";
 
 interface BlogPost {
   id: string;
@@ -15,6 +17,7 @@ interface BlogPost {
 }
 
 const Blog: React.FC = () => {
+  const { isDark } = useTheme();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isCreatingPost, setIsCreatingPost] = useState(false);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
@@ -155,7 +158,7 @@ const Blog: React.FC = () => {
   const inputClass = "w-full px-4 py-3 bg-canvas border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle transition-colors text-sm";
   const labelClass = "block text-[11px] uppercase tracking-widest text-muted font-semibold mb-2";
 
-  const tagColors = ["#E8971A", "#7C5CBF", "#0EA5E9", "#10B981", "#EF4444"];
+  const tagColors = isDark ? BLOG_TAG_STYLES_DARK : BLOG_TAG_STYLES_LIGHT;
 
   return (
     <div className="min-h-screen bg-canvas text-ink">
@@ -168,7 +171,7 @@ const Blog: React.FC = () => {
             exit={{ opacity: 0, y: -16 }}
             className={`fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl border text-sm font-medium shadow-xl backdrop-blur-xl ${
               statusMessage.type === 'success'
-                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                ? 'bg-accent-subtle border-accent-subtle text-accent'
                 : 'bg-red-500/10 border-red-500/20 text-red-400'
             }`}
           >
@@ -237,7 +240,7 @@ const Blog: React.FC = () => {
           <div className="mb-8 flex justify-end">
             <button
               onClick={() => { setIsCreatingPost(!isCreatingPost); if (!isCreatingPost) setPostForm({ title: "", content: "", excerpt: "", tags: "" }); }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-subtle bg-surface hover:border-emerald-500/30 hover:bg-emerald-500/5 text-[14px] font-medium text-ink transition-all duration-200"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-subtle bg-surface hover:border-accent-subtle hover:bg-accent-subtle-2 text-[14px] font-medium text-ink transition-all duration-200"
             >
               {isCreatingPost
                 ? <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>Cancel</>
@@ -324,7 +327,7 @@ const Blog: React.FC = () => {
                       <div className="flex items-center gap-3 text-[13px] text-muted">
                         <span
                           className="px-2.5 py-1 rounded-lg text-[11px] font-bold"
-                          style={{ background: 'rgba(232,151,26,0.1)', color: '#E8971A' }}
+                          style={{ background: 'rgba(142, 202, 230, 0.14)', color: BRAND.skyBlue }}
                         >
                           #{String(blogPosts.length - i).padStart(2, '0')}
                         </span>
@@ -378,25 +381,29 @@ const Blog: React.FC = () => {
                     <div className="flex items-center justify-between gap-4 pt-4 border-t border-white/[0.05]">
                       {/* Tags */}
                       <div className="flex flex-wrap gap-2">
-                        {post.tags.map((tag, ti) => (
+                        {post.tags.map((tag, ti) => {
+                          const tagStyle = tagColors[ti % tagColors.length];
+                          return (
                           <span
                             key={ti}
-                            className="px-2.5 py-1 rounded-lg text-[11px] font-medium"
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-semibold"
                             style={{
-                              background: `${tagColors[ti % tagColors.length]}15`,
-                              color: tagColors[ti % tagColors.length],
+                              background: tagStyle.bg,
+                              color: tagStyle.color,
+                              border: `1px solid ${tagStyle.border}`,
                             }}
                           >
                             {tag}
                           </span>
-                        ))}
+                          );
+                        })}
                       </div>
 
                       {/* Read more */}
                       <button
                         onClick={() => setExpandedPostId(isExpanded ? null : post.id)}
                         className="flex items-center gap-1.5 text-[13px] font-medium transition-all duration-200 whitespace-nowrap flex-none"
-                        style={{ color: isExpanded ? '#7A7A8E' : '#E8971A' }}
+                        style={{ color: isExpanded ? 'var(--muted-2)' : 'var(--accent)' }}
                       >
                         {isExpanded ? (
                           <>Collapse <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg></>
