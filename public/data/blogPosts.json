@@ -1,5 +1,20 @@
 [
   {
+    "id": "1781637747991",
+    "title": "Errr...can we consolidate??",
+    "content": "In the past year, I have become acquainted with various B2B SaaS, and the current stack I utilize is highly effective, however there are still pain points!\n\nOne thing that can be hard when designing stacks from scratch is scope overlap; what happens when one service offers similar authentication to another service you use? One day, you might choose to use one for one project, but on another day you might use the other one. Now you have user data split between multiple sources! It's harder to keep track of, troubleshoot, and update when you do things this way.\n\nThe optimal tech stack I have landed on for optimal client experience:\n\nVercel strictly for server-less front-end hosting\nSupabase for user authentication and all data storage (structured and unstructured! This is a big point of contention since Vercel offers Blob)\nResend for client communication; this is also big because a well-known service Web3Forms offers a similar service, however if you have already configured domains with one email service, it's a good idea to put all your eggs in one basket.\n\nWhere it's NOT good to consolidate:\n\nI have actually found that consolidating your operations under a single AI is a bad idea; Anthropic goes down like once a week! And same for OpenAI, Google, and Grok. The optimal solution to AI outages is employing multiple agents from different providers.\n\nThese are the reasons why client hosting prices can be expensive at other companies. But at Hoppy Tech, we are proud to host for considerably cheaper than any of the competition, with superior customer service and turnaround time!\n",
+    "excerpt": "What do you do when your tech stack runs out of control?",
+    "author": "Jeremy Hopkins",
+    "date": "2026-06-16",
+    "tags": [
+      "AI",
+      "React",
+      "Web Development",
+      "Infrastructure"
+    ],
+    "readTime": 2
+  },
+  {
     "id": "1781411027863",
     "title": "What You Can Build in 120 Hours: An AI Knowledgebase",
     "content": "Over the past 3 weeks, myself, Taha Jamal, and Yashwant Gandham have been hard at work on our internship project at Zinnia.\nGoal: to create a knowledgebase for the company to easily reveal the answer to various problems. Tools existed that were similar to this, but they lacked overall awareness of their data sources\nSolution: Just this week, our team was able to get the solution up and running! Instead of using naïve querying, we implemented context-aware, AI-powered retrieval which enables the user to ask our Slack bot a question which will in turn retrieve any relevant information from across our internal sources. The reason this is so powerful comes down to (literally) semantics! Most questions are translated into a query language, but what if the language is vague? That's why AI is so powerful; our system is able to understand user intent regardless of specific wording using semantic search!\nLessons learned: If you have a tough goal, when you chase after it you're gonna switch paths! We changed just about every single part of this system from conception to launch, but it just goes to show there is always a way forward!",
