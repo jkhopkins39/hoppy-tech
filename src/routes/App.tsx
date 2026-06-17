@@ -7,6 +7,7 @@ import About from "./About";
 import Blog from "./Blog";
 import Contact from "./Contact";
 import Dashboard from "./Dashboard";
+import Portal from "./Portal";
 import Portfolio from "./Portfolio";
 import ThankYou from "./ThankYou";
 import AISolutions from "./AISolutions";
@@ -383,7 +384,7 @@ function HomePage() {
   );
 }
 
-function App() {
+function SiteLayout() {
   return (
     <div className="flex flex-col bg-canvas min-h-screen">
       <NavBar />
@@ -400,6 +401,17 @@ function App() {
         </Routes>
       </main>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      {/* Standalone — no NavBar, no Chatbot */}
+      <Route path="/portal" element={<Portal />} />
+      {/* Public site */}
+      <Route path="/*" element={<SiteLayout />} />
+    </Routes>
   );
 }
 
