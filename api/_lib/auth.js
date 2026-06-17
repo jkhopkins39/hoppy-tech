@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 let adminClient = null;
 
 function getSupabaseAdmin() {
-  const url = process.env.SUPABASE_URL;
+  const url = process.env.VITE_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SECRET_KEY;
 
   if (!url || !serviceRoleKey) {

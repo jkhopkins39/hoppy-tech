@@ -11,8 +11,8 @@ dotenv.config();
 
 const baseUrl = process.argv[2] || 'http://localhost:3001';
 const adminEmail = process.env.ADMIN_EMAIL || 'jeremy@hoppytech.com';
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnon = process.env.SUPABASE_PUBLISHABLE_KEY;
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseAnon = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const serviceRole = process.env.SUPABASE_SECRET_KEY;
 
 let passed = 0;
