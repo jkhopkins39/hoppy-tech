@@ -485,20 +485,6 @@ function ClientCard({ tenant, onOpen }: { tenant: TenantConfig; onOpen: () => vo
         >
           Open Admin ↗
         </button>
-        <a
-          href={tenant.adminUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-lg px-3 py-2 text-xs font-semibold transition-all"
-          style={{
-            background: 'var(--surface-3)',
-            color: 'var(--muted)',
-            border: '1px solid var(--border-color)',
-          }}
-          title="Open without SSO"
-        >
-          ↗
-        </a>
       </div>
     </div>
   );
