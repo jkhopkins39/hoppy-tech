@@ -20,7 +20,7 @@ export default function Portal() {
 
   useEffect(() => {
     if (!supabase) {
-      setError('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.');
+      setError('Supabase is not configured. Add SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY to .env.');
       setView('error');
       return;
     }

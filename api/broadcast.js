@@ -35,8 +35,8 @@ export default async function handler(req) {
   }
 
   const supabase = createClient(
-    process.env.VITE_SUPABASE_URL,
-    process.env.VITE_SUPABASE_ANON_KEY,
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_PUBLISHABLE_KEY,
   );
   const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
   if (authError || !user || user.app_metadata?.role !== 'agency_owner') {
