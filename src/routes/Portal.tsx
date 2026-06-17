@@ -237,6 +237,7 @@ function RoutingCard({ tenant }: { tenant: TenantConfig | null }) {
 function ErrorCard({ message }: { message: string }) {
   const handleSignOut = async () => {
     if (supabase) await supabase.auth.signOut();
+    window.location.reload();
   };
 
   return (
