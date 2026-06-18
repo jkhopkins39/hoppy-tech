@@ -2,8 +2,6 @@ export type TenantKey =
   | 'cornerstone'
   | 'otp'
   | 'illuminated'
-  | 'joshua_firm'
-  | 'sxnctuary'
   | 'bells'
   | 'watch_luxury';
 
@@ -42,20 +40,6 @@ export const TENANTS: Record<TenantKey, TenantConfig> = {
     description: "Photography & visual media",
     adminUrl: "https://illuminated-prod.vercel.app/admin",
     callbackUrl: "https://illuminated-prod.vercel.app/admin/auth/callback",
-  },
-  joshua_firm: {
-    key: 'joshua_firm',
-    label: "Joshua 1:9 Law Firm",
-    description: "Legal services",
-    adminUrl: "https://joshua19lawfirm.com/admin",
-    callbackUrl: "https://joshua19lawfirm.com/admin",
-  },
-  sxnctuary: {
-    key: 'sxnctuary',
-    label: "SXNCTUARY",
-    description: "Music & merch",
-    adminUrl: "https://sxnctuary.com/admin",
-    callbackUrl: "https://sxnctuary.com/admin",
   },
   bells: {
     key: 'bells',
