@@ -139,12 +139,14 @@ function HomePage() {
               <span
                 className="italic"
                 style={{
+                  display: "inline-block",
                   fontFamily: "'DM Serif Display', Georgia, serif",
                   background: "linear-gradient(135deg, var(--accent-light), var(--accent))",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
                   backgroundClip: "text",
                   paddingRight: "0.1em",
+                  paddingBottom: "0.08em",
                 }}
               >
                 Web, AI, and Custom Solutions
