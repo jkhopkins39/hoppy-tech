@@ -17,6 +17,7 @@ export default function Portal() {
   const [routingTo, setRoutingTo] = useState<TenantConfig | null>(null);
   const [error, setError] = useState('');
   const redirectedRef = useRef(false);
+  const signingOutRef = useRef(false);
 
   useEffect(() => {
     if (!supabase) {
@@ -25,18 +26,30 @@ export default function Portal() {
       return;
     }
 
+    const params = new URLSearchParams(window.location.search);
+    const isLogout = params.get('logout') === '1';
+    if (isLogout) signingOutRef.current = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      // While sign-out is in flight, onAuthStateChange fires immediately with the
+      // still-valid session. Ignore it until we get the null session confirming sign-out.
+      if (signingOutRef.current) {
+        if (!session) {
+          signingOutRef.current = false;
+          setSession(null);
+          setUser(null);
+          setView('login');
+        }
+        return;
+      }
       setSession(session);
       setUser(session?.user ?? null);
       setView(session ? 'routing' : 'login');
     });
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('logout') === '1') {
-      // A client app signed the user out and redirected here. Clear the param
-      // then sign out the portal session so we land on the login form.
+    if (isLogout) {
       window.history.replaceState({}, '', window.location.pathname);
-      supabase.auth.signOut(); // triggers onAuthStateChange → view = 'login'
+      supabase.auth.signOut();
     } else {
       supabase.auth.getSession().then(({ data: { session } }) => {
         setSession(session);
