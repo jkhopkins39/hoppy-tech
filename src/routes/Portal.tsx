@@ -25,17 +25,25 @@ export default function Portal() {
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setView(session ? 'routing' : 'login');
-    });
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setView(session ? 'routing' : 'login');
     });
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('logout') === '1') {
+      // A client app signed the user out and redirected here. Clear the param
+      // then sign out the portal session so we land on the login form.
+      window.history.replaceState({}, '', window.location.pathname);
+      supabase.auth.signOut(); // triggers onAuthStateChange → view = 'login'
+    } else {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setView(session ? 'routing' : 'login');
+      });
+    }
 
     return () => subscription.unsubscribe();
   }, []);
