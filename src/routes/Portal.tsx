@@ -91,11 +91,17 @@ export default function Portal() {
     setView('error');
   }, [view, session, user]);
 
+  const handlePortalSignOut = async () => {
+    if (!supabase) return;
+    signingOutRef.current = true;
+    await supabase.auth.signOut();
+  };
+
   if (view === 'loading') return <Screen><Spinner /></Screen>;
   if (view === 'error') return <Screen><ErrorCard message={error} /></Screen>;
   if (view === 'login') return <Screen><LoginForm onError={setError} /></Screen>;
   if (view === 'routing') return <Screen><RoutingCard tenant={routingTo} /></Screen>;
-  if (view === 'hub') return <HubView session={session!} user={user!} />;
+  if (view === 'hub') return <HubView session={session!} user={user!} onSignOut={handlePortalSignOut} />;
 
   return null;
 }
@@ -281,17 +287,13 @@ function ErrorCard({ message }: { message: string }) {
 
 /* ── Hub view (agency owner sees all clients) ─────────────── */
 
-function HubView({ session, user }: { session: Session; user: User }) {
+function HubView({ session, user, onSignOut }: { session: Session; user: User; onSignOut: () => Promise<void> }) {
   const [announcementOpen, setAnnouncementOpen] = useState(false);
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [sendResult, setSendResult] = useState<{ sent: number; failed: number; total: number } | null>(null);
   const [sendError, setSendError] = useState('');
-
-  const handleSignOut = async () => {
-    if (supabase) await supabase.auth.signOut();
-  };
 
   const handleOpen = (tenant: TenantConfig) => {
     if (!session.access_token || !session.refresh_token) return;
@@ -351,7 +353,7 @@ function HubView({ session, user }: { session: Session; user: User }) {
             {user.email}
           </span>
           <button
-            onClick={handleSignOut}
+            onClick={onSignOut}
             className="text-sm px-3 py-1.5 rounded-lg transition-all"
             style={{
               background: 'var(--surface-2)',
