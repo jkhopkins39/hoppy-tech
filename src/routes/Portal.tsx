@@ -68,6 +68,11 @@ export default function Portal() {
     const tenant = user.app_metadata?.tenant as string | undefined;
     const role = user.app_metadata?.role as string | undefined;
 
+    if (role === 'agency_owner') {
+      setView('hub');
+      return;
+    }
+
     if (tenant) {
       const config = getTenantConfig(tenant);
       if (config && session.access_token && session.refresh_token) {
@@ -79,11 +84,6 @@ export default function Portal() {
         setError('Your account has an unrecognised tenant. Contact your administrator.');
         setView('error');
       }
-      return;
-    }
-
-    if (role === 'agency_owner') {
-      setView('hub');
       return;
     }
 
@@ -296,7 +296,7 @@ function HubView({ session, user }: { session: Session; user: User }) {
   const handleOpen = (tenant: TenantConfig) => {
     if (!session.access_token || !session.refresh_token) return;
     const dest = buildCallbackUrl(tenant, session.access_token, session.refresh_token);
-    window.location.href = dest;
+    window.open(dest, '_blank', 'noopener,noreferrer');
   };
 
   const handleBroadcast = async (e: React.FormEvent) => {
