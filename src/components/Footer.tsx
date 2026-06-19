@@ -46,7 +46,8 @@ const Footer: React.FC = () => {
     { label: 'About', path: '/about' },
     { label: 'Portfolio', path: '/portfolio' },
     { label: 'Blog', path: '/blog' },
-    { label: 'Contact', path: '/contact' },
+    { label: 'Start a Project', path: '/contact' },
+    { label: 'Refer a Business', path: '/refer' },
   ];
 
   const socials = [

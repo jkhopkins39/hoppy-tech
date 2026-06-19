@@ -11,6 +11,7 @@ import Portal from "./Portal";
 import Portfolio from "./Portfolio";
 import ThankYou from "./ThankYou";
 import AISolutions from "./AISolutions";
+import Refer from "./Refer";
 import Footer from "../components/Footer";
 import { socialLinks, contactInfo } from "../config/socialLinks";
 import { BRAND } from "../config/brandColors";
@@ -400,6 +401,7 @@ function SiteLayout() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/thanks" element={<ThankYou />} />
           <Route path="/ai-solutions" element={<AISolutions />} />
+          <Route path="/refer" element={<Refer />} />
         </Routes>
       </main>
     </div>
