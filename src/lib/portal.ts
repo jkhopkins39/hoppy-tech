@@ -38,8 +38,8 @@ export const TENANTS: Record<TenantKey, TenantConfig> = {
     key: 'illuminated',
     label: "Illuminated Productions",
     description: "Photography & visual media",
-    adminUrl: "https://illuminated-prod.vercel.app/admin",
-    callbackUrl: "https://illuminated-prod.vercel.app/admin/auth/callback",
+    adminUrl: "https://www.illuminatedprod.com/admin",
+    callbackUrl: "https://www.illuminatedprod.com/admin/auth/callback",
   },
   bells: {
     key: 'bells',
