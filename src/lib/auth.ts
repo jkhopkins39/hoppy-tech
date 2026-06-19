@@ -3,13 +3,11 @@ import { supabase } from './supabase';
 
 export const AUTH_CHANGE_EVENT = 'admin-auth-change';
 
-const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL ?? 'jeremy@hoppytech.com').toLowerCase();
-
 let cachedSession: Session | null = null;
 let listenerStarted = false;
 
 function isAllowedAdmin(session: Session | null): boolean {
-  return !!session?.access_token && session.user.email?.toLowerCase() === ADMIN_EMAIL;
+  return !!session?.access_token && session.user.app_metadata?.role === 'agency_owner';
 }
 
 export function notifyAuthChange(): void {

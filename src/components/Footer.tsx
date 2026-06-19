@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { socialLinks, contactInfo } from '../config/socialLinks';
 import {
   AUTH_CHANGE_EVENT,
@@ -10,6 +10,7 @@ import {
 import { LETTERMARK_URL, WEBSITE_LOGO_ALT } from '../config/brand';
 
 const Footer: React.FC = () => {
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -23,6 +24,7 @@ const Footer: React.FC = () => {
       setIsLoggedIn(true);
       setLoginForm({ email: '', password: '' });
       setShowLogin(false);
+      navigate('/dashboard');
     } catch {
       alert('Invalid credentials or unauthorized account.');
     } finally {
@@ -220,7 +222,12 @@ const Footer: React.FC = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-accent">● Admin</span>
+                  <Link
+                    to="/dashboard"
+                    className="text-xs text-accent hover:text-accent transition-colors"
+                  >
+                    ● Dashboard
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="text-xs text-muted hover:text-accent transition-colors"
