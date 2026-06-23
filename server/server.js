@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import OpenAI from 'openai';
+import { Resend } from 'resend';
 
 // Load environment variables
 dotenv.config();
@@ -25,6 +26,8 @@ if (!process.env.OPENAI_API_KEY) {
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Serve static files from dist directory
 app.use(express.static('dist'));
@@ -64,6 +67,62 @@ app.post('/api/chat', async (req, res) => {
         error: 'Internal server error. Please try again later.' 
       });
     }
+  }
+});
+
+// Contact form endpoint
+app.post('/api/contact', async (req, res) => {
+  const { email, name, company, project_type, problem, timeline, budget, contact_website, contact_fax } = req.body;
+
+  if (contact_website || contact_fax) {
+    return res.json({ success: true });
+  }
+
+  if (!email || !problem) {
+    return res.status(400).json({ success: false, message: 'Email and project description are required.' });
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error('RESEND_API_KEY is not set');
+    return res.status(500).json({ success: false, message: 'Email service not configured.' });
+  }
+
+  try {
+    const { error } = await resend.emails.send({
+      from: 'Hoppy Tech <info@hoppytech.com>',
+      to: 'jeremy@hoppytech.com',
+      replyTo: email,
+      subject: `New Inquiry${name ? ` from ${name}` : ''}${project_type ? ` — ${project_type}` : ''}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
+          <h2 style="margin-bottom: 4px;">New Contact Form Submission</h2>
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
+
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <tr><td style="padding: 8px 0; color: #6b7280; width: 140px;">Name</td><td style="padding: 8px 0;">${name || '—'}</td></tr>
+            <tr><td style="padding: 8px 0; color: #6b7280;">Email</td><td style="padding: 8px 0;"><a href="mailto:${email}" style="color: #4f46e5;">${email}</a></td></tr>
+            <tr><td style="padding: 8px 0; color: #6b7280;">Company</td><td style="padding: 8px 0;">${company || '—'}</td></tr>
+            <tr><td style="padding: 8px 0; color: #6b7280;">Project Type</td><td style="padding: 8px 0;">${project_type || '—'}</td></tr>
+            <tr><td style="padding: 8px 0; color: #6b7280;">Timeline</td><td style="padding: 8px 0;">${timeline || '—'}</td></tr>
+            <tr><td style="padding: 8px 0; color: #6b7280;">Budget</td><td style="padding: 8px 0;">${budget || '—'}</td></tr>
+          </table>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
+          <p style="color: #6b7280; font-size: 13px; margin-bottom: 6px;">Project Description</p>
+          <p style="font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${problem}</p>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error('Resend error:', error);
+      return res.status(500).json({ success: false, message: 'Failed to send email.' });
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Contact form error:', err);
+    res.status(500).json({ success: false, message: 'Server error. Please try again.' });
   }
 });
 
