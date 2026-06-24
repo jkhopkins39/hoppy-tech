@@ -28,7 +28,7 @@ export function getEdgeCorsHeaders(req, methods = 'POST, OPTIONS') {
   const origin = req.headers.get('origin');
   const headers = {
     'Access-Control-Allow-Methods': methods,
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
   if (origin && isAllowedOrigin(origin)) {

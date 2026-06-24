@@ -1,110 +1,147 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import Footer from "../components/Footer";
-import { clearAdminAuth, isAdminLoggedIn } from "../lib/auth";
-import { supabaseHoppy } from "../lib/supabase";
-import { BRAND } from "../config/brandColors";
+import React, { useCallback, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import Footer from '../components/Footer';
+import { AUTH_CHANGE_EVENT, clearAdminAuth, isAdminLoggedIn } from '../lib/auth';
+import {
+  type ChatSession,
+  type ContactSubmission,
+  deleteChatSession,
+  deleteSubmissions,
+  fetchChatSessions,
+  fetchSubmissions,
+  submissionLabel,
+  submissionPreview,
+  updateSubmissionRead,
+} from '../lib/admin-dashboard';
+import { BRAND } from '../config/brandColors';
 
-interface ContactSubmission {
-  id: string;
-  created_at: string;
-  email: string | null;
-  phone: string | null;
-  name: string | null;
-  company: string | null;
-  project_type: string | null;
-  problem: string | null;
-  timeline: string | null;
-  budget: string | null;
-  read: boolean;
-}
+type Tab = 'messages' | 'conversations';
+type Filter = 'all' | 'unread' | 'read';
 
-interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-interface ChatSession {
-  id: string;
-  messages: ChatMessage[];
-  created_at: string;
-  updated_at: string;
-}
+const formatDate = (ds: string) =>
+  new Date(ds).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'messages' | 'conversations'>('messages');
+  const [authorized, setAuthorized] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<Tab>('messages');
+  const [filter, setFilter] = useState<Filter>('all');
 
-  // Messages state
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
-  const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
 
-  // Conversations state
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [selectedSession, setSelectedSession] = useState<ChatSession | null>(null);
+
+  const loadData = useCallback(async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const [nextSubmissions, nextSessions] = await Promise.all([
+        fetchSubmissions(),
+        fetchChatSessions(),
+      ]);
+      setSubmissions(nextSubmissions);
+      setSessions(nextSessions);
+      setSelectedSubmission((current) =>
+        current ? nextSubmissions.find((s) => s.id === current.id) ?? null : null,
+      );
+      setSelectedSession((current) =>
+        current ? nextSessions.find((s) => s.id === current.id) ?? null : null,
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!isAdminLoggedIn()) {
       navigate('/');
       return;
     }
-    setIsLoggedIn(true);
-    if (supabaseHoppy) {
-      supabaseHoppy
-        .from('contact_submissions')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .then(({ data }) => {
-          if (data) setSubmissions(data as ContactSubmission[]);
-        });
+    setAuthorized(true);
+    void loadData();
+
+    const onAuthChange = () => {
+      if (!isAdminLoggedIn()) navigate('/');
+    };
+    window.addEventListener(AUTH_CHANGE_EVENT, onAuthChange);
+    return () => window.removeEventListener(AUTH_CHANGE_EVENT, onAuthChange);
+  }, [loadData, navigate]);
+
+  const unreadCount = submissions.filter((s) => !s.read).length;
+  const filteredSubmissions = submissions.filter((s) => {
+    if (filter === 'unread') return !s.read;
+    if (filter === 'read') return !!s.read;
+    return true;
+  });
+
+  const todaySessions = sessions.filter((s) => {
+    const d = new Date(s.created_at);
+    const now = new Date();
+    return (
+      d.getFullYear() === now.getFullYear() &&
+      d.getMonth() === now.getMonth() &&
+      d.getDate() === now.getDate()
+    );
+  }).length;
+
+  const totalMessages = sessions.reduce((n, s) => n + s.messages.length, 0);
+
+  const markAsRead = async (id: string, read: boolean) => {
+    try {
+      const updated = await updateSubmissionRead(id, read);
+      setSubmissions((prev) => prev.map((s) => (s.id === id ? updated : s)));
+      setSelectedSubmission((current) => (current?.id === id ? updated : current));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update message');
     }
-
-    if (supabaseHoppy) {
-      supabaseHoppy
-        .from('chat_sessions')
-        .select('*')
-        .order('updated_at', { ascending: false })
-        .then(({ data }) => {
-          if (data) setSessions(data as ChatSession[]);
-        });
-    }
-
-    setIsLoading(false);
-  }, [navigate]);
-
-  // Messages actions
-  const markAsRead = (id: string) => {
-    setSubmissions(prev => prev.map(s => s.id === id ? { ...s, read: true } : s));
-    supabaseHoppy?.from('contact_submissions').update({ read: true }).eq('id', id);
   };
-  const markAsUnread = (id: string) => {
-    setSubmissions(prev => prev.map(s => s.id === id ? { ...s, read: false } : s));
-    supabaseHoppy?.from('contact_submissions').update({ read: false }).eq('id', id);
-  };
+
   const deleteSubmission = async (id: string) => {
-    if (!confirm('Delete this message?') || !supabaseHoppy) return;
-    await supabaseHoppy.from('contact_submissions').delete().eq('id', id);
-    setSubmissions(prev => prev.filter(s => s.id !== id));
-    if (selectedSubmission?.id === id) setSelectedSubmission(null);
-  };
-  const clearAll = async () => {
-    if (!confirm('Delete ALL messages? This cannot be undone.') || !supabaseHoppy) return;
-    const ids = submissions.map(s => s.id);
-    if (ids.length > 0) await supabaseHoppy.from('contact_submissions').delete().in('id', ids);
-    setSubmissions([]);
-    setSelectedSubmission(null);
+    if (!confirm('Delete this message?')) return;
+    try {
+      await deleteSubmissions([id]);
+      setSubmissions((prev) => prev.filter((s) => s.id !== id));
+      if (selectedSubmission?.id === id) setSelectedSubmission(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete message');
+    }
   };
 
-  // Conversations actions
+  const clearAll = async () => {
+    if (!confirm('Delete ALL messages? This cannot be undone.')) return;
+    const ids = submissions.map((s) => s.id);
+    if (!ids.length) return;
+    try {
+      await deleteSubmissions(ids);
+      setSubmissions([]);
+      setSelectedSubmission(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to clear messages');
+    }
+  };
+
   const deleteSession = async (id: string) => {
-    if (!confirm('Delete this conversation?') || !supabaseHoppy) return;
-    await supabaseHoppy.from('chat_sessions').delete().eq('id', id);
-    setSessions(prev => prev.filter(s => s.id !== id));
-    if (selectedSession?.id === id) setSelectedSession(null);
+    if (!confirm('Delete this conversation?')) return;
+    try {
+      await deleteChatSession(id);
+      setSessions((prev) => prev.filter((s) => s.id !== id));
+      if (selectedSession?.id === id) setSelectedSession(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete conversation');
+    }
   };
 
   const handleLogout = async () => {
@@ -112,83 +149,50 @@ const Dashboard: React.FC = () => {
     navigate('/');
   };
 
-  const formatDate = (ds: string) =>
-    new Date(ds).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-  const submissionLabel = (sub: ContactSubmission) => {
-    const who = sub.name || 'Anonymous';
-    if (sub.email) return `${who} — ${sub.email}`;
-    if (sub.phone) return `${who} — ${sub.phone}`;
-    return who;
-  };
-
-  const submissionPreview = (sub: ContactSubmission) =>
-    sub.problem?.trim() || 'No description provided.';
-
-  const filteredSubmissions = submissions.filter(s => {
-    if (filter === 'unread') return !s.read;
-    if (filter === 'read') return s.read;
-    return true;
-  });
-
-  const unreadCount = submissions.filter(s => !s.read).length;
-
-  const todaySessions = sessions.filter(s => {
-    const d = new Date(s.created_at);
-    const now = new Date();
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
-  }).length;
-
-  const totalMessages = sessions.reduce((n, s) => n + s.messages.length, 0);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-canvas flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-accent-subtle border-t-accent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!isLoggedIn) return null;
+  if (!authorized) return null;
 
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10"
+          className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8"
         >
           <div>
             <span className="text-accent text-[13px] font-mono uppercase tracking-widest">Admin</span>
             <h1 className="mt-1 text-3xl md:text-4xl font-bold text-ink">Dashboard</h1>
-            <p className="text-muted mt-1 text-sm">Manage contact form submissions</p>
+            <p className="text-muted mt-1 text-sm">Contact submissions and chat conversations</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 transition-all duration-200 text-[14px] font-medium self-start md:self-auto"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Logout
-          </button>
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            <button
+              onClick={() => void loadData()}
+              disabled={loading}
+              className="px-4 py-2.5 rounded-xl border border-subtle bg-surface text-muted hover:text-ink text-[14px] font-medium transition-all disabled:opacity-50"
+            >
+              {loading ? 'Refreshing…' : 'Refresh'}
+            </button>
+            <button
+              onClick={() => void handleLogout()}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 transition-all text-[14px] font-medium"
+            >
+              Logout
+            </button>
+          </div>
         </motion.div>
 
-        {/* Tab switcher */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="flex gap-2 mb-8"
-        >
-          {(['messages', 'conversations'] as const).map(tab => (
+        {error && (
+          <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-400" role="alert">
+            {error}
+          </div>
+        )}
+
+        <div className="flex gap-2 mb-8">
+          {(['messages', 'conversations'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2.5 rounded-xl text-[14px] font-medium capitalize transition-all duration-200 ${
+              className={`px-5 py-2.5 rounded-xl text-[14px] font-medium capitalize transition-all ${
                 activeTab === tab
                   ? 'bg-accent text-on-accent shadow-sm'
                   : 'border border-subtle bg-surface text-muted hover:text-ink'
@@ -196,109 +200,87 @@ const Dashboard: React.FC = () => {
             >
               {tab}
               {tab === 'messages' && unreadCount > 0 && (
-                <span className={`ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold ${activeTab === tab ? 'bg-white/20' : 'bg-accent/10 text-accent'}`}>{unreadCount}</span>
+                <span className={`ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold ${activeTab === tab ? 'bg-white/20' : 'bg-accent/10 text-accent'}`}>
+                  {unreadCount}
+                </span>
               )}
               {tab === 'conversations' && sessions.length > 0 && (
-                <span className={`ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold ${activeTab === tab ? 'bg-white/20' : 'bg-accent/10 text-accent'}`}>{sessions.length}</span>
+                <span className={`ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold ${activeTab === tab ? 'bg-white/20' : 'bg-accent/10 text-accent'}`}>
+                  {sessions.length}
+                </span>
               )}
             </button>
           ))}
-        </motion.div>
+        </div>
 
-        {/* ── MESSAGES TAB ── */}
-        {activeTab === 'messages' && (
+        {loading && submissions.length === 0 && sessions.length === 0 ? (
+          <div className="flex items-center justify-center py-24">
+            <div className="w-8 h-8 border-2 border-accent-subtle border-t-accent rounded-full animate-spin" />
+          </div>
+        ) : activeTab === 'messages' ? (
           <>
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="grid grid-cols-3 gap-4 mb-8"
-            >
+            <div className="grid grid-cols-3 gap-4 mb-8">
               {[
                 { label: 'Total', value: submissions.length, color: BRAND.skyBlue, bg: 'rgba(142, 202, 230, 0.14)' },
                 { label: 'Unread', value: unreadCount, color: BRAND.orange, bg: 'rgba(251, 133, 0, 0.14)' },
                 { label: 'Read', value: submissions.length - unreadCount, color: BRAND.navyMid, bg: 'rgba(3, 69, 99, 0.14)' },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-2xl border border-subtle bg-surface p-5">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style={{ background: stat.bg }}>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: stat.color }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
                   <div className="text-2xl font-bold text-ink">{stat.value}</div>
                   <div className="text-muted text-xs mt-0.5">{stat.label}</div>
                 </div>
               ))}
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              className="flex items-center justify-between gap-4 mb-5"
-            >
+            <div className="flex items-center justify-between gap-4 mb-5">
               <div className="flex gap-2">
-                {(['all', 'unread', 'read'] as const).map(f => (
+                {(['all', 'unread', 'read'] as const).map((f) => (
                   <button
                     key={f}
                     onClick={() => setFilter(f)}
-                    className={`px-4 py-2 rounded-xl text-[13px] font-medium capitalize transition-all duration-200 ${
-                      filter === f
-                        ? 'bg-accent text-on-accent'
-                        : 'border border-subtle bg-surface text-muted hover:text-ink'
+                    className={`px-4 py-2 rounded-xl text-[13px] font-medium capitalize transition-all ${
+                      filter === f ? 'bg-accent text-on-accent' : 'border border-subtle bg-surface text-muted hover:text-ink'
                     }`}
                   >
                     {f}
-                    {f === 'unread' && unreadCount > 0 && (
-                      <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] bg-accent text-on-accent font-bold">{unreadCount}</span>
-                    )}
                   </button>
                 ))}
               </div>
               {submissions.length > 0 && (
-                <button onClick={clearAll} className="px-4 py-2 rounded-xl border border-red-500/20 text-red-400 hover:bg-red-500/10 text-[13px] font-medium transition-all duration-200">
+                <button
+                  onClick={() => void clearAll()}
+                  className="px-4 py-2 rounded-xl border border-red-500/20 text-red-400 hover:bg-red-500/10 text-[13px] font-medium"
+                >
                   Clear all
                 </button>
               )}
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="grid grid-cols-1 lg:grid-cols-3 gap-5"
-            >
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
               <div className="rounded-2xl border border-subtle bg-surface overflow-hidden">
-                <div className="px-4 py-3.5 border-b border-white/[0.05]">
-                  <h2 className="font-semibold text-[14px] text-ink">
-                    Messages {filteredSubmissions.length > 0 && <span className="text-muted font-normal ml-1">({filteredSubmissions.length})</span>}
-                  </h2>
+                <div className="px-4 py-3.5 border-b border-white/[0.05] font-semibold text-[14px]">
+                  Messages ({filteredSubmissions.length})
                 </div>
                 <div className="overflow-y-auto max-h-[560px]">
                   {filteredSubmissions.length === 0 ? (
-                    <div className="p-8 text-center">
-                      <svg className="w-10 h-10 mx-auto mb-3 text-muted-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                      </svg>
-                      <p className="text-muted text-sm">No {filter !== 'all' ? filter : ''} messages</p>
-                    </div>
+                    <p className="p-8 text-center text-muted text-sm">No messages yet</p>
                   ) : (
-                    filteredSubmissions.map(sub => (
+                    filteredSubmissions.map((sub) => (
                       <button
                         key={sub.id}
-                        onClick={() => { setSelectedSubmission(sub); if (!sub.read) markAsRead(sub.id); }}
-                        className={`w-full text-left px-4 py-3.5 border-b border-white/[0.04] transition-all duration-200 ${
+                        onClick={() => {
+                          setSelectedSubmission(sub);
+                          if (!sub.read) void markAsRead(sub.id, true);
+                        }}
+                        className={`w-full text-left px-4 py-3.5 border-b border-white/[0.04] transition-all ${
                           selectedSubmission?.id === sub.id ? 'bg-accent-subtle' : 'hover:bg-surface-alpha'
                         } ${!sub.read ? 'border-l-2 border-l-accent' : ''}`}
                       >
-                        <div className="flex items-start gap-3">
-                          <div className="flex-1 min-w-0">
-                            <p className={`text-[13px] font-medium truncate ${!sub.read ? 'text-ink' : 'text-muted'}`}>{submissionLabel(sub)}</p>
-                            <p className="text-[12px] text-muted-2 truncate mt-0.5">{submissionPreview(sub)}</p>
-                            <p className="text-[11px] text-muted-3 mt-1">{formatDate(sub.created_at)}</p>
-                          </div>
-                          {!sub.read && <span className="w-2 h-2 rounded-full bg-accent mt-1.5 flex-none" />}
-                        </div>
+                        <p className={`text-[13px] font-medium truncate ${!sub.read ? 'text-ink' : 'text-muted'}`}>
+                          {submissionLabel(sub)}
+                        </p>
+                        <p className="text-[12px] text-muted-2 truncate mt-0.5">{submissionPreview(sub)}</p>
+                        <p className="text-[11px] text-muted-3 mt-1">{formatDate(sub.created_at)}</p>
                       </button>
                     ))
                   )}
@@ -308,128 +290,112 @@ const Dashboard: React.FC = () => {
               <div className="lg:col-span-2 rounded-2xl border border-subtle bg-surface overflow-hidden min-h-[400px] flex flex-col">
                 <AnimatePresence mode="wait">
                   {selectedSubmission ? (
-                    <motion.div key={selectedSubmission.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="flex flex-col h-full">
+                    <motion.div
+                      key={selectedSubmission.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex flex-col h-full"
+                    >
                       <div className="px-6 py-5 border-b border-white/[0.05] flex items-start justify-between gap-4">
                         <div>
                           <p className="font-semibold text-ink text-[15px]">{submissionLabel(selectedSubmission)}</p>
                           <p className="text-muted text-xs mt-0.5">{formatDate(selectedSubmission.created_at)}</p>
-                          {(selectedSubmission.phone && !selectedSubmission.email) && (
-                            <p className="text-muted-2 text-xs mt-1">
-                              <a href={`tel:${selectedSubmission.phone}`} className="hover:text-accent transition-colors">{selectedSubmission.phone}</a>
-                            </p>
-                          )}
-                          {(selectedSubmission.company || selectedSubmission.project_type || selectedSubmission.timeline || selectedSubmission.budget) && (
-                            <p className="text-muted-2 text-xs mt-1">
-                              {[selectedSubmission.company, selectedSubmission.project_type, selectedSubmission.timeline, selectedSubmission.budget].filter(Boolean).join(' · ')}
-                            </p>
-                          )}
+                          <div className="text-muted-2 text-xs mt-2 space-y-1">
+                            {selectedSubmission.email && <p>Email: {selectedSubmission.email}</p>}
+                            {selectedSubmission.phone && <p>Phone: {selectedSubmission.phone}</p>}
+                            {(selectedSubmission.company || selectedSubmission.project_type || selectedSubmission.timeline || selectedSubmission.budget) && (
+                              <p>
+                                {[selectedSubmission.company, selectedSubmission.project_type, selectedSubmission.timeline, selectedSubmission.budget]
+                                  .filter(Boolean)
+                                  .join(' · ')}
+                              </p>
+                            )}
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button onClick={() => selectedSubmission.read ? markAsUnread(selectedSubmission.id) : markAsRead(selectedSubmission.id)} className="p-2 rounded-xl border border-subtle text-muted hover:text-ink hover:border-white/[0.12] transition-all" title={selectedSubmission.read ? 'Mark as unread' : 'Mark as read'}>
-                            <svg className="w-4 h-4" fill={selectedSubmission.read ? 'none' : 'currentColor'} stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                          </button>
-                          <a
-                            href={selectedSubmission.email ? `mailto:${selectedSubmission.email}` : `tel:${selectedSubmission.phone}`}
-                            className="p-2 rounded-xl border border-accent-subtle-2 bg-accent-subtle-2 text-accent hover:bg-accent-subtle transition-all"
-                            title="Reply"
+                          <button
+                            onClick={() => void markAsRead(selectedSubmission.id, !selectedSubmission.read)}
+                            className="p-2 rounded-xl border border-subtle text-muted hover:text-ink"
+                            title={selectedSubmission.read ? 'Mark unread' : 'Mark read'}
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                            </svg>
-                          </a>
-                          <button onClick={() => deleteSubmission(selectedSubmission.id)} className="p-2 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 transition-all" title="Delete">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                            {selectedSubmission.read ? 'Unread' : 'Read'}
+                          </button>
+                          {(selectedSubmission.email || selectedSubmission.phone) && (
+                            <a
+                              href={
+                                selectedSubmission.email
+                                  ? `mailto:${selectedSubmission.email}`
+                                  : `tel:${selectedSubmission.phone}`
+                              }
+                              className="p-2 rounded-xl border border-accent-subtle-2 bg-accent-subtle-2 text-accent text-[12px] font-medium"
+                            >
+                              Reply
+                            </a>
+                          )}
+                          <button
+                            onClick={() => void deleteSubmission(selectedSubmission.id)}
+                            className="p-2 rounded-xl border border-red-500/20 text-red-400 text-[12px] font-medium"
+                          >
+                            Delete
                           </button>
                         </div>
                       </div>
                       <div className="flex-1 p-6">
                         <div className="rounded-xl bg-canvas/60 p-5">
-                          <p className="text-muted whitespace-pre-wrap leading-relaxed text-sm">{submissionPreview(selectedSubmission)}</p>
+                          <p className="text-muted whitespace-pre-wrap leading-relaxed text-sm">
+                            {submissionPreview(selectedSubmission)}
+                          </p>
                         </div>
                       </div>
                     </motion.div>
                   ) : (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex items-center justify-center p-12">
-                      <div className="text-center text-muted-2">
-                        <svg className="w-14 h-14 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        <p>Select a message to view it</p>
-                      </div>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex items-center justify-center p-12 text-muted-2">
+                      Select a message to view it
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            </motion.div>
+            </div>
           </>
-        )}
-
-        {/* ── CONVERSATIONS TAB ── */}
-        {activeTab === 'conversations' && (
+        ) : (
           <>
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="grid grid-cols-3 gap-4 mb-8"
-            >
+            <div className="grid grid-cols-3 gap-4 mb-8">
               {[
-                { label: 'Total', value: sessions.length, color: BRAND.skyBlue, bg: 'rgba(142, 202, 230, 0.14)' },
-                { label: 'Today', value: todaySessions, color: BRAND.orange, bg: 'rgba(251, 133, 0, 0.14)' },
-                { label: 'Messages', value: totalMessages, color: BRAND.navyMid, bg: 'rgba(3, 69, 99, 0.14)' },
+                { label: 'Total', value: sessions.length },
+                { label: 'Today', value: todaySessions },
+                { label: 'Messages', value: totalMessages },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-2xl border border-subtle bg-surface p-5">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style={{ background: stat.bg }}>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: stat.color }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                  </div>
                   <div className="text-2xl font-bold text-ink">{stat.value}</div>
                   <div className="text-muted text-xs mt-0.5">{stat.label}</div>
                 </div>
               ))}
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              className="grid grid-cols-1 lg:grid-cols-3 gap-5"
-            >
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
               <div className="rounded-2xl border border-subtle bg-surface overflow-hidden">
-                <div className="px-4 py-3.5 border-b border-white/[0.05]">
-                  <h2 className="font-semibold text-[14px] text-ink">
-                    Conversations {sessions.length > 0 && <span className="text-muted font-normal ml-1">({sessions.length})</span>}
-                  </h2>
+                <div className="px-4 py-3.5 border-b border-white/[0.05] font-semibold text-[14px]">
+                  Conversations ({sessions.length})
                 </div>
                 <div className="overflow-y-auto max-h-[560px]">
                   {sessions.length === 0 ? (
-                    <div className="p-8 text-center">
-                      <svg className="w-10 h-10 mx-auto mb-3 text-muted-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                      </svg>
-                      <p className="text-muted text-sm">No conversations yet</p>
-                    </div>
+                    <p className="p-8 text-center text-muted text-sm">No conversations yet</p>
                   ) : (
-                    sessions.map(session => {
-                      const preview = session.messages.find(m => m.role === 'user')?.content ?? 'New conversation';
+                    sessions.map((session) => {
+                      const preview = session.messages.find((m) => m.role === 'user')?.content ?? 'New conversation';
                       return (
                         <button
                           key={session.id}
                           onClick={() => setSelectedSession(session)}
-                          className={`w-full text-left px-4 py-3.5 border-b border-white/[0.04] transition-all duration-200 ${
+                          className={`w-full text-left px-4 py-3.5 border-b border-white/[0.04] transition-all ${
                             selectedSession?.id === session.id ? 'bg-accent-subtle' : 'hover:bg-surface-alpha'
                           }`}
                         >
                           <p className="text-[13px] font-medium text-ink truncate">{preview.slice(0, 60)}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[11px] text-muted-3">{formatDate(session.updated_at)}</span>
-                            <span className="text-[11px] text-muted-2">· {session.messages.length} msg{session.messages.length !== 1 ? 's' : ''}</span>
-                          </div>
+                          <p className="text-[11px] text-muted-3 mt-1">
+                            {formatDate(session.updated_at)} · {session.messages.length} msgs
+                          </p>
                         </button>
                       );
                     })
@@ -440,30 +406,34 @@ const Dashboard: React.FC = () => {
               <div className="lg:col-span-2 rounded-2xl border border-subtle bg-surface overflow-hidden min-h-[400px] flex flex-col">
                 <AnimatePresence mode="wait">
                   {selectedSession ? (
-                    <motion.div key={selectedSession.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="flex flex-col h-full">
+                    <motion.div
+                      key={selectedSession.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex flex-col h-full"
+                    >
                       <div className="px-6 py-5 border-b border-white/[0.05] flex items-start justify-between gap-4">
                         <div>
                           <p className="font-semibold text-ink text-[15px]">Chat Session</p>
-                          <p className="text-muted text-xs mt-0.5">{formatDate(selectedSession.created_at)} · {selectedSession.messages.length} messages</p>
+                          <p className="text-muted text-xs mt-0.5">
+                            {formatDate(selectedSession.created_at)} · {selectedSession.messages.length} messages
+                          </p>
                         </div>
-                        <button onClick={() => deleteSession(selectedSession.id)} className="p-2 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 transition-all" title="Delete">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
+                        <button
+                          onClick={() => void deleteSession(selectedSession.id)}
+                          className="p-2 rounded-xl border border-red-500/20 text-red-400 text-[12px] font-medium"
+                        >
+                          Delete
                         </button>
                       </div>
                       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
                         {selectedSession.messages.map((msg, i) => (
                           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div
-                              className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${msg.role === 'user' ? 'rounded-br-sm' : 'rounded-bl-sm'}`}
-                              style={{
-                                background: msg.role === 'user'
-                                  ? 'linear-gradient(135deg, var(--accent-light), var(--accent))'
-                                  : 'var(--surface-alpha)',
-                                border: msg.role === 'assistant' ? '1px solid var(--border-color)' : 'none',
-                                color: msg.role === 'user' ? 'var(--accent-foreground)' : 'var(--ink)',
-                              }}
+                              className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
+                                msg.role === 'user' ? 'rounded-br-sm bg-accent text-on-accent' : 'rounded-bl-sm border border-subtle bg-surface-alpha text-ink'
+                              }`}
                             >
                               {msg.content}
                             </div>
@@ -472,21 +442,15 @@ const Dashboard: React.FC = () => {
                       </div>
                     </motion.div>
                   ) : (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex items-center justify-center p-12">
-                      <div className="text-center text-muted-2">
-                        <svg className="w-14 h-14 mx-auto mb-4 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        <p>Select a conversation to view it</p>
-                      </div>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex items-center justify-center p-12 text-muted-2">
+                      Select a conversation to view it
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-            </motion.div>
+            </div>
           </>
         )}
-
       </div>
       <Footer />
     </div>

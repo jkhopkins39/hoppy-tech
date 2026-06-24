@@ -86,11 +86,19 @@ export default async function handler(req) {
   };
 
   const sb = getSupabaseHoppyAdmin();
-  if (sb) {
-    const { error: dbError } = await sb.from('contact_submissions').insert(submission);
-    if (dbError) console.error('Supabase insert error:', dbError);
-  } else {
+  if (!sb) {
     console.error('Supabase not configured for contact insert');
+    return new Response(JSON.stringify({ success: false, message: 'Submission storage is not configured.' }), {
+      status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const { error: dbError } = await sb.from('contact_submissions').insert(submission);
+  if (dbError) {
+    console.error('Supabase insert error:', dbError);
+    return new Response(JSON.stringify({ success: false, message: 'Failed to save your submission. Please try again.' }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 
   if (!process.env.RESEND_API_KEY) {
