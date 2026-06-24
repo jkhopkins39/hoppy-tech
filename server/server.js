@@ -72,14 +72,21 @@ app.post('/api/chat', async (req, res) => {
 
 // Contact form endpoint
 app.post('/api/contact', async (req, res) => {
-  const { email, name, company, project_type, problem, timeline, budget, contact_website, contact_fax } = req.body;
+  const { email, phone, name, company, project_type, problem, timeline, budget, contact_website, contact_fax } = req.body;
 
   if (contact_website || contact_fax) {
     return res.json({ success: true });
   }
 
-  if (!email || !problem) {
-    return res.status(400).json({ success: false, message: 'Email and project description are required.' });
+  const cleanEmail = typeof email === 'string' ? email.trim() : '';
+  const cleanPhone = typeof phone === 'string' ? phone.trim() : '';
+
+  if (!cleanEmail && !cleanPhone) {
+    return res.status(400).json({ success: false, message: 'Please provide an email or phone number.' });
+  }
+
+  if (cleanEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+    return res.status(400).json({ success: false, message: 'Invalid email address.' });
   }
 
   if (!process.env.RESEND_API_KEY) {
@@ -91,7 +98,7 @@ app.post('/api/contact', async (req, res) => {
     const { error } = await resend.emails.send({
       from: 'Hoppy Tech <info@hoppytech.com>',
       to: 'jeremy@hoppytech.com',
-      replyTo: email,
+      replyTo: cleanEmail || undefined,
       subject: `New Inquiry${name ? ` from ${name}` : ''}${project_type ? ` — ${project_type}` : ''}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
@@ -100,7 +107,8 @@ app.post('/api/contact', async (req, res) => {
 
           <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
             <tr><td style="padding: 8px 0; color: #6b7280; width: 140px;">Name</td><td style="padding: 8px 0;">${name || '—'}</td></tr>
-            <tr><td style="padding: 8px 0; color: #6b7280;">Email</td><td style="padding: 8px 0;"><a href="mailto:${email}" style="color: #4f46e5;">${email}</a></td></tr>
+            <tr><td style="padding: 8px 0; color: #6b7280;">Email</td><td style="padding: 8px 0;">${cleanEmail ? `<a href="mailto:${cleanEmail}" style="color: #4f46e5;">${cleanEmail}</a>` : '—'}</td></tr>
+            <tr><td style="padding: 8px 0; color: #6b7280;">Phone</td><td style="padding: 8px 0;">${cleanPhone ? `<a href="tel:${cleanPhone}" style="color: #4f46e5;">${cleanPhone}</a>` : '—'}</td></tr>
             <tr><td style="padding: 8px 0; color: #6b7280;">Company</td><td style="padding: 8px 0;">${company || '—'}</td></tr>
             <tr><td style="padding: 8px 0; color: #6b7280;">Project Type</td><td style="padding: 8px 0;">${project_type || '—'}</td></tr>
             <tr><td style="padding: 8px 0; color: #6b7280;">Timeline</td><td style="padding: 8px 0;">${timeline || '—'}</td></tr>
@@ -109,7 +117,7 @@ app.post('/api/contact', async (req, res) => {
 
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
           <p style="color: #6b7280; font-size: 13px; margin-bottom: 6px;">Project Description</p>
-          <p style="font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${problem}</p>
+          <p style="font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${problem || 'No description provided.'}</p>
         </div>
       `,
     });

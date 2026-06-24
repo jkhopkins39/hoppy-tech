@@ -12,3 +12,16 @@ export const supabase = (supabaseUrl && supabaseAnonKey)
       },
     })
   : null;
+
+// Schema-scoped client for hoppytech-specific tables.
+// Auth session is shared via localStorage (same project URL).
+export const supabaseHoppy = (supabaseUrl && supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      db: { schema: 'hoppy_tech' },
+      auth: {
+        persistSession: true,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    })
+  : null;

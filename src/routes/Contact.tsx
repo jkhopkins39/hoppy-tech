@@ -95,8 +95,11 @@ const Contact: React.FC = () => {
     if (!formRef.current) return;
 
     const fd = new FormData(formRef.current);
+    const email = String(fd.get('email') ?? '').trim();
+    const phone = String(fd.get('phone') ?? '').trim();
     const payload = {
-      email: String(fd.get('email') ?? '').trim(),
+      email,
+      phone,
       name: String(fd.get('name') ?? '').trim(),
       company: String(fd.get('company') ?? '').trim(),
       project_type: String(fd.get('project_type') ?? '').trim(),
@@ -107,7 +110,10 @@ const Contact: React.FC = () => {
       contact_fax: honeypot2,
     };
 
-    if (!payload.email || !payload.problem) return;
+    if (!email && !phone) {
+      setSubmitError('Please provide an email or phone number so we can reach you.');
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -195,16 +201,23 @@ const Contact: React.FC = () => {
                   <input type="text" name="contact_fax" value={honeypot2} onChange={e => setHoneypot2(e.target.value)} tabIndex={-1} autoComplete="off" />
                 </div>
 
-                {/* Email + Name */}
+                {/* Email + Phone */}
                 <div className="grid md:grid-cols-2 gap-5">
                   <div>
-                    <label className={labelClass}>Email *</label>
-                    <input type="email" name="email" required placeholder="hello@example.com" className={inputClass} />
+                    <label className={labelClass}>Email</label>
+                    <input type="email" name="email" placeholder="hello@example.com" className={inputClass} />
                   </div>
                   <div>
-                    <label className={labelClass}>Name</label>
-                    <input type="text" name="name" placeholder="Jane Smith" className={inputClass} />
+                    <label className={labelClass}>Phone</label>
+                    <input type="tel" name="phone" placeholder="(555) 555-5555" className={inputClass} autoComplete="tel" />
                   </div>
+                </div>
+                <p className="text-xs text-muted-3 -mt-2">Provide an email or phone number — at least one is required.</p>
+
+                {/* Name */}
+                <div>
+                  <label className={labelClass}>Name</label>
+                  <input type="text" name="name" placeholder="Jane Smith (optional)" className={inputClass} />
                 </div>
 
                 {/* Company */}
@@ -215,20 +228,19 @@ const Contact: React.FC = () => {
 
                 {/* Project Type */}
                 <div>
-                  <label className={labelClass}>Project Type *</label>
-                  <select name="project_type" required className={inputClass} defaultValue="">
-                    <option value="" disabled>Select a category…</option>
+                  <label className={labelClass}>Project Type</label>
+                  <select name="project_type" className={inputClass} defaultValue="">
+                    <option value="">Select a category (optional)…</option>
                     {PROJECT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
 
                 {/* Core Problem */}
                 <div>
-                  <label className={labelClass}>What problem needs to be solved? *</label>
+                  <label className={labelClass}>What problem needs to be solved?</label>
                   <textarea
                     name="problem"
-                    required
-                    placeholder="Describe the core challenge or what you're trying to build. The more detail, the better."
+                    placeholder="Describe the core challenge or what you're trying to build. (optional)"
                     rows={5}
                     className={`${inputClass} resize-none`}
                   />

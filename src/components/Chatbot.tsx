@@ -6,10 +6,14 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  type?: 'system';
 }
+
+const INTAKE_RE = /\[SUBMIT_INTAKE]([\s\S]*?)\[\/SUBMIT_INTAKE]/;
 
 const Chatbot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [sessionId] = useState(() => crypto.randomUUID());
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -89,6 +93,59 @@ const Chatbot: React.FC = () => {
           }
         }
       }
+      // Detect and process intake submission marker
+      const intakeMatch = INTAKE_RE.exec(acc);
+      const cleanText = intakeMatch ? acc.replace(INTAKE_RE, '').trim() : null;
+
+      if (intakeMatch && cleanText !== null) {
+        setMessages((prev) => {
+          const next = [...prev];
+          next[next.length - 1] = { ...next[next.length - 1], content: cleanText };
+          return next;
+        });
+        try {
+          const data = JSON.parse(intakeMatch[1]) as Record<string, string>;
+          const res = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+          const result = await res.json() as { success: boolean };
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: 'assistant',
+              content: result.success
+                ? "Your details have been sent to Jeremy. He'll be in touch soon!"
+                : "I couldn't submit your details. Please email Jeremy at jeremy@hoppytech.com.",
+              timestamp: new Date(),
+              type: 'system',
+            },
+          ]);
+        } catch {
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: 'assistant',
+              content: "I couldn't submit your details. Please email Jeremy at jeremy@hoppytech.com.",
+              timestamp: new Date(),
+              type: 'system',
+            },
+          ]);
+        }
+      }
+
+      // Log conversation to Supabase (fire and forget)
+      const logMessages = [
+        ...messages.slice(1).filter((m) => !m.type).map((m) => ({ role: m.role, content: m.content })),
+        { role: 'user' as const, content: sentValue },
+        { role: 'assistant' as const, content: cleanText ?? acc },
+      ];
+      fetch('/api/chat-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, messages: logMessages }),
+      }).catch(() => {});
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
       setMessages((prev) => [
@@ -211,28 +268,43 @@ const Chatbot: React.FC = () => {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-              {messages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
-                      msg.role === 'user' ? 'rounded-br-sm' : 'rounded-bl-sm'
-                    }`}
-                    style={{
-                      background:
-                        msg.role === 'user'
-                          ? 'linear-gradient(135deg, var(--accent-light), var(--accent))'
-                          : 'var(--surface-alpha)',
-                      border: msg.role === 'assistant' ? '1px solid var(--border-color)' : 'none',
-                      color: msg.role === 'user' ? 'var(--accent-foreground)' : 'var(--ink)',
-                    }}
-                  >
-                    {msg.content}
+              {messages.map((msg, i) =>
+                msg.type === 'system' ? (
+                  <div key={i} className="flex justify-center">
+                    <div
+                      className="px-3.5 py-1.5 rounded-full text-[11px] text-center"
+                      style={{
+                        background: 'color-mix(in srgb, var(--accent) 12%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
+                        color: 'var(--accent)',
+                      }}
+                    >
+                      {msg.content}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ) : (
+                  <div
+                    key={i}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
+                        msg.role === 'user' ? 'rounded-br-sm' : 'rounded-bl-sm'
+                      }`}
+                      style={{
+                        background:
+                          msg.role === 'user'
+                            ? 'linear-gradient(135deg, var(--accent-light), var(--accent))'
+                            : 'var(--surface-alpha)',
+                        border: msg.role === 'assistant' ? '1px solid var(--border-color)' : 'none',
+                        color: msg.role === 'user' ? 'var(--accent-foreground)' : 'var(--ink)',
+                      }}
+                    >
+                      {msg.content}
+                    </div>
+                  </div>
+                )
+              )}
 
               {isLoading && messages[messages.length - 1]?.role === 'user' && (
                 <div className="flex justify-start">
