@@ -98,13 +98,15 @@ export default async function handler(req) {
   try {
     const to = process.env.RESEND_TO ?? 'jeremy@hoppytech.com';
 
-    await resend.emails.send({
+    const { error: sendError } = await resend.emails.send({
       from: 'Hoppy Tech Intake <hello@hoppytech.com>',
       to,
       replyTo: String(email).trim(),
       subject: `New Project Inquiry${project_type ? ` — ${String(project_type).slice(0, 60)}` : ''}${name ? ` from ${String(name).slice(0, 40)}` : ''}`,
       html,
     });
+
+    if (sendError) throw sendError;
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },

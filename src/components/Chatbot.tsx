@@ -2,6 +2,55 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
+function parseInline(text: string): React.ReactNode[] {
+  return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/).map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4)
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith('*') && part.endsWith('*') && part.length > 2)
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    if (part.startsWith('`') && part.endsWith('`') && part.length > 2)
+      return <code key={i} className="px-1 rounded font-mono text-[11px] bg-black/10">{part.slice(1, -1)}</code>;
+    return part;
+  });
+}
+
+function MsgContent({ text }: { text: string }) {
+  const nodes: React.ReactNode[] = [];
+  let listItems: React.ReactNode[] = [];
+  let listType: 'ul' | 'ol' | null = null;
+
+  const flushList = () => {
+    if (!listItems.length) return;
+    nodes.push(
+      listType === 'ol'
+        ? <ol key={nodes.length} className="list-decimal pl-4 space-y-0.5 my-1">{[...listItems]}</ol>
+        : <ul key={nodes.length} className="list-disc pl-4 space-y-0.5 my-1">{[...listItems]}</ul>
+    );
+    listItems = [];
+    listType = null;
+  };
+
+  for (const line of text.split('\n')) {
+    const ul = line.match(/^[ \t]*[-*]\s+(.*)/);
+    const ol = line.match(/^[ \t]*\d+\.\s+(.*)/);
+    if (ul) {
+      if (listType === 'ol') flushList();
+      listType = 'ul';
+      listItems.push(<li key={listItems.length}>{parseInline(ul[1])}</li>);
+    } else if (ol) {
+      if (listType === 'ul') flushList();
+      listType = 'ol';
+      listItems.push(<li key={listItems.length}>{parseInline(ol[1])}</li>);
+    } else {
+      flushList();
+      if (line.trim()) nodes.push(<p key={nodes.length}>{parseInline(line)}</p>);
+    }
+  }
+  flushList();
+
+  return <div className="space-y-1">{nodes}</div>;
+}
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -228,11 +277,14 @@ const Chatbot: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.94 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed bottom-24 right-6 z-50 w-[340px] flex flex-col rounded-2xl overflow-hidden shadow-2xl"
+            className="fixed bottom-24 right-6 z-50 w-[340px]"
+            style={{ height: '440px', transformOrigin: 'bottom right' }}
+          >
+          <div
+            className="w-full h-full flex flex-col rounded-2xl overflow-hidden"
             style={{
               background: 'var(--surface)',
               border: '1px solid var(--border-color)',
-              height: '440px',
               boxShadow: '0 24px 80px rgba(0,0,0,0.4)',
             }}
           >
@@ -300,7 +352,7 @@ const Chatbot: React.FC = () => {
                         color: msg.role === 'user' ? 'var(--accent-foreground)' : 'var(--ink)',
                       }}
                     >
-                      {msg.content}
+                      {msg.role === 'assistant' ? <MsgContent text={msg.content} /> : msg.content}
                     </div>
                   </div>
                 )
@@ -361,6 +413,7 @@ const Chatbot: React.FC = () => {
                 </svg>
               </button>
             </div>
+          </div>
           </motion.div>
         )}
       </AnimatePresence>
