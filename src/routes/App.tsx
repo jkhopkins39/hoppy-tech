@@ -74,18 +74,18 @@ function HomePage() {
     <>
       {/* ─── Hero ────────────────────────────────────────── */}
       {/* Mobile: flex column (photo on top, text below). Desktop: photo absolutely positioned on right half. */}
-      <section className="relative overflow-hidden flex flex-col md:block isolate">
-        {/* Full-bleed photo */}
+      <section className="relative overflow-hidden flex flex-col md:block">
+        {/* Portrait — isolated compositor layer; no mix-blend/mask (breaks fixed overlays) */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
-          className="relative flex-none h-[52vh] w-full md:absolute md:inset-y-0 md:right-0 md:h-auto md:w-[55%] z-0 md:[mask-image:linear-gradient(to_right,transparent_0%,black_28%)] md:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_28%)] [contain:paint]"
+          className="hero-portrait-stack relative flex-none h-[52vh] w-full md:absolute md:inset-y-0 md:right-0 md:h-auto md:w-[55%] z-0"
         >
           <img
             src="/Introduction.jpg"
             alt="Jeremy Hopkins, founder of Hoppy Tech"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="hero-portrait-img absolute inset-0 h-full w-full object-cover"
             style={{ objectPosition: heroMediaPosition }}
             loading="eager"
           />
@@ -94,15 +94,18 @@ function HomePage() {
             loop
             muted
             playsInline
-            className="absolute inset-0 h-full w-full object-cover mix-blend-plus-lighter opacity-50 pointer-events-none"
+            className="hero-portrait-video absolute inset-0 h-full w-full object-cover opacity-[0.42] pointer-events-none"
             style={{ objectPosition: heroMediaPosition }}
           >
             <source src="/video/output.webm" type="video/webm" />
           </video>
-          {/* Left blend — softens photo into the text area on desktop */}
+          {/* Left fade into text column (replaces mask-image) */}
           <div
-            className="hidden md:block absolute inset-y-0 left-0 w-1/2 z-10 pointer-events-none"
-            style={{ background: "linear-gradient(to right, var(--canvas) 0%, color-mix(in srgb, var(--canvas) 85%, transparent) 35%, transparent 100%)" }}
+            className="hidden md:block absolute inset-y-0 left-0 w-[42%] z-10 pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(to right, var(--canvas) 0%, color-mix(in srgb, var(--canvas) 92%, transparent) 30%, transparent 100%)",
+            }}
           />
           {/* Right gradient — desktop only */}
           <div
@@ -124,7 +127,7 @@ function HomePage() {
         {/* Ambient glow — follows cursor subtly via direct DOM update (no re-render) */}
         <div
           ref={glowRef}
-          className="pointer-events-none absolute inset-0 z-[1]"
+          className="hero-ambient-glow pointer-events-none absolute inset-0 z-[1]"
           style={{
             background: "radial-gradient(ellipse 38% 32% at 30% 40%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, color-mix(in srgb, var(--accent) 3%, transparent) 38%, transparent 52%)",
           }}

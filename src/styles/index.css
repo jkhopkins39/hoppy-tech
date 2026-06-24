@@ -259,7 +259,25 @@ a {
   transition: translate var(--speed, 0.5s) var(--easing, ease) !important;
 }
 
-/* ─── Chatbot (portaled — isolated compositor layer) ─────── */
+/* ─── Hero portrait (home) — flat compositor layer for fixed UI overlays ─ */
+.hero-portrait-stack {
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+.hero-portrait-img,
+.hero-portrait-video {
+  transform: translate3d(0, 0, 0);
+}
+
+/* Hide animated video while chat toggles over the portrait area */
+html[data-chat-over-portrait] .hero-portrait-video,
+html[data-chat-over-portrait] .hero-ambient-glow {
+  visibility: hidden;
+}
+
+/* ─── Chatbot (portaled) ─────────────────────────────────── */
 .chatbot-root,
 .chatbot-root * {
   transition-property: background-color, border-color, color, fill, stroke, box-shadow !important;
@@ -267,9 +285,7 @@ a {
 
 .chatbot-fab,
 .chatbot-panel {
-  isolation: isolate;
-  transform: translateZ(0);
-  backface-visibility: hidden;
+  background: var(--surface);
 }
 
 .chatbot-panel > div {

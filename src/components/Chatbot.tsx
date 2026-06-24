@@ -65,6 +65,7 @@ const Chatbot: React.FC = () => {
   const reduceMotion = useReducedMotion();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [chatOverPortrait, setChatOverPortrait] = useState(false);
   const [sessionId] = useState(() => crypto.randomUUID());
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -81,6 +82,11 @@ const Chatbot: React.FC = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.toggleAttribute('data-chat-over-portrait', chatOverPortrait);
+    return () => document.documentElement.removeAttribute('data-chat-over-portrait');
+  }, [chatOverPortrait]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -238,6 +244,19 @@ const Chatbot: React.FC = () => {
     }
   };
 
+  const toggleChat = () => {
+    if (isOpen) {
+      setIsOpen(false);
+      return;
+    }
+    setChatOverPortrait(true);
+    setIsOpen(true);
+  };
+
+  const handlePanelAnimationComplete = () => {
+    if (!isOpen) setChatOverPortrait(false);
+  };
+
   const panelMotion = reduceMotion
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
     : {
@@ -253,7 +272,7 @@ const Chatbot: React.FC = () => {
       {/* Floating button */}
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleChat}
         aria-label={isOpen ? 'Close chat' : 'Open chat'}
         className="chatbot-fab pointer-events-auto fixed bottom-6 right-6 z-[61] w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-transform duration-200 hover:scale-105 active:scale-95"
         style={{
@@ -309,6 +328,7 @@ const Chatbot: React.FC = () => {
           <motion.div
             {...panelMotion}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            onAnimationComplete={handlePanelAnimationComplete}
             className="chatbot-panel pointer-events-auto fixed bottom-24 right-6 z-[61] w-[340px]"
             style={{ height: '440px' }}
           >
