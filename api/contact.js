@@ -54,8 +54,8 @@ export default async function handler(req) {
     });
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  const serviceKey = process.env.VITE_SUPABASE_SECRET_KEY;
   if (supabaseUrl && serviceKey) {
     const sb = createClient(supabaseUrl, serviceKey, {
       db: { schema: 'hoppy_tech' },
