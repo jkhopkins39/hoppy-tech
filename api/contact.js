@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { createClient } from '@supabase/supabase-js';
 import { getEdgeCorsHeaders } from './_lib/cors.js';
 
 export const config = { runtime: 'edge' };
@@ -51,6 +52,25 @@ export default async function handler(req) {
     return new Response(JSON.stringify({ success: false, message: 'Input too long.' }), {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (supabaseUrl && serviceKey) {
+    const sb = createClient(supabaseUrl, serviceKey, {
+      db: { schema: 'hoppy_tech' },
+      auth: { persistSession: false },
+    });
+    const { error: dbError } = await sb.from('contact_submissions').insert({
+      email: String(email).trim().slice(0, 254),
+      name: name ? String(name).slice(0, 120) : null,
+      company: company ? String(company).slice(0, 120) : null,
+      project_type: project_type ? String(project_type).slice(0, 120) : null,
+      problem: String(problem).slice(0, 5000),
+      timeline: timeline ? String(timeline).slice(0, 120) : null,
+      budget: budget ? String(budget).slice(0, 120) : null,
+    });
+    if (dbError) console.error('Supabase insert error:', dbError);
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);

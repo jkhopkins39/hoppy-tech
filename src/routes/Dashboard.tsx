@@ -8,9 +8,14 @@ import { BRAND } from "../config/brandColors";
 
 interface ContactSubmission {
   id: string;
+  created_at: string;
   email: string;
-  message: string;
-  date: string;
+  name: string | null;
+  company: string | null;
+  project_type: string | null;
+  problem: string;
+  timeline: string | null;
+  budget: string | null;
   read: boolean;
 }
 
@@ -47,8 +52,15 @@ const Dashboard: React.FC = () => {
       return;
     }
     setIsLoggedIn(true);
-    const saved = localStorage.getItem('contactSubmissions');
-    if (saved) setSubmissions(JSON.parse(saved));
+    if (supabaseHoppy) {
+      supabaseHoppy
+        .from('contact_submissions')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .then(({ data }) => {
+          if (data) setSubmissions(data as ContactSubmission[]);
+        });
+    }
 
     if (supabaseHoppy) {
       supabaseHoppy
@@ -64,21 +76,25 @@ const Dashboard: React.FC = () => {
   }, [navigate]);
 
   // Messages actions
-  const save = (updated: ContactSubmission[]) => {
-    setSubmissions(updated);
-    localStorage.setItem('contactSubmissions', JSON.stringify(updated));
+  const markAsRead = (id: string) => {
+    setSubmissions(prev => prev.map(s => s.id === id ? { ...s, read: true } : s));
+    supabaseHoppy?.from('contact_submissions').update({ read: true }).eq('id', id);
   };
-  const markAsRead = (id: string) => save(submissions.map(s => s.id === id ? { ...s, read: true } : s));
-  const markAsUnread = (id: string) => save(submissions.map(s => s.id === id ? { ...s, read: false } : s));
-  const deleteSubmission = (id: string) => {
-    if (!confirm('Delete this message?')) return;
-    const updated = submissions.filter(s => s.id !== id);
-    save(updated);
+  const markAsUnread = (id: string) => {
+    setSubmissions(prev => prev.map(s => s.id === id ? { ...s, read: false } : s));
+    supabaseHoppy?.from('contact_submissions').update({ read: false }).eq('id', id);
+  };
+  const deleteSubmission = async (id: string) => {
+    if (!confirm('Delete this message?') || !supabaseHoppy) return;
+    await supabaseHoppy.from('contact_submissions').delete().eq('id', id);
+    setSubmissions(prev => prev.filter(s => s.id !== id));
     if (selectedSubmission?.id === id) setSelectedSubmission(null);
   };
-  const clearAll = () => {
-    if (!confirm('Delete ALL messages? This cannot be undone.')) return;
-    save([]);
+  const clearAll = async () => {
+    if (!confirm('Delete ALL messages? This cannot be undone.') || !supabaseHoppy) return;
+    const ids = submissions.map(s => s.id);
+    if (ids.length > 0) await supabaseHoppy.from('contact_submissions').delete().in('id', ids);
+    setSubmissions([]);
     setSelectedSubmission(null);
   };
 
@@ -266,9 +282,9 @@ const Dashboard: React.FC = () => {
                       >
                         <div className="flex items-start gap-3">
                           <div className="flex-1 min-w-0">
-                            <p className={`text-[13px] font-medium truncate ${!sub.read ? 'text-ink' : 'text-muted'}`}>{sub.email}</p>
-                            <p className="text-[12px] text-muted-2 truncate mt-0.5">{sub.message}</p>
-                            <p className="text-[11px] text-muted-3 mt-1">{formatDate(sub.date)}</p>
+                            <p className={`text-[13px] font-medium truncate ${!sub.read ? 'text-ink' : 'text-muted'}`}>{sub.name ? `${sub.name} — ${sub.email}` : sub.email}</p>
+                            <p className="text-[12px] text-muted-2 truncate mt-0.5">{sub.problem}</p>
+                            <p className="text-[11px] text-muted-3 mt-1">{formatDate(sub.created_at)}</p>
                           </div>
                           {!sub.read && <span className="w-2 h-2 rounded-full bg-accent mt-1.5 flex-none" />}
                         </div>
@@ -284,11 +300,16 @@ const Dashboard: React.FC = () => {
                     <motion.div key={selectedSubmission.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="flex flex-col h-full">
                       <div className="px-6 py-5 border-b border-white/[0.05] flex items-start justify-between gap-4">
                         <div>
-                          <p className="font-semibold text-ink text-[15px]">{selectedSubmission.email}</p>
-                          <p className="text-muted text-xs mt-0.5">{formatDate(selectedSubmission.date)}</p>
+                          <p className="font-semibold text-ink text-[15px]">{selectedSubmission.name ? `${selectedSubmission.name} — ${selectedSubmission.email}` : selectedSubmission.email}</p>
+                          <p className="text-muted text-xs mt-0.5">{formatDate(selectedSubmission.created_at)}</p>
+                          {(selectedSubmission.company || selectedSubmission.project_type || selectedSubmission.timeline || selectedSubmission.budget) && (
+                            <p className="text-muted-2 text-xs mt-1">
+                              {[selectedSubmission.company, selectedSubmission.project_type, selectedSubmission.timeline, selectedSubmission.budget].filter(Boolean).join(' · ')}
+                            </p>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <button onClick={() => selectedSubmission.read ? markAsUnread(selectedSubmission.id) : markAsRead(selectedSubmission.id)} className="p-2 rounded-xl border border-subtle text-muted hover:text-ink hover:border-white/[0.12] transition-all" title={selectedSubmission.read ? 'Mark unread' : 'Mark read'}>
+                          <button onClick={() => selectedSubmission.read ? markAsUnread(selectedSubmission.id) : markAsRead(selectedSubmission.id)} className="p-2 rounded-xl border border-subtle text-muted hover:text-ink hover:border-white/[0.12] transition-all" title={selectedSubmission.read ? 'Mark as unread' : 'Mark as read'}>
                             <svg className="w-4 h-4" fill={selectedSubmission.read ? 'none' : 'currentColor'} stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
@@ -307,7 +328,7 @@ const Dashboard: React.FC = () => {
                       </div>
                       <div className="flex-1 p-6">
                         <div className="rounded-xl bg-canvas/60 p-5">
-                          <p className="text-muted whitespace-pre-wrap leading-relaxed text-sm">{selectedSubmission.message}</p>
+                          <p className="text-muted whitespace-pre-wrap leading-relaxed text-sm">{selectedSubmission.problem}</p>
                         </div>
                       </div>
                     </motion.div>
