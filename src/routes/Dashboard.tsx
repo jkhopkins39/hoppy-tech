@@ -9,11 +9,12 @@ import { BRAND } from "../config/brandColors";
 interface ContactSubmission {
   id: string;
   created_at: string;
-  email: string;
+  email: string | null;
+  phone: string | null;
   name: string | null;
   company: string | null;
   project_type: string | null;
-  problem: string;
+  problem: string | null;
   timeline: string | null;
   budget: string | null;
   read: boolean;
@@ -113,6 +114,16 @@ const Dashboard: React.FC = () => {
 
   const formatDate = (ds: string) =>
     new Date(ds).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  const submissionLabel = (sub: ContactSubmission) => {
+    const who = sub.name || 'Anonymous';
+    if (sub.email) return `${who} — ${sub.email}`;
+    if (sub.phone) return `${who} — ${sub.phone}`;
+    return who;
+  };
+
+  const submissionPreview = (sub: ContactSubmission) =>
+    sub.problem?.trim() || 'No description provided.';
 
   const filteredSubmissions = submissions.filter(s => {
     if (filter === 'unread') return !s.read;
@@ -282,8 +293,8 @@ const Dashboard: React.FC = () => {
                       >
                         <div className="flex items-start gap-3">
                           <div className="flex-1 min-w-0">
-                            <p className={`text-[13px] font-medium truncate ${!sub.read ? 'text-ink' : 'text-muted'}`}>{sub.name ? `${sub.name} — ${sub.email}` : sub.email}</p>
-                            <p className="text-[12px] text-muted-2 truncate mt-0.5">{sub.problem}</p>
+                            <p className={`text-[13px] font-medium truncate ${!sub.read ? 'text-ink' : 'text-muted'}`}>{submissionLabel(sub)}</p>
+                            <p className="text-[12px] text-muted-2 truncate mt-0.5">{submissionPreview(sub)}</p>
                             <p className="text-[11px] text-muted-3 mt-1">{formatDate(sub.created_at)}</p>
                           </div>
                           {!sub.read && <span className="w-2 h-2 rounded-full bg-accent mt-1.5 flex-none" />}
@@ -300,8 +311,13 @@ const Dashboard: React.FC = () => {
                     <motion.div key={selectedSubmission.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="flex flex-col h-full">
                       <div className="px-6 py-5 border-b border-white/[0.05] flex items-start justify-between gap-4">
                         <div>
-                          <p className="font-semibold text-ink text-[15px]">{selectedSubmission.name ? `${selectedSubmission.name} — ${selectedSubmission.email}` : selectedSubmission.email}</p>
+                          <p className="font-semibold text-ink text-[15px]">{submissionLabel(selectedSubmission)}</p>
                           <p className="text-muted text-xs mt-0.5">{formatDate(selectedSubmission.created_at)}</p>
+                          {(selectedSubmission.phone && !selectedSubmission.email) && (
+                            <p className="text-muted-2 text-xs mt-1">
+                              <a href={`tel:${selectedSubmission.phone}`} className="hover:text-accent transition-colors">{selectedSubmission.phone}</a>
+                            </p>
+                          )}
                           {(selectedSubmission.company || selectedSubmission.project_type || selectedSubmission.timeline || selectedSubmission.budget) && (
                             <p className="text-muted-2 text-xs mt-1">
                               {[selectedSubmission.company, selectedSubmission.project_type, selectedSubmission.timeline, selectedSubmission.budget].filter(Boolean).join(' · ')}
@@ -314,7 +330,11 @@ const Dashboard: React.FC = () => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                           </button>
-                          <a href={`mailto:${selectedSubmission.email}`} className="p-2 rounded-xl border border-accent-subtle-2 bg-accent-subtle-2 text-accent hover:bg-accent-subtle transition-all" title="Reply">
+                          <a
+                            href={selectedSubmission.email ? `mailto:${selectedSubmission.email}` : `tel:${selectedSubmission.phone}`}
+                            className="p-2 rounded-xl border border-accent-subtle-2 bg-accent-subtle-2 text-accent hover:bg-accent-subtle transition-all"
+                            title="Reply"
+                          >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                             </svg>
@@ -328,7 +348,7 @@ const Dashboard: React.FC = () => {
                       </div>
                       <div className="flex-1 p-6">
                         <div className="rounded-xl bg-canvas/60 p-5">
-                          <p className="text-muted whitespace-pre-wrap leading-relaxed text-sm">{selectedSubmission.problem}</p>
+                          <p className="text-muted whitespace-pre-wrap leading-relaxed text-sm">{submissionPreview(selectedSubmission)}</p>
                         </div>
                       </div>
                     </motion.div>

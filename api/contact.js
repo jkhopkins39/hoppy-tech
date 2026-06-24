@@ -1,10 +1,18 @@
 import { Resend } from 'resend';
-import { createClient } from '@supabase/supabase-js';
 import { getEdgeCorsHeaders } from './_lib/cors.js';
+import { getSupabaseHoppyAdmin } from './_lib/supabase-admin.js';
 
 export const config = { runtime: 'edge' };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 export default async function handler(req) {
   const corsHeaders = getEdgeCorsHeaders(req, 'POST, OPTIONS');
@@ -26,6 +34,7 @@ export default async function handler(req) {
 
   const {
     email = '',
+    phone = '',
     name = '',
     company = '',
     project_type = '',
@@ -42,35 +51,53 @@ export default async function handler(req) {
     });
   }
 
-  if (!email || !EMAIL_RE.test(String(email)) || !problem?.trim()) {
-    return new Response(JSON.stringify({ success: false, message: 'Valid email and project description are required.' }), {
+  const cleanEmail = String(email).trim().slice(0, 254);
+  const cleanPhone = String(phone).trim().slice(0, 40);
+
+  if (!cleanEmail && !cleanPhone) {
+    return new Response(JSON.stringify({ success: false, message: 'Please provide an email or phone number.' }), {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  if (String(problem).length > 5000 || String(email).length > 254) {
+  if (cleanEmail && !EMAIL_RE.test(cleanEmail)) {
+    return new Response(JSON.stringify({ success: false, message: 'Invalid email address.' }), {
+      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const cleanProblem = String(problem).trim().slice(0, 5000) || 'No description provided.';
+
+  if (String(problem).length > 5000) {
     return new Response(JSON.stringify({ success: false, message: 'Input too long.' }), {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const serviceKey = process.env.VITE_SUPABASE_SECRET_KEY;
-  if (supabaseUrl && serviceKey) {
-    const sb = createClient(supabaseUrl, serviceKey, {
-      db: { schema: 'hoppy_tech' },
-      auth: { persistSession: false },
-    });
-    const { error: dbError } = await sb.from('contact_submissions').insert({
-      email: String(email).trim().slice(0, 254),
-      name: name ? String(name).slice(0, 120) : null,
-      company: company ? String(company).slice(0, 120) : null,
-      project_type: project_type ? String(project_type).slice(0, 120) : null,
-      problem: String(problem).slice(0, 5000),
-      timeline: timeline ? String(timeline).slice(0, 120) : null,
-      budget: budget ? String(budget).slice(0, 120) : null,
-    });
+  const submission = {
+    email: cleanEmail || null,
+    phone: cleanPhone || null,
+    name: name ? String(name).slice(0, 120) : null,
+    company: company ? String(company).slice(0, 120) : null,
+    project_type: project_type ? String(project_type).slice(0, 120) : null,
+    problem: cleanProblem,
+    timeline: timeline ? String(timeline).slice(0, 120) : null,
+    budget: budget ? String(budget).slice(0, 120) : null,
+  };
+
+  const sb = getSupabaseHoppyAdmin();
+  if (sb) {
+    const { error: dbError } = await sb.from('contact_submissions').insert(submission);
     if (dbError) console.error('Supabase insert error:', dbError);
+  } else {
+    console.error('Supabase not configured for contact insert');
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error('RESEND_API_KEY is not set');
+    return new Response(JSON.stringify({ success: false, message: 'Email service not configured.' }), {
+      status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -80,6 +107,10 @@ export default async function handler(req) {
       <td style="padding:8px 0;color:#6b7280;width:150px;vertical-align:top;font-size:13px;">${label}</td>
       <td style="padding:8px 0;color:#111827;font-size:14px;">${value}</td>
     </tr>` : '';
+
+  const contactLine = cleanEmail
+    ? `<strong>${escapeHtml(name || 'Anonymous')}</strong> &lt;${escapeHtml(cleanEmail)}&gt;`
+    : `<strong>${escapeHtml(name || 'Anonymous')}</strong> (phone only)`;
 
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1a1a2e;">
@@ -91,18 +122,19 @@ export default async function handler(req) {
 
       <div style="background:#f8fafc;padding:36px 32px;">
         <table style="width:100%;border-collapse:collapse;">
-          ${row('From', `<strong>${String(name || 'Anonymous').slice(0, 120)}</strong> &lt;${String(email).slice(0, 254)}&gt;`)}
-          ${row('Company', String(company).slice(0, 120))}
-          ${row('Project Type', String(project_type).slice(0, 120))}
-          ${row('Timeline', String(timeline).slice(0, 120))}
-          ${row('Budget', String(budget).slice(0, 120))}
+          ${row('From', contactLine)}
+          ${row('Phone', cleanPhone ? `<a href="tel:${escapeHtml(cleanPhone)}">${escapeHtml(cleanPhone)}</a>` : '')}
+          ${row('Company', escapeHtml(company))}
+          ${row('Project Type', escapeHtml(project_type))}
+          ${row('Timeline', escapeHtml(timeline))}
+          ${row('Budget', escapeHtml(budget))}
         </table>
 
         <div style="margin-top:24px;padding-top:24px;border-top:1px solid #e5e7eb;">
           <p style="margin:0 0 8px;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.06em;">
             What they need solved
           </p>
-          <p style="margin:0;font-size:15px;line-height:1.7;color:#374151;white-space:pre-wrap;">${String(problem).slice(0, 5000)}</p>
+          <p style="margin:0;font-size:15px;line-height:1.7;color:#374151;white-space:pre-wrap;">${escapeHtml(cleanProblem)}</p>
         </div>
       </div>
 
@@ -117,14 +149,17 @@ export default async function handler(req) {
 
   try {
     const to = process.env.RESEND_TO ?? 'jeremy@hoppytech.com';
+    const from = process.env.RESEND_FROM ?? 'Hoppy Tech Intake <hello@hoppytech.com>';
 
-    const { error: sendError } = await resend.emails.send({
-      from: 'Hoppy Tech Intake <hello@hoppytech.com>',
+    const sendPayload = {
+      from,
       to,
-      replyTo: String(email).trim(),
       subject: `New Project Inquiry${project_type ? ` — ${String(project_type).slice(0, 60)}` : ''}${name ? ` from ${String(name).slice(0, 40)}` : ''}`,
       html,
-    });
+    };
+    if (cleanEmail) sendPayload.replyTo = cleanEmail;
+
+    const { error: sendError } = await resend.emails.send(sendPayload);
 
     if (sendError) throw sendError;
 

@@ -1,5 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import { getEdgeCorsHeaders } from './_lib/cors.js';
+import { getSupabaseHoppyAdmin } from './_lib/supabase-admin.js';
 
 export const config = { runtime: 'edge' };
 
@@ -47,15 +47,8 @@ export default async function handler(req) {
     return json({ ok: false }, 400, req);
   }
 
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const serviceKey = process.env.VITE_SUPABASE_SECRET_KEY;
-
-  if (!supabaseUrl || !serviceKey) return json({ ok: false }, 503, req);
-
-  const supabase = createClient(supabaseUrl, serviceKey, {
-    db: { schema: 'hoppy_tech' },
-    auth: { persistSession: false },
-  });
+  const supabase = getSupabaseHoppyAdmin();
+  if (!supabase) return json({ ok: false }, 503, req);
 
   const messages = body.messages
     .filter((m) => (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
