@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Footer from '../components/Footer';
 
@@ -73,6 +73,8 @@ const BUDGETS = [
 
 const Contact: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const quoteMessage = (location.state as { quoteMessage?: string } | null)?.quoteMessage ?? '';
   const [honeypot1, setHoneypot1] = useState('');
   const [honeypot2, setHoneypot2] = useState('');
   const [formLoadTime] = useState(Date.now());
@@ -243,6 +245,7 @@ const Contact: React.FC = () => {
                     placeholder="Describe the core challenge or what you're trying to build. (optional)"
                     rows={5}
                     className={`${inputClass} resize-none`}
+                    defaultValue={quoteMessage || undefined}
                   />
                 </div>
 

@@ -1,0 +1,51 @@
+Model: gemini-3-flash-preview
+File: files/zhfr429x6sag
+
+### **Visual Bug Investigation Report**
+
+**To:** Engineering Team  
+**From:** Senior Front-end Engineer  
+**Date:** June 24, 2024  
+**Subject:** Visual flickering and rendering instability of hero section annotations
+
+---
+
+#### **1. What you see**
+The "hand-drawn" SVG annotations (arrows, circle around the head, "science fan" text, and "Eight:" text) in the hero section exhibit severe flickering. They rapidly toggle between visible and invisible states, appearing to "strobe." The rendering of these elements is unstable, with some parts of the paths disappearing while others remain briefly.
+
+#### **2. Mouse behavior**
+*   **Trigger Correlation:** The flickering is directly tied to mouse movement. When the cursor is stationary, the elements occasionally stabilize or disappear entirely. When the cursor moves across the hero area, the flickering frequency increases.
+*   **Hit-testing:** There is no evidence of "wrong pointer type," but the flickering suggests a conflict in hit-testing where the mouse might be rapidly entering and leaving the bounding box of the SVG elements or their container.
+
+#### **3. Trigger / timing**
+*   **Primary Trigger:** Mouse movement (`mousemove`) over the hero section.
+*   **Secondary Trigger:** Page load/initialization.
+*   **Intermittency:** The issue persists even when the chat widget is open, suggesting it is not localized to a single component but rather a global event listener or a layout-wide repaint issue.
+
+#### **4. Affected elements**
+*   **Specific Components:** The decorative SVG overlay layer (likely a single component containing multiple paths).
+*   **Z-index Layer:** The layer sitting between the background image of the person and the foreground text/navigation.
+*   **Viewport:** Limited to the hero section (above the fold).
+
+#### **5. Severity & pattern**
+*   **Severity:** **High.** The flickering is visually jarring and creates a "broken" user experience. It may also pose an accessibility risk for users sensitive to flashing lights.
+*   **Pattern:** The glitch is periodic and tied to the browser's render cycle during mouse events. It does not appear to compound (get worse over time) but remains constant as long as there is input.
+
+#### **6. Root-cause hypotheses**
+1.  **Framer Motion / Animation Re-render Loop:** The annotations likely use a library like Framer Motion to animate the `pathLength`. If the animation state is tied to a `mousemove` event without proper throttling or memoization, the component is re-mounting or re-starting the animation on every frame.
+2.  **Pointer-Events Feedback Loop:** The SVG layer may have `pointer-events: auto`. When the mouse moves over a path, it triggers a `mouseenter` on the path and a `mouseleave` on the container (or vice versa), causing a state toggle that hides/shows the element in an infinite loop.
+3.  **GPU Layer Promotion / Compositing Bug:** The use of `backdrop-filter` on the header or chat widget, combined with `transform` or `will-change` on the SVG layer, might be causing the browser's compositor to fail to sync layers correctly during repaints.
+4.  **Z-Index / Stacking Context Instability:** If the annotations are being dynamically injected into the DOM based on hover state, they may be shifting the stacking context, causing the browser to recalculate the layout repeatedly.
+
+#### **7. Specific reproduction steps**
+1.  Load the homepage (`hoppytech.com`).
+2.  Move the cursor rapidly in a circular motion over the image of the person in the hero section.
+3.  Observe the "science fan" text and arrows flickering.
+4.  Open the "Jeremy's AI Assistant" chat widget and continue moving the mouse; observe if the flickering persists behind the widget.
+
+#### **8. Recommended fixes**
+1.  **CSS `pointer-events`:** Apply `pointer-events: none;` to the entire SVG annotation container. These are decorative elements and should not interfere with the mouse's hit-testing of the underlying hero section.
+2.  **Event Throttling/Debouncing:** If the animations are JS-driven based on mouse position, ensure the event listener is throttled (e.g., using `requestAnimationFrame`).
+3.  **Component Memoization:** Wrap the SVG annotation component in `React.memo` to prevent unnecessary re-renders if the parent state changes during mouse movement.
+4.  **Hardware Acceleration:** Add `will-change: transform, opacity;` to the SVG paths to promote them to their own compositor layer, reducing the cost of repaints.
+5.  **State Logic Check:** Ensure that the "hover" state that triggers the drawing animation is managed at the container level and does not toggle off when the mouse overlaps the drawn paths themselves.

@@ -1,5 +1,5 @@
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { motion, type Variants } from "framer-motion";
 import NavBar from "../components/NavBar";
 import Chatbot from "../components/Chatbot";
@@ -12,6 +12,7 @@ import Portfolio from "./Portfolio";
 import ThankYou from "./ThankYou";
 import AISolutions from "./AISolutions";
 import Refer from "./Refer";
+import Quote from "./Quote";
 import Footer from "../components/Footer";
 import { socialLinks, contactInfo } from "../config/socialLinks";
 import { BRAND } from "../config/brandColors";
@@ -56,11 +57,14 @@ const heroMediaPosition = `${HERO_MEDIA_FOCUS.x}% ${HERO_MEDIA_FOCUS.y}%`;
 
 function HomePage() {
   const navigate = useNavigate();
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handle = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
+      if (!glowRef.current) return;
+      const x = 30 + (e.clientX / window.innerWidth) * 5;
+      const y = 40 + (e.clientY / window.innerHeight) * 5;
+      glowRef.current.style.background = `radial-gradient(ellipse 38% 32% at ${x}% ${y}%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, color-mix(in srgb, var(--accent) 3%, transparent) 38%, transparent 52%)`;
     };
     window.addEventListener("mousemove", handle, { passive: true });
     return () => window.removeEventListener("mousemove", handle);
@@ -117,11 +121,12 @@ function HomePage() {
           />
         </motion.div>
 
-        {/* Ambient glow — follows cursor subtly */}
+        {/* Ambient glow — follows cursor subtly via direct DOM update (no re-render) */}
         <div
-          className="pointer-events-none absolute inset-0 z-[1] transition-transform duration-700"
+          ref={glowRef}
+          className="pointer-events-none absolute inset-0 z-[1]"
           style={{
-            background: `radial-gradient(ellipse 38% 32% at ${30 + mousePos.x * 5}% ${40 + mousePos.y * 5}%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, color-mix(in srgb, var(--accent) 3%, transparent) 38%, transparent 52%)`,
+            background: "radial-gradient(ellipse 38% 32% at 30% 40%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, color-mix(in srgb, var(--accent) 3%, transparent) 38%, transparent 52%)",
           }}
         />
 
@@ -402,6 +407,7 @@ function SiteLayout() {
           <Route path="/thanks" element={<ThankYou />} />
           <Route path="/ai-solutions" element={<AISolutions />} />
           <Route path="/refer" element={<Refer />} />
+          <Route path="/quote" element={<Quote />} />
         </Routes>
       </main>
     </div>
