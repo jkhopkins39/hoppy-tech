@@ -7,6 +7,7 @@ import {
   isAdminLoggedIn,
   signInAdmin,
 } from '../lib/auth';
+import { supabaseConfigured } from '../lib/supabase';
 import { LETTERMARK_URL, WEBSITE_LOGO_ALT } from '../config/brand';
 
 const Footer: React.FC = () => {
@@ -16,17 +17,20 @@ const Footer: React.FC = () => {
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
+  const [loginError, setLoginError] = useState('');
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError('');
     setIsLoggingIn(true);
     try {
-      await signInAdmin(loginForm.email.trim(), loginForm.password);
+      await signInAdmin(loginForm.email, loginForm.password);
       setIsLoggedIn(true);
       setLoginForm({ email: '', password: '' });
       setShowLogin(false);
       navigate('/dashboard');
-    } catch {
-      alert('Invalid credentials or unauthorized account.');
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : 'Login failed.');
     } finally {
       setIsLoggingIn(false);
     }
@@ -183,9 +187,19 @@ const Footer: React.FC = () => {
                   </button>
                   {showLogin && (
                     <form onSubmit={handleLogin} className="mt-3 space-y-2">
+                      {!supabaseConfigured && (
+                        <p className="text-[11px] text-red-400" role="alert">
+                          Admin login is unavailable — Supabase is not configured.
+                        </p>
+                      )}
+                      {loginError && (
+                        <p className="text-[11px] text-red-400" role="alert">
+                          {loginError}
+                        </p>
+                      )}
                       <input
                         type="email"
-                        placeholder="Email"
+                        placeholder="jeremy@hoppytech.com"
                         value={loginForm.email}
                         onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
                         className="w-full px-3 py-2 rounded-lg text-xs text-ink placeholder-muted-2 focus:outline-none transition-colors"

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { supabase, supabaseConfigured } from '../lib/supabase';
 import { TENANTS, getTenantConfig, buildCallbackUrl, type TenantConfig } from '../lib/portal';
 import { BRAND } from '../config/brandColors';
 
@@ -20,8 +20,8 @@ export default function Portal() {
   const signingOutRef = useRef(false);
 
   useEffect(() => {
-    if (!supabase) {
-      setError('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to Vercel env vars.');
+    if (!supabaseConfigured || !supabase) {
+      setError('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY (or VITE_SUPABASE_ANON_KEY) to Vercel env vars.');
       setView('error');
       return;
     }

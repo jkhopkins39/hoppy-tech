@@ -1,13 +1,17 @@
-import type { Session } from '@supabase/supabase-js';
-import { supabase } from './supabase';
+import type { Session, User } from '@supabase/supabase-js';
+import { supabase, supabaseConfigured } from './supabase';
 
 export const AUTH_CHANGE_EVENT = 'admin-auth-change';
 
 let cachedSession: Session | null = null;
 let listenerStarted = false;
 
+export function isAgencyOwner(user: User | null | undefined): boolean {
+  return user?.app_metadata?.role === 'agency_owner';
+}
+
 function isAllowedAdmin(session: Session | null): boolean {
-  return !!session?.access_token && session.user.app_metadata?.role === 'agency_owner';
+  return !!session?.access_token && isAgencyOwner(session.user);
 }
 
 export function notifyAuthChange(): void {
@@ -39,15 +43,32 @@ export function authHeaders(): Record<string, string> {
 }
 
 export async function signInAdmin(email: string, password: string): Promise<void> {
-  if (!supabase) throw new Error('Admin login is not configured.');
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
+  if (!supabaseConfigured || !supabase) {
+    throw new Error('Admin login is not configured on this site. Missing Supabase env vars.');
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: normalizedEmail,
+    password,
+  });
+
+  if (error) {
+    if (error.message === 'Invalid login credentials') {
+      throw new Error('Incorrect email or password for the agency owner account.');
+    }
+    throw new Error(error.message);
+  }
+
   if (!isAllowedAdmin(data.session)) {
     await supabase.auth.signOut();
     cachedSession = null;
     notifyAuthChange();
-    throw new Error('This account is not authorized for admin access.');
+    throw new Error(
+      'That account is not an agency owner. Use jeremy@hoppytech.com (or your agency owner login), not a client portal account.',
+    );
   }
+
   cachedSession = data.session;
   notifyAuthChange();
 }

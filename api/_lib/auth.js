@@ -2,6 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 
 let adminClient = null;
 
+export function isAgencyOwner(user) {
+  return user?.app_metadata?.role === 'agency_owner';
+}
+
 function getSupabaseAdmin() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const serviceRoleKey =
@@ -41,7 +45,7 @@ export async function verifyAdminToken(authHeader) {
     const { data: { user }, error } = await supabase.auth.getUser(token);
 
     if (error || !user) return false;
-    return user.app_metadata?.role === 'agency_owner';
+    return isAgencyOwner(user);
   } catch {
     return false;
   }
