@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { motion, type Variants } from "framer-motion";
 import NavBar from "../components/NavBar";
 import Chatbot from "../components/Chatbot";
+import HeroPortfolioShowcase from "../components/HeroPortfolioShowcase";
 import About from "./About";
 import Blog from "./Blog";
 import Contact from "./Contact";
@@ -51,10 +52,6 @@ const cardItem: Variants = {
   },
 };
 
-/** Focal point in Introduction.jpg / output.webm (face) — keeps overlay animation aligned when cropped */
-const HERO_MEDIA_FOCUS = { x: 56, y: 27 };
-const heroMediaPosition = `${HERO_MEDIA_FOCUS.x}% ${HERO_MEDIA_FOCUS.y}%`;
-
 function HomePage() {
   const navigate = useNavigate();
   const glowRef = useRef<HTMLDivElement>(null);
@@ -73,69 +70,11 @@ function HomePage() {
   return (
     <>
       {/* ─── Hero ────────────────────────────────────────── */}
-      {/* Mobile: flex column (photo on top, text below). Desktop: photo absolutely positioned on right half. */}
-      <section className="relative overflow-hidden flex flex-col md:block">
-        {/* Portrait — isolated compositor layer; no mix-blend/mask (breaks fixed overlays) */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
-          className="hero-portrait-stack relative flex-none h-[52vh] w-full md:absolute md:inset-y-0 md:right-0 md:h-auto md:w-[55%] z-0"
-        >
-          <img
-            src="/Introduction.jpg"
-            alt="Jeremy Hopkins, founder of Hoppy Tech"
-            className="hero-portrait-img absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: heroMediaPosition }}
-            loading="eager"
-          />
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="hero-portrait-video absolute inset-0 h-full w-full object-cover opacity-[0.42] pointer-events-none"
-            style={{ objectPosition: heroMediaPosition }}
-          >
-            <source src="/video/output.webm" type="video/webm" />
-          </video>
-          {/* Left fade into text column (replaces mask-image) */}
-          <div
-            className="hidden md:block absolute inset-y-0 left-0 w-[42%] z-10 pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(to right, var(--canvas) 0%, color-mix(in srgb, var(--canvas) 92%, transparent) 30%, transparent 100%)",
-            }}
-          />
-          {/* Right gradient — desktop only */}
-          <div
-            className="hidden md:block absolute inset-y-0 right-0 w-[14%] z-10"
-            style={{ background: "linear-gradient(to left, var(--canvas) 0%, transparent 65%)" }}
-          />
-          {/* Bottom gradient — fades photo into text section on both mobile and desktop */}
-          <div
-            className="absolute inset-x-0 bottom-0 h-14 z-10"
-            style={{ background: "linear-gradient(to top, var(--canvas) 0%, transparent 70%)" }}
-          />
-          {/* Top gradient — desktop only */}
-          <div
-            className="hidden md:block absolute inset-x-0 top-0 h-16 z-10"
-            style={{ background: "linear-gradient(to bottom, var(--canvas) 0%, transparent 65%)" }}
-          />
-        </motion.div>
-
-        {/* Ambient glow — follows cursor subtly via direct DOM update (no re-render) */}
-        <div
-          ref={glowRef}
-          className="hero-ambient-glow pointer-events-none absolute inset-0 z-[1]"
-          style={{
-            background: "radial-gradient(ellipse 38% 32% at 30% 40%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, color-mix(in srgb, var(--accent) 3%, transparent) 38%, transparent 52%)",
-          }}
-        />
-
-        {/* Text content */}
-        <div className="relative z-[5] flex flex-col justify-center flex-1 md:min-h-[calc(100vh-68px)] max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-24">
-          <div className="md:w-[52%]">
+      <section className="relative overflow-hidden xl:min-h-[calc(100vh-68px)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 lg:gap-x-8 xl:gap-x-0 xl:grid-cols-1 xl:relative xl:min-h-[calc(100vh-68px)] xl:items-stretch">
+          {/* Text — always above showcase in stacking order when overlap could occur */}
+          <div className="relative z-[5] order-2 lg:order-1 flex flex-col justify-center py-8 lg:py-12 xl:absolute xl:inset-y-0 xl:left-0 xl:w-[min(100%,52%)] xl:py-24 xl:pr-6">
+            <div className="w-full max-w-xl min-w-0">
             {/* Heading */}
             <motion.h1
               custom={1}
@@ -217,15 +156,35 @@ function HomePage() {
                 View My Work
               </button>
             </motion.div>
+            </div>
           </div>
+
+          {/* Portfolio showcase */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+            className="hero-showcase-stack relative order-1 lg:order-2 z-0 flex items-center justify-center py-6 lg:py-8 xl:absolute xl:inset-y-0 xl:right-0 xl:w-[min(100%,46%)] xl:py-6 xl:px-2 min-w-0"
+          >
+            <HeroPortfolioShowcase />
+          </motion.div>
         </div>
+
+        {/* Ambient glow — text column only */}
+        <div
+          ref={glowRef}
+          className="hero-ambient-glow pointer-events-none absolute inset-y-0 left-0 w-full lg:w-1/2 xl:w-[48%] z-[1]"
+          style={{
+            background: "radial-gradient(ellipse 38% 32% at 30% 40%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, color-mix(in srgb, var(--accent) 3%, transparent) 38%, transparent 52%)",
+          }}
+        />
 
         {/* Scroll indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
-          className="hidden md:flex md:flex-col absolute bottom-6 left-1/2 -translate-x-1/2 items-center gap-1.5 text-muted z-[5]"
+          className="hidden xl:flex xl:flex-col absolute bottom-6 left-1/2 -translate-x-1/2 items-center gap-1.5 text-muted z-[5]"
         >
           <span className="text-[11px] uppercase tracking-widest">Scroll</span>
           <motion.div

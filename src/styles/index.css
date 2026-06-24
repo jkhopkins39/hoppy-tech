@@ -259,22 +259,221 @@ a {
   transition: translate var(--speed, 0.5s) var(--easing, ease) !important;
 }
 
-/* ─── Hero portrait (home) — flat compositor layer for fixed UI overlays ─ */
-.hero-portrait-stack {
+/* ─── Hero portfolio showcase (home) ─────────────────────── */
+.hero-showcase-stack {
   isolation: isolate;
-  transform: translate3d(0, 0, 0);
+}
+
+.hero-showcase-stack::before,
+.hero-showcase-stack::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: clamp(28px, 8vh, 56px);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-showcase-stack::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--canvas) 0%, transparent 100%);
+}
+
+.hero-showcase-stack::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--canvas) 0%, transparent 100%);
+}
+
+.hero-showcase {
+  --showcase-h: clamp(240px, 58vh, 540px);
+  --showcase-w: min(420px, 100%);
+  position: relative;
+  width: 100%;
+  max-width: var(--showcase-w);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.hero-showcase__viewport {
+  width: 100%;
+  height: var(--showcase-h);
+  border-radius: 16px;
+  outline: none;
+  overflow: hidden;
+  touch-action: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 11%, #000 89%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 11%, #000 89%, transparent 100%);
+}
+
+.hero-showcase__viewport--auto {
+  cursor: pointer;
+}
+
+.hero-showcase__viewport--interactive {
+  cursor: grab;
+}
+
+.hero-showcase__viewport--interactive:active {
+  cursor: grabbing;
+}
+
+.hero-showcase__viewport:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.hero-showcase__track {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: calc(var(--showcase-h) * 0.28) 0;
+  will-change: transform;
   backface-visibility: hidden;
 }
 
-.hero-portrait-img,
-.hero-portrait-video {
-  transform: translate3d(0, 0, 0);
+.hero-showcase__segment {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: none;
 }
 
-/* Hide animated video while chat toggles over the portrait area */
-html[data-chat-over-portrait] .hero-portrait-video,
-html[data-chat-over-portrait] .hero-ambient-glow {
-  visibility: hidden;
+.hero-showcase__card {
+  flex: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0.86;
+}
+
+.hero-showcase__card--active {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+.hero-showcase__frame {
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.hero-showcase__card--active .hero-showcase__frame {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border-color));
+  box-shadow: 0 18px 44px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.hero-showcase__chrome {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--surface) 92%, var(--canvas));
+  border-bottom: 1px solid var(--border-color);
+}
+
+.hero-showcase__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--muted) 35%, transparent);
+}
+
+.hero-showcase__dot:first-child {
+  background: color-mix(in srgb, #ef4444 70%, var(--muted));
+}
+
+.hero-showcase__dot:nth-child(2) {
+  background: color-mix(in srgb, #eab308 70%, var(--muted));
+}
+
+.hero-showcase__dot:nth-child(3) {
+  background: color-mix(in srgb, #22c55e 70%, var(--muted));
+}
+
+.hero-showcase__url {
+  margin-left: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.hero-showcase__screen {
+  height: clamp(140px, calc(var(--showcase-h) * 0.46), 260px);
+  background: var(--canvas);
+  overflow: hidden;
+}
+
+.hero-showcase__screen img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.hero-showcase__screen img.hero-showcase__img--contain {
+  object-fit: contain;
+  object-position: top center;
+}
+
+.hero-showcase__footer {
+  display: flex;
+  justify-content: center;
+}
+
+.hero-showcase__view-btn {
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.hero-showcase__view-btn:hover {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 42%, transparent);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 639px) {
+  .hero-showcase {
+    --showcase-h: clamp(220px, 50vh, 380px);
+    --showcase-w: min(360px, 94vw);
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hero-showcase {
+    --showcase-h: clamp(260px, 52vh, 460px);
+    --showcase-w: min(380px, 88%);
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .hero-showcase {
+    --showcase-h: clamp(280px, 56vh, 500px);
+    --showcase-w: min(360px, 100%);
+  }
+}
+
+@media (min-width: 1280px) {
+  .hero-showcase {
+    --showcase-h: clamp(300px, 62vh, 540px);
+    --showcase-w: min(420px, 100%);
+  }
 }
 
 /* ─── Chatbot (portaled) ─────────────────────────────────── */

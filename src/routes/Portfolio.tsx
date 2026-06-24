@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '../components/Footer';
 import { AUTH_CHANGE_EVENT, isAdminLoggedIn } from '../lib/auth';
@@ -40,6 +41,7 @@ function TechTag({ tech, category }: { tech: string; category: Project['category
 }
 
 const Portfolio: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [expandedProject, setExpandedProject] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -77,13 +79,32 @@ const Portfolio: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
+    if (searchParams.get('project')) return;
     setExpandedProject(null);
     setSelectedTag(null);
-  }, [selectedCategory]);
+  }, [selectedCategory, searchParams]);
 
   React.useEffect(() => {
+    if (searchParams.get('project')) return;
     setExpandedProject(null);
-  }, [selectedTag]);
+  }, [selectedTag, searchParams]);
+
+  React.useEffect(() => {
+    const raw = searchParams.get('project');
+    if (!raw) return;
+    const id = parseInt(raw, 10);
+    if (!Number.isFinite(id)) return;
+    if (!projects.some((p) => p.id === id)) return;
+
+    setSelectedCategory('all');
+    setSelectedTag(null);
+    setExpandedProject(id);
+
+    const timer = window.setTimeout(() => {
+      document.getElementById(`portfolio-project-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 450);
+    return () => window.clearTimeout(timer);
+  }, [searchParams, projects]);
 
   const saveProjects = (p: Project[]) => {
     setProjects(p);
@@ -371,6 +392,7 @@ const Portfolio: React.FC = () => {
               return (
                 <motion.div
                   key={project.id}
+                  id={`portfolio-project-${project.id}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
