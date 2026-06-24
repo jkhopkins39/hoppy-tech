@@ -259,6 +259,23 @@ a {
   transition: translate var(--speed, 0.5s) var(--easing, ease) !important;
 }
 
+/* ─── Chatbot (portaled — isolated compositor layer) ─────── */
+.chatbot-root,
+.chatbot-root * {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow !important;
+}
+
+.chatbot-fab,
+.chatbot-panel {
+  isolation: isolate;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.chatbot-panel > div {
+  background: var(--surface);
+}
+
 /* ─── Framer Motion override (don't transition layout) ───── */
 [data-framer-motion] * {
   transition: none !important;

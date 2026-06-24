@@ -74,13 +74,13 @@ function HomePage() {
     <>
       {/* ─── Hero ────────────────────────────────────────── */}
       {/* Mobile: flex column (photo on top, text below). Desktop: photo absolutely positioned on right half. */}
-      <section className="relative overflow-hidden flex flex-col md:block">
+      <section className="relative overflow-hidden flex flex-col md:block isolate">
         {/* Full-bleed photo */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
-          className="relative flex-none h-[52vh] w-full md:absolute md:inset-y-0 md:right-0 md:h-auto md:w-[55%] z-0 md:[mask-image:linear-gradient(to_right,transparent_0%,black_28%)] md:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_28%)]"
+          className="relative flex-none h-[52vh] w-full md:absolute md:inset-y-0 md:right-0 md:h-auto md:w-[55%] z-0 md:[mask-image:linear-gradient(to_right,transparent_0%,black_28%)] md:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_28%)] [contain:paint]"
         >
           <img
             src="/Introduction.jpg"
@@ -387,7 +387,6 @@ function HomePage() {
       </section>
 
       <Footer />
-      <Chatbot />
     </>
   );
 }
@@ -410,6 +409,7 @@ function SiteLayout() {
           <Route path="/quote" element={<Quote />} />
         </Routes>
       </main>
+      <Chatbot />
     </div>
   );
 }

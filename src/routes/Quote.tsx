@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
-import Chatbot from "../components/Chatbot";
 import { BRAND } from "../config/brandColors";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -633,7 +632,6 @@ export default function Quote() {
       </section>
 
       <Footer />
-      <Chatbot />
     </>
   );
 }

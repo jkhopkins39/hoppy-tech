@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
 function parseInline(text: string): React.ReactNode[] {
   return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/).map((part, i) => {
@@ -61,6 +62,8 @@ interface Message {
 const INTAKE_RE = /\[SUBMIT_INTAKE]([\s\S]*?)\[\/SUBMIT_INTAKE]/;
 
 const Chatbot: React.FC = () => {
+  const reduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [sessionId] = useState(() => crypto.randomUUID());
   const [messages, setMessages] = useState<Message[]>([
@@ -74,6 +77,10 @@ const Chatbot: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -231,15 +238,24 @@ const Chatbot: React.FC = () => {
     }
   };
 
-  return (
-    <>
+  const panelMotion = reduceMotion
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+    : {
+        initial: { opacity: 0, y: 16 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: 16 },
+      };
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="chatbot-root pointer-events-none fixed inset-0 z-[60]">
       {/* Floating button */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+      <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? 'Close chat' : 'Open chat'}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-colors duration-200"
+        className="chatbot-fab pointer-events-auto fixed bottom-6 right-6 z-[61] w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-transform duration-200 hover:scale-105 active:scale-95"
         style={{
           background: isOpen
             ? 'var(--surface)'
@@ -285,18 +301,16 @@ const Chatbot: React.FC = () => {
             </motion.svg>
           )}
         </AnimatePresence>
-      </motion.button>
+      </button>
 
-      {/* Chat window */}
+      {/* Chat window — opacity/y only (no scale) to avoid compositor glitches over hero blend layers */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.94 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.94 }}
-            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed bottom-24 right-6 z-50 w-[340px]"
-            style={{ height: '440px', transformOrigin: 'bottom right' }}
+            {...panelMotion}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="chatbot-panel pointer-events-auto fixed bottom-24 right-6 z-[61] w-[340px]"
+            style={{ height: '440px' }}
           >
           <div
             className="w-full h-full flex flex-col rounded-2xl overflow-hidden"
@@ -435,7 +449,8 @@ const Chatbot: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>,
+    document.body,
   );
 };
 
