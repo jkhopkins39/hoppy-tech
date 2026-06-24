@@ -107,7 +107,7 @@ export default async function handler(req) {
   }));
 
   const genConfig = {
-    maxOutputTokens: 384,
+    maxOutputTokens: 1024,
     temperature: 0.6,
     systemInstruction: CHAT_SYSTEM_PROMPT,
   };

@@ -142,6 +142,24 @@ const Chatbot: React.FC = () => {
           }
         }
       }
+
+      // Flush any final chunk that did not end with a newline
+      if (buffer.trim()) {
+        try {
+          const obj = JSON.parse(buffer) as { t?: string; done?: boolean; error?: string };
+          if (obj.error) throw new Error(obj.error);
+          if (obj.t) {
+            acc += obj.t;
+            setMessages((prev) => {
+              const next = [...prev];
+              next[next.length - 1] = { ...next[next.length - 1], content: acc };
+              return next;
+            });
+          }
+        } catch (e) {
+          if (!(e instanceof SyntaxError)) throw e;
+        }
+      }
       // Detect and process intake submission marker
       const intakeMatch = INTAKE_RE.exec(acc);
       const cleanText = intakeMatch ? acc.replace(INTAKE_RE, '').trim() : null;
