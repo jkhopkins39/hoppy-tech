@@ -1,5 +1,19 @@
 [
   {
+    "id": "1782418388444",
+    "title": "AI Socials!",
+    "content": "Managing social media can be a hassle, especially when you're already busy all day. This is where Hoppy Tech can help!\n\nAt Hoppy Tech, we offer a variety of customized solutions for automating your social platforms. A good example is Facebook. If you have a Facebook business page, we can actually completely manage that for you, but still allow you to change, delete, and add posts whenever you want!\n\nHow it works:\nA Claude subagent sits around 24/7 and just waits for you to send it some pictures and videos, but once you do it will write a relevant and algorithm-friendly caption to match the content. Most impressively, it can even analyze the content you hand it and add those details to the caption!\n\nIf you want to take it a step further and go fully hands off, we also offer options for generating relevant content. This is especially helpful for advertisements and showing off what you have to offer in a brief video that you couldn't make on your own.\n\nSo what are you waiting for? Reach out today and let's get the ball rolling!",
+    "excerpt": "Automate your marketing",
+    "author": "Jeremy Hopkins",
+    "date": "2026-06-25",
+    "tags": [
+      "AI",
+      "Social Media",
+      "Automation"
+    ],
+    "readTime": 1
+  },
+  {
     "id": "1781637747991",
     "title": "Errr...can we consolidate??",
     "content": "In the past year, I have become acquainted with various B2B SaaS, and the current stack I utilize is highly effective, however there are still pain points!\n\nOne thing that can be hard when designing stacks from scratch is scope overlap; what happens when one service offers similar authentication to another service you use? One day, you might choose to use one for one project, but on another day you might use the other one. Now you have user data split between multiple sources! It's harder to keep track of, troubleshoot, and update when you do things this way.\n\nThe optimal tech stack I have landed on for optimal client experience:\n\nVercel strictly for server-less front-end hosting\nSupabase for user authentication and all data storage (structured and unstructured! This is a big point of contention since Vercel offers Blob)\nResend for client communication; this is also big because a well-known service Web3Forms offers a similar service, however if you have already configured domains with one email service, it's a good idea to put all your eggs in one basket.\n\nWhere it's NOT good to consolidate:\n\nI have actually found that consolidating your operations under a single AI is a bad idea; Anthropic goes down like once a week! And same for OpenAI, Google, and Grok. The optimal solution to AI outages is employing multiple agents from different providers.\n\nThese are the reasons why client hosting prices can be expensive at other companies. But at Hoppy Tech, we are proud to host for considerably cheaper than any of the competition, with superior customer service and turnaround time!\n",
