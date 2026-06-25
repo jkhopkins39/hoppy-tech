@@ -4,8 +4,8 @@ import type { Project } from './portfolioTypes';
 export type { Project } from './portfolioTypes';
 
 /** Projects removed from the portfolio but that may still exist in cached localStorage. */
-export const REMOVED_PROJECT_TITLES = ['Landlock Solutions LLC'] as const;
-export const REMOVED_PROJECT_URLS = ['https://landlocksolutionsllc.com'] as const;
+export const REMOVED_PROJECT_TITLES = ['Landlock Solutions LLC', 'SXNCTUARY'] as const;
+export const REMOVED_PROJECT_URLS = ['https://landlocksolutionsllc.com', 'https://sxnctuary.com'] as const;
 
 export const initialProjects: Project[] = portfolioProjects;
 
