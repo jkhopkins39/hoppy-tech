@@ -7,9 +7,9 @@ import Footer from "../components/Footer";
 const educationHistory = [
   {
     title: "Kennesaw State University",
-    period: "2022–2025",
+    period: "2022–2026",
     description:
-      "Pursuing a BS in Computer Science with a focus in Artificial Intelligence. Built the majority of my portfolio projects during my time at KSU, ranging from AI integrations to full-stack web applications.",
+      "Earned a BS in Computer Science with a focus in Artificial Intelligence. Built the majority of my portfolio projects during my time at KSU, ranging from AI integrations to full-stack web applications.",
     image: "/images/education/marietta-campus.jpg",
   },
   {
@@ -62,7 +62,7 @@ function About() {
           </span>
         </motion.h1>
         <motion.p {...fadeUp(2)} className="mt-4 text-muted text-lg leading-relaxed max-w-2xl">
-          I'm a Computer Science student at Kennesaw State University with a concentration in Artificial Intelligence. I enjoy building stuff with new random technologies.
+          I&apos;m Jeremy Hopkins, KSU Alumni and AI Intern. I enjoy building stuff with new random technologies.
         </motion.p>
       </div>
 
