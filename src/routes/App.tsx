@@ -81,7 +81,7 @@ function HomePage() {
               initial="hidden"
               animate="show"
               variants={fadeUp}
-              className="text-[clamp(2.6rem,6vw,5.2rem)] font-bold leading-[1.08] tracking-tight text-ink mb-6"
+              className="text-[clamp(2.35rem,5.5vw,4.75rem)] font-bold leading-[1.08] tracking-tight text-ink mb-6"
             >
               Hoppy Tech<br />
               <span
@@ -109,10 +109,10 @@ function HomePage() {
               variants={fadeUp}
               className="text-muted text-lg leading-relaxed max-w-xl mb-10"
             >
-              Hoppy Tech is a technology company founded by Jeremy Hopkins, with the goal
+              Hoppy Tech is a technology company founded with the goal
               of bridging the gap between business needs and new, emerging technologies.
-              Whether you need a simple portfolio, a digital storefront, or a custom AI knowledgebase
-              for your IT department, Hoppy Tech can help. Reach out today for a free consultation!
+              Reach out today for a free consultation so we can meet you where you are
+              and elevate your operations.
             </motion.p>
 
             {/* CTAs */}

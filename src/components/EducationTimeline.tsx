@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { BRAND } from "../config/brandColors";
+import { BRAND, SKY_BLUE_A14, NAVY_MID_A14 } from "../config/brandColors";
 
 interface TimelineItem {
   title: string;
@@ -15,9 +15,9 @@ interface EducationTimelineProps {
 
 const EducationTimeline: React.FC<EducationTimelineProps> = ({ items }) => {
   const accents = [
-    { line: BRAND.skyBlue, dot: BRAND.skyBlue, tag: "rgba(142, 202, 230, 0.14)", tagText: BRAND.navy },
+    { line: BRAND.skyBlue, dot: BRAND.skyBlue, tag: SKY_BLUE_A14, tagText: BRAND.navy },
     { line: BRAND.orange, dot: BRAND.orange, tag: "rgba(251, 133, 0, 0.14)", tagText: BRAND.orange },
-    { line: BRAND.navyMid, dot: BRAND.navyMid, tag: "rgba(3, 69, 99, 0.14)", tagText: BRAND.skyBlueLight },
+    { line: BRAND.navyMid, dot: BRAND.navyMid, tag: NAVY_MID_A14, tagText: BRAND.skyBlueLight },
   ];
 
   return (

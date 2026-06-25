@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BRAND } from '../config/brandColors';
+import { BRAND, SKY_BLUE_A10, SKY_BLUE_LIGHT_A12, NAVY_MID_A12 } from '../config/brandColors';
 
 const SkillsDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,7 +9,7 @@ const SkillsDropdown: React.FC = () => {
     {
       category: "Languages",
       accent: BRAND.skyBlue,
-      bg: "rgba(142, 202, 230, 0.1)",
+      bg: SKY_BLUE_A10,
       items: ["JavaScript", "TypeScript", "Python", "Java", "C#", "HTML", "CSS"],
     },
     {
@@ -21,13 +21,13 @@ const SkillsDropdown: React.FC = () => {
     {
       category: "Tools",
       accent: BRAND.skyBlueLight,
-      bg: "rgba(181, 219, 240, 0.12)",
+      bg: SKY_BLUE_LIGHT_A12,
       items: ["Git", "SQL", "Linux", "OpenAI API", "MS Office"],
     },
     {
       category: "Soft Skills",
       accent: BRAND.navyMid,
-      bg: "rgba(3, 69, 99, 0.12)",
+      bg: NAVY_MID_A12,
       items: ["Problem Solving", "Leadership", "Communication", "Project Mgmt", "Detail-Oriented"],
     },
   ];

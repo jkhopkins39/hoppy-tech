@@ -430,7 +430,7 @@ const Chatbot: React.FC = () => {
                 onKeyDown={handleKey}
                 placeholder="Ask me anything..."
                 disabled={isLoading}
-                className="flex-1 px-3.5 py-2.5 rounded-xl text-[13px] text-ink placeholder-muted-2 disabled:opacity-50 transition-colors focus:outline-none"
+                className="flex-1 px-3.5 py-2.5 rounded-xl text-base sm:text-[13px] text-ink placeholder-muted-2 disabled:opacity-50 transition-colors focus:outline-none"
                 style={{
                   background: 'var(--surface-alpha)',
                   border: '1px solid var(--border-color)',

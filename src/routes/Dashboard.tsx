@@ -14,7 +14,7 @@ import {
   submissionPreview,
   updateSubmissionRead,
 } from '../lib/admin-dashboard';
-import { BRAND } from '../config/brandColors';
+import { BRAND, SKY_BLUE_A14, NAVY_MID_A14 } from '../config/brandColors';
 
 type Tab = 'messages' | 'conversations';
 type Filter = 'all' | 'unread' | 'read';
@@ -221,9 +221,9 @@ const Dashboard: React.FC = () => {
           <>
             <div className="grid grid-cols-3 gap-4 mb-8">
               {[
-                { label: 'Total', value: submissions.length, color: BRAND.skyBlue, bg: 'rgba(142, 202, 230, 0.14)' },
+                { label: 'Total', value: submissions.length, color: BRAND.skyBlue, bg: SKY_BLUE_A14 },
                 { label: 'Unread', value: unreadCount, color: BRAND.orange, bg: 'rgba(251, 133, 0, 0.14)' },
-                { label: 'Read', value: submissions.length - unreadCount, color: BRAND.navyMid, bg: 'rgba(3, 69, 99, 0.14)' },
+                { label: 'Read', value: submissions.length - unreadCount, color: BRAND.navyMid, bg: NAVY_MID_A14 },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-2xl border border-subtle bg-surface p-5">
                   <div className="text-2xl font-bold text-ink">{stat.value}</div>

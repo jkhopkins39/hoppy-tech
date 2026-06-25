@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "../components/Footer";
 import { authHeaders, isAdminLoggedIn } from "../lib/auth";
-import { BRAND, BLOG_TAG_STYLES_DARK, BLOG_TAG_STYLES_LIGHT } from "../config/brandColors";
+import { BRAND, BLOG_TAG_STYLES_DARK, BLOG_TAG_STYLES_LIGHT, SKY_BLUE_A14 } from "../config/brandColors";
 import { useTheme } from "../context/ThemeContext";
 
 interface BlogPost {
@@ -327,7 +327,7 @@ const Blog: React.FC = () => {
                       <div className="flex items-center gap-3 text-[13px] text-muted">
                         <span
                           className="px-2.5 py-1 rounded-lg text-[11px] font-bold"
-                          style={{ background: 'rgba(142, 202, 230, 0.14)', color: BRAND.skyBlue }}
+                          style={{ background: SKY_BLUE_A14, color: BRAND.skyBlue }}
                         >
                           #{String(blogPosts.length - i).padStart(2, '0')}
                         </span>
