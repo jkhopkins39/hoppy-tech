@@ -352,23 +352,6 @@ const Contact: React.FC = () => {
                 ))}
               </div>
             </div>
-
-            {/* Response note */}
-            <div className="p-5 rounded-2xl border border-accent-subtle-2 bg-accent-subtle-2">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-none mt-0.5 bg-accent-subtle">
-                  <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-[13px] font-semibold text-ink mb-1">Quick Response</p>
-                  <p className="text-muted text-sm leading-relaxed">
-                    I typically respond within 24 hours. For urgent matters, reach out on LinkedIn.
-                  </p>
-                </div>
-              </div>
-            </div>
           </motion.div>
         </div>
       </div>
