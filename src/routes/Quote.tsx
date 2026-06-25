@@ -80,8 +80,8 @@ function computeQuote(sel: Sel) {
   else if (sel.socialTier === "full") add({ label: "Full Socials Package", monthly: 400 });
   else if (sel.socialTier === "elite") add({ label: "Elite Socials Package", monthly: 1_337 });
 
-  if (sel.video30s > 0) add({ label: `30s AI Video ×${sel.video30s}`, oneTime: sel.video30s * 250 });
-  if (sel.video60s > 0) add({ label: `60s AI Video ×${sel.video60s}`, oneTime: sel.video60s * 400 });
+  if (sel.video30s > 0) add({ label: `30s AI Video ×${sel.video30s}`, oneTime: sel.video30s * 125 });
+  if (sel.video60s > 0) add({ label: `60s AI Video ×${sel.video60s}`, oneTime: sel.video60s * 225 });
 
   if (sel.cvTier === "standard") add({ label: "Computer Vision — Standard", oneTime: 1_500, monthly: 100 });
   else if (sel.cvTier === "custom") add({ label: "Computer Vision — Custom Models", oneTime: 3_500, monthly: 200 });
@@ -91,8 +91,8 @@ function computeQuote(sel: Sel) {
   else if (sel.analyticsTier === "professional") add({ label: "Predictive Analytics — Professional", oneTime: 3_500, monthly: 250 });
   else if (sel.analyticsTier === "enterprise") add({ label: "Predictive Analytics — Enterprise", custom: true });
 
-  if (sel.ecommerce) add({ label: "E-Commerce Module", oneTime: 500 });
-  if (sel.booking) add({ label: "Booking & Appointment System", oneTime: 300, monthly: 15 });
+  if (sel.ecommerce) add({ label: "E-Commerce Module", oneTime: 350 });
+  if (sel.booking) add({ label: "Booking & Appointment System", oneTime: 200, monthly: 15 });
   if (sel.seo) add({ label: "SEO Foundation Package", oneTime: 200 });
   if (sel.customDashboard) add({ label: "Custom Analytics Dashboard", oneTime: 600, monthly: 25 });
   if (sel.apiIntegrations > 0) add({ label: `API Integrations ×${sel.apiIntegrations}`, oneTime: sel.apiIntegrations * 200 });
@@ -384,10 +384,11 @@ export default function Quote() {
                 oneTime={400} accent={BRAND.skyBlue} />
             </SectionCard>
 
-            {/* 2 — Website Add-Ons */}
-            <SectionCard index={2} accent={BRAND.skyBlueLight} categoryLabel="Add-Ons" title="Website Enhancements"
-              description="Optional services that expand what your website can do out of the box."
-              icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>}>
+            {/* 2 — Website & platform add-ons */}
+            <SectionCard index={2} accent={BRAND.skyBlueLight} categoryLabel="Add-Ons" title="Website & Platform Enhancements"
+              description="Optional upgrades that extend what your site can do — from email and storage to e-commerce, booking, SEO, integrations, and mobile."
+              icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>}
+              suggested>
               <CheckOption checked={sel.emailSystem} onChange={() => toggle("emailSystem")}
                 label="Email System"
                 description="Receive an email whenever a client submits your contact form, plus the ability to send newsletters and bulk emails from your own domain."
@@ -397,94 +398,117 @@ export default function Quote() {
                 description="Dedicated cloud storage for images, PDFs, and other files beyond the built-in contact intake. Scales with your usage."
                 monthly={10} accent={BRAND.skyBlueLight}
                 note="Starting at $10/mo — storage tiers expand as needed." />
-            </SectionCard>
-
-            {/* 3 — AI Tools */}
-            <SectionCard index={3} accent={BRAND.orange} categoryLabel="Artificial Intelligence" title="AI-Powered Tools"
-              description="Purpose-built AI features — from a smart chatbot on your site to a full enterprise knowledgebase your team can query in plain English."
-              icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>}>
-              <CheckOption checked={sel.chatbot} onChange={() => toggle("chatbot")}
-                label="Context-Aware Website Chatbot"
-                description="An AI assistant embedded on your site that understands your business, answers questions, qualifies leads, and routes visitors — available 24/7. Trained on your content and connected to your database."
-                oneTime={250} monthly={15} accent={BRAND.orange}
-                note="Based on standard usage. High-traffic sites may be adjusted." />
-
+              <CheckOption checked={sel.ecommerce} onChange={() => toggle("ecommerce")}
+                label="E-Commerce Module"
+                description="Add a full online store — product catalog, shopping cart, Stripe payments, and order management in your admin dashboard. Payment processing fees (2.9% + 30¢/transaction) are passed through directly from Stripe."
+                oneTime={350} accent={BRAND.skyBlueLight} />
+              <CheckOption checked={sel.booking} onChange={() => toggle("booking")}
+                label="Booking & Appointment System"
+                description="Online self-booking, availability calendar, automated email/SMS confirmations, and Google/Outlook calendar sync. Customers book themselves — no back-and-forth required."
+                oneTime={200} monthly={15} accent={BRAND.skyBlueLight} />
+              <CheckOption checked={sel.seo} onChange={() => toggle("seo")}
+                label="SEO Foundation Package"
+                description="Technical SEO audit and fixes, meta tags, schema markup, XML sitemap, Google Analytics 4, Google Search Console integration, and core page speed optimization."
+                oneTime={200} accent={BRAND.skyBlueLight} />
+              <CheckOption checked={sel.customDashboard} onChange={() => toggle("customDashboard")}
+                label="Custom Analytics Dashboard"
+                description="A visual BI dashboard showing your most important KPIs — pulled from your website, CRM, sales tools, or other data sources. Exportable reports included."
+                oneTime={600} monthly={25} accent={BRAND.skyBlueLight} />
+              <Stepper value={sel.apiIntegrations} onChange={v => set("apiIntegrations", v)}
+                label="Third-Party API Integrations"
+                description="Connect your site or app to external tools — CRMs (HubSpot, Salesforce), ERPs, shipping APIs, payment processors, or any service with an API. Priced per integration."
+                priceEach={200} accent={BRAND.skyBlueLight} />
+              <CheckOption checked={sel.workflows} onChange={() => toggle("workflows")}
+                label="Automated Business Workflows"
+                description="Custom automation for repetitive operations: lead nurturing, invoice generation, report distribution, data syncing between tools, or any process that currently requires manual steps."
+                oneTime={750} monthly={50} accent={BRAND.skyBlueLight} />
               <div>
-                <p className="text-[13px] font-semibold text-ink mb-1 px-1">AI Knowledgebase (RAG)</p>
+                <p className="text-[13px] font-semibold text-ink mb-1 px-1">Mobile App (iOS & Android)</p>
                 <p className="text-muted text-[12px] mb-3 px-1 leading-relaxed">
-                  A Retrieval-Augmented Generation system that indexes your documents, SOPs, product info, or internal knowledge — so your team or customers can ask questions in plain English and get accurate, source-cited answers instantly.
+                  A native mobile app to complement your web presence. Note: Apple Developer ($99/yr) and Google Play ($25 one-time) accounts are required separately and not included.
                 </p>
-                <TierSelector value={sel.ragTier} onChange={v => set("ragTier", v as Sel["ragTier"])}
-                  accent={BRAND.orange} noneLabel="No Knowledgebase"
+                <TierSelector value={sel.mobileApp} onChange={v => set("mobileApp", v as Sel["mobileApp"])}
+                  accent={BRAND.skyBlueLight} noneLabel="No Mobile App"
                   options={[
-                    { value: "standard", label: "Standard", description: "Up to 500 documents, ~5K queries/month. Ideal for small teams, client-facing FAQs, or internal policy lookups.", oneTime: 2_500, monthly: 150 },
-                    { value: "professional", label: "Professional", description: "Up to 5,000 documents, ~50K queries/month. For growing teams with large documentation sets or high query volume.", oneTime: 4_000, monthly: 250, highlight: "Popular" },
-                    { value: "enterprise", label: "Enterprise", description: "Unlimited documents, unlimited queries, fine-tuned models, dedicated infrastructure, SLA, and priority support.", custom: true },
+                    { value: "basic", label: "Basic App", description: "Mirrors your website's core features with push notifications. Ideal for service businesses that want a branded app experience.", oneTime: 2_500 },
+                    { value: "full", label: "Full-Featured App", description: "Unique functionality beyond the website — custom navigation, offline mode, native device features (camera, GPS, biometrics), or complex integrations.", custom: true },
                   ]} />
               </div>
             </SectionCard>
 
-            {/* 4 — Social Media */}
-            <SectionCard index={4} accent={BRAND.skyBlue} categoryLabel="Social Media" title="Social Media Management"
-              description="Let AI handle your social media presence — from scheduling and posting to full autonomous content management — so you can focus on running your business."
+            {/* 3 — Social media & AI video */}
+            <SectionCard index={3} accent={BRAND.skyBlue} categoryLabel="Social & Content" title="Social Media & AI Video"
+              description="Scheduling, posting, and a social media dashboard on every paid tier — plus optional AI-generated video for your channels and campaigns."
               icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>}>
-              <TierSelector value={sel.socialTier} onChange={v => set("socialTier", v as Sel["socialTier"])}
-                accent={BRAND.skyBlue} noneLabel="No Social Package"
-                options={[
-                  {
-                    value: "basic",
-                    label: "AI Social Management",
-                    description: "You provide the content — photos, videos, captions, or ideas — and we do the rest: scheduling, posting, platform optimization, and engagement. Your voice, our execution.",
-                    monthly: 150,
-                  },
-                  {
-                    value: "full",
-                    label: "Full Socials Package",
-                    description: "Everything in Basic, plus a social media dashboard, brand-voice AI content, and hands-off management. Includes up to 3 minutes of AI-generated video per month (maximum 18 videos) for your channels.",
-                    monthly: 400,
-                    highlight: "Popular",
-                  },
-                  {
-                    value: "elite",
-                    label: "Elite Socials Package",
-                    description: "The white-glove tier. Up to 15 minutes of AI-generated content per month, plus a dedicated app connected to your social accounts — write a prompt and your post-ready content arrives within 24 hours. Also includes priority scheduling, performance analytics, content calendar planning, caption A/B suggestions, trend monitoring, and direct account support.",
-                    monthly: 1_337,
-                    highlight: "Elite",
-                  },
-                ]} />
-              {sel.socialTier === "full" && (
-                <p className="text-[12px] italic px-1 mt-1" style={{ color: BRAND.skyBlue }}>
-                  ✓ Full Socials includes up to 3 minutes of AI-generated video per month (max 18 videos) — no need to purchase individual videos for social use below.
+              <div>
+                <p className="text-[13px] font-semibold text-ink mb-1 px-1">Social Media Management</p>
+                <p className="text-muted text-[12px] mb-3 px-1 leading-relaxed">
+                  The only difference between our first two plans is whether we also produce AI-generated content for you.
                 </p>
-              )}
-              {sel.socialTier === "elite" && (
-                <p className="text-[12px] italic px-1 mt-1" style={{ color: BRAND.skyBlue }}>
-                  ✓ Elite Socials includes up to 15 minutes of AI-generated video per month plus your dedicated content app — no need to purchase individual videos for social use below.
+                <TierSelector value={sel.socialTier} onChange={v => set("socialTier", v as Sel["socialTier"])}
+                  accent={BRAND.skyBlue} noneLabel="No Social Package"
+                  options={[
+                    {
+                      value: "basic",
+                      label: "AI Social Management",
+                      description: "You provide the content — photos, videos, captions, or ideas — and we do the rest: scheduling, posting, platform optimization, engagement, and your social media dashboard. Your voice, our execution.",
+                      monthly: 150,
+                    },
+                    {
+                      value: "full",
+                      label: "Full Socials Package",
+                      description: "Same dashboard and management as AI Social Management — nothing extra on the platform side. The only upgrade: we also produce up to 3 minutes of AI-generated video per month (maximum 18 videos) in your brand voice.",
+                      monthly: 400,
+                      highlight: "Popular",
+                    },
+                    {
+                      value: "elite",
+                      label: "Elite Socials Package",
+                      description: "Everything in Full, plus more AI output — up to 15 minutes of AI-generated content per month — and a dedicated app connected to your social accounts. Write a prompt and your post-ready content arrives within 24 hours. Also includes priority support, content calendar planning, caption A/B suggestions, trend monitoring, and direct account management.",
+                      monthly: 1_337,
+                      highlight: "Elite",
+                    },
+                  ]} />
+                {(sel.socialTier === "basic" || sel.socialTier === "full") && (
+                  <p className="text-[12px] text-muted-2 px-1 mt-1">
+                    Basic and Full use the same dashboard and posting workflow — Full is the tier that adds AI-generated content.
+                  </p>
+                )}
+                {sel.socialTier === "full" && (
+                  <p className="text-[12px] italic px-1 mt-1" style={{ color: BRAND.skyBlue }}>
+                    ✓ Full Socials includes up to 3 minutes of AI-generated video per month (max 18 videos) — no need to purchase individual videos for social use below.
+                  </p>
+                )}
+                {sel.socialTier === "elite" && (
+                  <p className="text-[12px] italic px-1 mt-1" style={{ color: BRAND.skyBlue }}>
+                    ✓ Elite Socials includes up to 15 minutes of AI-generated video per month plus your dedicated content app — no need to purchase individual videos for social use below.
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-2">
+                <p className="text-[13px] font-semibold text-ink mb-1 px-1">À la carte AI Video</p>
+                <p className="text-muted text-[12px] mb-3 px-1 leading-relaxed">
+                  One-off AI-generated videos for ads, website backgrounds, product showcases, or brand storytelling — outside your social package allowance.
                 </p>
-              )}
+                <Stepper value={sel.video30s} onChange={v => set("video30s", v)}
+                  label="30-Second AI Video"
+                  description="Short-form video perfect for social ads, reels, and website hero sections."
+                  priceEach={125} accent={BRAND.orange} />
+                <Stepper value={sel.video60s} onChange={v => set("video60s", v)}
+                  label="60-Second AI Video"
+                  description="Longer content or a bundle of shorter clips totaling 60 seconds (minimum 10s per clip). Great for brand stories, explainers, or product demos."
+                  priceEach={225} accent={BRAND.orange} />
+                {(sel.socialTier === "none" || sel.socialTier === "basic") && (
+                  <p className="text-[12px] text-muted-2 px-1 italic mt-2">
+                    Tip: Basic ($150/mo) and Full ($400/mo) share the same dashboard — Full adds up to 3 min of AI video/month (max 18 videos). Elite ($1,337/mo) adds up to 15 min plus a dedicated posting app.
+                  </p>
+                )}
+              </div>
             </SectionCard>
 
-            {/* 5 — Video Content */}
-            <SectionCard index={5} accent={BRAND.orange} categoryLabel="Content Generation" title="AI Video Production"
-              description="Custom AI-generated video content — for ads, website backgrounds, product showcases, or brand storytelling. Each video is unique to your brand identity."
-              icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.069A1 1 0 0121 8.882v6.236a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>}>
-              <Stepper value={sel.video30s} onChange={v => set("video30s", v)}
-                label="30-Second AI Video"
-                description="Short-form video perfect for social ads, reels, and website hero sections."
-                priceEach={250} accent={BRAND.orange} />
-              <Stepper value={sel.video60s} onChange={v => set("video60s", v)}
-                label="60-Second AI Video"
-                description="Longer content or a bundle of shorter clips totaling 60 seconds (minimum 10s per clip). Great for brand stories, explainers, or product demos."
-                priceEach={400} accent={BRAND.orange} />
-              {(sel.socialTier === "none" || sel.socialTier === "basic") && (
-                <p className="text-[12px] text-muted-2 px-1 italic">
-                  Tip: Full Socials ($400/mo) includes up to 3 min of AI video/month (max 18 videos). Elite Socials ($1,337/mo) includes up to 15 min plus a dedicated posting app.
-                </p>
-              )}
-            </SectionCard>
-
-            {/* 6 — Business Intelligence */}
-            <SectionCard index={6} accent={BRAND.skyBlue} categoryLabel="Intelligence" title="Business Intelligence & Vision"
+            {/* 4 — Business Intelligence */}
+            <SectionCard index={4} accent={BRAND.skyBlue} categoryLabel="Intelligence" title="Business Intelligence & Vision"
               description="Advanced AI that turns your operational data and visual feeds into a competitive advantage."
               icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>}>
               <div>
@@ -516,46 +540,27 @@ export default function Quote() {
               </div>
             </SectionCard>
 
-            {/* 7 — Additional Services */}
-            <SectionCard index={7} accent={BRAND.orangeLight} categoryLabel="Additional Services" title="Expand Your Platform"
-              description="Popular add-ons that extend your digital presence. Mix and match to fit your workflow — each integrates directly with your existing Hoppy Tech setup."
-              icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>}
-              suggested>
-              <CheckOption checked={sel.ecommerce} onChange={() => toggle("ecommerce")}
-                label="E-Commerce Module"
-                description="Add a full online store — product catalog, shopping cart, Stripe payments, and order management in your admin dashboard. Payment processing fees (2.9% + 30¢/transaction) are passed through directly from Stripe."
-                oneTime={500} accent={BRAND.orangeLight} />
-              <CheckOption checked={sel.booking} onChange={() => toggle("booking")}
-                label="Booking & Appointment System"
-                description="Online self-booking, availability calendar, automated email/SMS confirmations, and Google/Outlook calendar sync. Customers book themselves — no back-and-forth required."
-                oneTime={300} monthly={15} accent={BRAND.orangeLight} />
-              <CheckOption checked={sel.seo} onChange={() => toggle("seo")}
-                label="SEO Foundation Package"
-                description="Technical SEO audit and fixes, meta tags, schema markup, XML sitemap, Google Analytics 4, Google Search Console integration, and core page speed optimization."
-                oneTime={200} accent={BRAND.orangeLight} />
-              <CheckOption checked={sel.customDashboard} onChange={() => toggle("customDashboard")}
-                label="Custom Analytics Dashboard"
-                description="A visual BI dashboard showing your most important KPIs — pulled from your website, CRM, sales tools, or other data sources. Exportable reports included."
-                oneTime={600} monthly={25} accent={BRAND.orangeLight} />
-              <Stepper value={sel.apiIntegrations} onChange={v => set("apiIntegrations", v)}
-                label="Third-Party API Integrations"
-                description="Connect your site or app to external tools — CRMs (HubSpot, Salesforce), ERPs, shipping APIs, payment processors, or any service with an API. Priced per integration."
-                priceEach={200} accent={BRAND.orangeLight} />
-              <CheckOption checked={sel.workflows} onChange={() => toggle("workflows")}
-                label="Automated Business Workflows"
-                description="Custom automation for repetitive operations: lead nurturing, invoice generation, report distribution, data syncing between tools, or any process that currently requires manual steps."
-                oneTime={750} monthly={50} accent={BRAND.orangeLight} />
+            {/* 5 — AI tools & knowledgebase */}
+            <SectionCard index={5} accent={BRAND.orange} categoryLabel="Artificial Intelligence" title="AI-Powered Tools"
+              description="Purpose-built AI features — from a smart chatbot on your site to a full enterprise knowledgebase your team can query in plain English."
+              icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>}>
+              <CheckOption checked={sel.chatbot} onChange={() => toggle("chatbot")}
+                label="Context-Aware Website Chatbot"
+                description="An AI assistant embedded on your site that understands your business, answers questions, qualifies leads, and routes visitors — available 24/7. Trained on your content and connected to your database."
+                oneTime={250} monthly={15} accent={BRAND.orange}
+                note="Based on standard usage. High-traffic sites may be adjusted." />
 
               <div>
-                <p className="text-[13px] font-semibold text-ink mb-1 px-1">Mobile App (iOS & Android)</p>
+                <p className="text-[13px] font-semibold text-ink mb-1 px-1">AI Knowledgebase (RAG)</p>
                 <p className="text-muted text-[12px] mb-3 px-1 leading-relaxed">
-                  A native mobile app to complement your web presence. Note: Apple Developer ($99/yr) and Google Play ($25 one-time) accounts are required separately and not included.
+                  A Retrieval-Augmented Generation system that indexes your documents, SOPs, product info, or internal knowledge — so your team or customers can ask questions in plain English and get accurate, source-cited answers instantly.
                 </p>
-                <TierSelector value={sel.mobileApp} onChange={v => set("mobileApp", v as Sel["mobileApp"])}
-                  accent={BRAND.orangeLight} noneLabel="No Mobile App"
+                <TierSelector value={sel.ragTier} onChange={v => set("ragTier", v as Sel["ragTier"])}
+                  accent={BRAND.orange} noneLabel="No Knowledgebase"
                   options={[
-                    { value: "basic", label: "Basic App", description: "Mirrors your website's core features with push notifications. Ideal for service businesses that want a branded app experience.", oneTime: 2_500 },
-                    { value: "full", label: "Full-Featured App", description: "Unique functionality beyond the website — custom navigation, offline mode, native device features (camera, GPS, biometrics), or complex integrations.", custom: true },
+                    { value: "standard", label: "Standard", description: "Up to 500 documents, ~5K queries/month. Ideal for small teams, client-facing FAQs, or internal policy lookups.", oneTime: 2_500, monthly: 150 },
+                    { value: "professional", label: "Professional", description: "Up to 5,000 documents, ~50K queries/month. For growing teams with large documentation sets or high query volume.", oneTime: 4_000, monthly: 250, highlight: "Popular" },
+                    { value: "enterprise", label: "Enterprise", description: "Unlimited documents, unlimited queries, fine-tuned models, dedicated infrastructure, SLA, and priority support.", custom: true },
                   ]} />
               </div>
             </SectionCard>
