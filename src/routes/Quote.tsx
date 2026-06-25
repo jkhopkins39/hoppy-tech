@@ -12,7 +12,7 @@ interface Sel {
   mediaStorage: boolean;
   chatbot: boolean;
   ragTier: "none" | "standard" | "professional" | "enterprise";
-  socialTier: "none" | "basic" | "full";
+  socialTier: "none" | "basic" | "full" | "elite";
   video30s: number;
   video60s: number;
   cvTier: "none" | "standard" | "custom" | "enterprise";
@@ -77,7 +77,8 @@ function computeQuote(sel: Sel) {
   else if (sel.ragTier === "enterprise") add({ label: "AI Knowledgebase — Enterprise", custom: true });
 
   if (sel.socialTier === "basic") add({ label: "AI Social Media Management", monthly: 150 });
-  else if (sel.socialTier === "full") add({ label: "Full Socials Package", monthly: 500 });
+  else if (sel.socialTier === "full") add({ label: "Full Socials Package", monthly: 400 });
+  else if (sel.socialTier === "elite") add({ label: "Elite Socials Package", monthly: 1_337 });
 
   if (sel.video30s > 0) add({ label: `30s AI Video ×${sel.video30s}`, oneTime: sel.video30s * 250 });
   if (sel.video60s > 0) add({ label: `60s AI Video ×${sel.video60s}`, oneTime: sel.video60s * 400 });
@@ -430,12 +431,35 @@ export default function Quote() {
               <TierSelector value={sel.socialTier} onChange={v => set("socialTier", v as Sel["socialTier"])}
                 accent={BRAND.skyBlue} noneLabel="No Social Package"
                 options={[
-                  { value: "basic", label: "AI Social Management", description: "Automated posting, scheduling, and engagement across your social platforms. A consistent presence with zero manual effort.", monthly: 150 },
-                  { value: "full", label: "Full Socials Package", description: "Everything in Basic plus a social media dashboard, unlimited AI-generated content tailored to your brand voice, and fully autonomous management. You define the strategy — it executes.", monthly: 500, highlight: "All-Inclusive" },
+                  {
+                    value: "basic",
+                    label: "AI Social Management",
+                    description: "You provide the content — photos, videos, captions, or ideas — and we do the rest: scheduling, posting, platform optimization, and engagement. Your voice, our execution.",
+                    monthly: 150,
+                  },
+                  {
+                    value: "full",
+                    label: "Full Socials Package",
+                    description: "Everything in Basic, plus a social media dashboard, brand-voice AI content, and hands-off management. Includes up to 3 minutes of AI-generated video per month (maximum 18 videos) for your channels.",
+                    monthly: 400,
+                    highlight: "Popular",
+                  },
+                  {
+                    value: "elite",
+                    label: "Elite Socials Package",
+                    description: "The white-glove tier. Up to 15 minutes of AI-generated content per month, plus a dedicated app connected to your social accounts — write a prompt and your post-ready content arrives within 24 hours. Also includes priority scheduling, performance analytics, content calendar planning, caption A/B suggestions, trend monitoring, and direct account support.",
+                    monthly: 1_337,
+                    highlight: "Elite",
+                  },
                 ]} />
               {sel.socialTier === "full" && (
                 <p className="text-[12px] italic px-1 mt-1" style={{ color: BRAND.skyBlue }}>
-                  ✓ Full Socials includes unlimited AI content generation for your social channels — no need to purchase individual videos for social use below.
+                  ✓ Full Socials includes up to 3 minutes of AI-generated video per month (max 18 videos) — no need to purchase individual videos for social use below.
+                </p>
+              )}
+              {sel.socialTier === "elite" && (
+                <p className="text-[12px] italic px-1 mt-1" style={{ color: BRAND.skyBlue }}>
+                  ✓ Elite Socials includes up to 15 minutes of AI-generated video per month plus your dedicated content app — no need to purchase individual videos for social use below.
                 </p>
               )}
             </SectionCard>
@@ -452,9 +476,9 @@ export default function Quote() {
                 label="60-Second AI Video"
                 description="Longer content or a bundle of shorter clips totaling 60 seconds (minimum 10s per clip). Great for brand stories, explainers, or product demos."
                 priceEach={400} accent={BRAND.orange} />
-              {sel.socialTier !== "full" && (
+              {(sel.socialTier === "none" || sel.socialTier === "basic") && (
                 <p className="text-[12px] text-muted-2 px-1 italic">
-                  Tip: The Full Socials Package ($500/mo) includes unlimited content generation for your social channels.
+                  Tip: Full Socials ($400/mo) includes up to 3 min of AI video/month (max 18 videos). Elite Socials ($1,337/mo) includes up to 15 min plus a dedicated posting app.
                 </p>
               )}
             </SectionCard>
