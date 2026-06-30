@@ -1,7 +1,7 @@
 import { portfolioProjects } from './portfolioProjectList.js';
-import type { Project } from './portfolioTypes';
+import type { Project } from './portfolioTypes.js';
 
-export type { Project } from './portfolioTypes';
+export type { Project } from './portfolioTypes.js';
 
 /** Projects removed from the portfolio but that may still exist in cached localStorage. */
 export const REMOVED_PROJECT_TITLES = ['Landlock Solutions LLC', 'SXNCTUARY'] as const;
