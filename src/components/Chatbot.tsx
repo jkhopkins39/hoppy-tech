@@ -337,7 +337,6 @@ const Chatbot: React.FC = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-ink">Jeremy's AI Assistant</p>
-                <p className="text-[11px] text-muted">Powered by Gemini 3 Flash</p>
                 <p className="mt-1.5 text-[10px] leading-snug text-muted opacity-[0.85]">
                   Chat bots can make mistakes.{' '}
                   <Link
