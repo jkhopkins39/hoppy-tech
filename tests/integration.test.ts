@@ -24,7 +24,7 @@ describe("portal TENANTS config", () => {
     const { TENANTS } = await import("../src/lib/portal.ts");
     const expectedKeys = [
       "cornerstone", "otp", "illuminated", "joshua_firm",
-      "sxnctuary", "bells", "watch_luxury",
+      "sxnctuary", "bells", "watch_luxury", "bella_portfolio",
     ];
     for (const key of expectedKeys) {
       expect(TENANTS).toHaveProperty(key);

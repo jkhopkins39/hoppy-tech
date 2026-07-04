@@ -3,7 +3,8 @@ export type TenantKey =
   | 'otp'
   | 'illuminated'
   | 'bells'
-  | 'watch_luxury';
+  | 'watch_luxury'
+  | 'bella_portfolio';
 
 export interface TenantConfig {
   key: TenantKey;
@@ -54,6 +55,13 @@ export const TENANTS: Record<TenantKey, TenantConfig> = {
     description: "Luxury watch marketplace",
     adminUrl: "https://www.watchtradingpost.com/admin/dashboard",
     callbackUrl: "https://www.watchtradingpost.com/admin/auth/callback",
+  },
+  bella_portfolio: {
+    key: 'bella_portfolio',
+    label: "Isabella Plymale",
+    description: "UX/UI & graphic design portfolio",
+    adminUrl: "https://www.isabellaplymale.com/admin",
+    callbackUrl: "https://www.isabellaplymale.com/admin",
   },
 };
 
