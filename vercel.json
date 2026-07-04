@@ -5,17 +5,13 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/favicon.ico",
-      "destination": "/WebsiteLogo.png"
-    },
-    {
       "source": "/((?!api/|assets/).*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
     {
-      "source": "/WebsiteLogo.png",
+      "source": "/(favicon.ico|favicon-16x16.png|favicon-32x32.png|apple-touch-icon.png|icon-192x192.png|icon-512x512.png|WebsiteLogo.png)",
       "headers": [
         {
           "key": "Cache-Control",
