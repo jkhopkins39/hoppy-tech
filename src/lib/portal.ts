@@ -60,8 +60,8 @@ export const TENANTS: Record<TenantKey, TenantConfig> = {
     key: 'bella_portfolio',
     label: "Isabella Plymale",
     description: "UX/UI & graphic design portfolio",
-    adminUrl: "https://www.isabellaplymale.com/admin",
-    callbackUrl: "https://www.isabellaplymale.com/admin",
+    adminUrl: "https://bella-portfolio-one.vercel.app/admin",
+    callbackUrl: "https://bella-portfolio-one.vercel.app/admin",
   },
 };
 
