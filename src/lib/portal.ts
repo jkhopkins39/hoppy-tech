@@ -4,7 +4,8 @@ export type TenantKey =
   | 'illuminated'
   | 'bells'
   | 'watch_luxury'
-  | 'bella_portfolio';
+  | 'bella_portfolio'
+  | 'joshua_firm';
 
 export interface TenantConfig {
   key: TenantKey;
@@ -60,8 +61,15 @@ export const TENANTS: Record<TenantKey, TenantConfig> = {
     key: 'bella_portfolio',
     label: "Isabella Plymale",
     description: "UX/UI & graphic design portfolio",
-    adminUrl: "https://bella-portfolio-one.vercel.app/admin",
-    callbackUrl: "https://bella-portfolio-one.vercel.app/admin",
+    adminUrl: "https://www.isabellaplymale.com/admin",
+    callbackUrl: "https://www.isabellaplymale.com/admin",
+  },
+  joshua_firm: {
+    key: 'joshua_firm',
+    label: "Joshua 19 Law Firm",
+    description: "Law firm",
+    adminUrl: "https://joshua19lawfirm.com/admin",
+    callbackUrl: "https://joshua19lawfirm.com/admin",
   },
 };
 
