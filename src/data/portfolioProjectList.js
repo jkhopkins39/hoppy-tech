@@ -91,4 +91,17 @@ export const portfolioProjects = [
     liveUrl: "https://www.bellssoutherncreations.com",
     category: "web",
   },
+  {
+    id: 8,
+    title: "Isabella Plymale",
+    description: "A UX/UI and graphic design portfolio showcasing case studies in illustration, branding, and user research. Features a custom-illustrated hero, project deep-dives, and an admin dashboard for managing content.",
+    shortDescription: "UX/UI & graphic design portfolio",
+    image: "/images/projects/bella-portfolio.webp",
+    imageWebP: "/images/projects/bella-portfolio.webp",
+    imageFallback: "/images/projects/bella-portfolio.png",
+    technologies: ["React", "Tailwind CSS", "Vite"],
+    repoUrl: "",
+    liveUrl: "https://www.isabellaplymale.com",
+    category: "web",
+  },
 ];
