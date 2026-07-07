@@ -93,6 +93,8 @@ const HeroPortfolioShowcase: React.FC = () => {
   const lastActiveSyncRef = useRef(0);
   const inactivityTimerRef = useRef<number | null>(null);
   const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const isDraggingRef = useRef(false);
+  const dragStartOffsetRef = useRef(0);
   const isPausedRef = useRef(false);
   const canScrollRef = useRef(false);
   const offsetRef = useRef(0);
@@ -325,6 +327,32 @@ const HeroPortfolioShowcase: React.FC = () => {
 
   const handlePointerDown = (e: React.PointerEvent) => {
     pointerStartRef.current = { x: e.clientX, y: e.clientY };
+    if (e.pointerType !== 'mouse') return;
+    isDraggingRef.current = false;
+    dragStartOffsetRef.current = offsetRef.current;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse' || e.buttons !== 1) return;
+    const start = pointerStartRef.current;
+    if (!start) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    if (!isDraggingRef.current) {
+      if (Math.abs(dx) < DRAG_THRESHOLD_PX && Math.abs(dy) < DRAG_THRESHOLD_PX) return;
+      isDraggingRef.current = true;
+      enterInteractive();
+    }
+    offsetRef.current = dragStartOffsetRef.current - dy;
+    wrapOffset();
+    applyOffset();
+    syncActiveProject(true);
+    bumpInactivity();
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (e.pointerType === 'mouse') isDraggingRef.current = false;
   };
 
   const handleClick = (e: React.MouseEvent) => {
@@ -372,6 +400,9 @@ const HeroPortfolioShowcase: React.FC = () => {
         tabIndex={0}
         aria-label="Portfolio project showcase"
         onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
       >
