@@ -6,7 +6,7 @@ const SCRIPT_SRC = "https://assets.calendly.com/assets/external/widget.js";
 declare global {
   interface Window {
     Calendly?: {
-      initInlineWidget: (options: { url: string; parentElement: HTMLElement }) => void;
+      initInlineWidget: (options: { url: string; parentElement: HTMLElement; resize?: boolean }) => void;
     };
   }
 }
@@ -41,8 +41,9 @@ export default function CalendlyEmbed() {
       .then(() => {
         if (cancelled || !containerRef.current || !window.Calendly) return;
         window.Calendly.initInlineWidget({
-          url: `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=faf9f0&primary_color=7ab2fc`,
+          url: `${CALENDLY_URL}?hide_gdpr_banner=1&background_color=ffffff&primary_color=7ab2fc`,
           parentElement: containerRef.current,
+          resize: true,
         });
       })
       .catch((err) => console.error(err));
@@ -55,7 +56,7 @@ export default function CalendlyEmbed() {
     <div
       ref={containerRef}
       className="rounded-2xl overflow-hidden"
-      style={{ minWidth: "320px", height: "clamp(420px, 62vh, 620px)" }}
+      style={{ width: "100%", maxWidth: "460px", minWidth: "280px", minHeight: "700px" }}
     />
   );
 }

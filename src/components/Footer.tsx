@@ -119,7 +119,7 @@ const Footer: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   title={s.name}
-                  className="w-9 h-9 rounded-lg border flex items-center justify-center text-muted transition-all duration-200 bg-white"
+                  className="w-9 h-9 rounded-lg border flex items-center justify-center text-muted transition-all duration-200 bg-surface"
                   style={{ borderColor: 'var(--border-color)' }}
                   onMouseEnter={(e) => {
                     (e.currentTarget as HTMLAnchorElement).style.color = 'var(--accent)';

@@ -10,12 +10,15 @@ const educationHistory = [
     period: "May 2026",
     description:
       "Interned at Zinnia, applying AI and machine learning to real-world products alongside a growing engineering team.",
+    image: "/images/education/zinnia-logo.jpg",
   },
   {
     title: "Hoppy Tech Founded",
     period: "June 2025",
     description:
       "Founded Hoppy Tech to build websites, AI tools, and custom software for small businesses.",
+    image: "/icon-512x512.png",
+    imageFit: "contain" as const,
   },
   {
     title: "Kennesaw State University",

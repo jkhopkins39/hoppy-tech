@@ -44,6 +44,7 @@ const Portfolio: React.FC = () => {
   const [expandedProject, setExpandedProject] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [darkImageIds, setDarkImageIds] = useState<Set<number>>(new Set());
+  const [glowProjectId, setGlowProjectId] = useState<number | null>(null);
 
   const toggleDarkImage = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -90,11 +91,16 @@ const Portfolio: React.FC = () => {
 
     setSelectedCategory('all');
     setExpandedProject(id);
+    setGlowProjectId(id);
 
-    const timer = window.setTimeout(() => {
+    const scrollTimer = window.setTimeout(() => {
       document.getElementById(`portfolio-project-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 450);
-    return () => window.clearTimeout(timer);
+    const glowTimer = window.setTimeout(() => setGlowProjectId(null), 10_000);
+    return () => {
+      window.clearTimeout(scrollTimer);
+      window.clearTimeout(glowTimer);
+    };
   }, [searchParams, projects]);
 
   const saveProjects = (p: Project[]) => {
@@ -324,17 +330,35 @@ const Portfolio: React.FC = () => {
               const bg = CATEGORY_BG[project.category] || CATEGORY_BG.web;
               const isExpanded = expandedProject === project.id;
               const showDark = darkImageIds.has(project.id) && !!project.imageDark;
+              const isGlowing = glowProjectId === project.id;
 
               return (
                 <motion.div
                   key={project.id}
-                  id={`portfolio-project-${project.id}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4, delay: index * 0.07 }}
-                  className="relative h-[460px] rounded-2xl border border-subtle bg-surface overflow-hidden hover:border-white/[0.12] transition-colors duration-300"
+                  className="relative"
                 >
+                  <AnimatePresence>
+                    {isGlowing && (
+                      <motion.div
+                        key="glow"
+                        className="absolute -inset-3 rounded-[32px] pointer-events-none"
+                        style={{ background: `radial-gradient(circle, ${color}66, transparent 72%)`, filter: 'blur(20px)' }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: [0.5, 0.9, 0.5] }}
+                        exit={{ opacity: 0, transition: { duration: 0.8 } }}
+                        transition={{ opacity: { repeat: Infinity, duration: 2, ease: 'easeInOut' } }}
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  <div
+                    id={`portfolio-project-${project.id}`}
+                    className="relative h-[460px] rounded-2xl border border-subtle bg-surface overflow-hidden hover:border-white/[0.12] transition-colors duration-300"
+                  >
                   <div className="absolute inset-0 flex flex-col group">
                     <div className="relative h-48 overflow-hidden flex-none">
                       <div className="absolute top-3 right-3 z-20 flex gap-2">
@@ -487,6 +511,7 @@ const Portfolio: React.FC = () => {
                         )}
                       </div>
                     </div>
+                  </div>
                   </div>
                 </motion.div>
               );
