@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import App from "./routes/App";
 import GtagPageView from "./components/GtagPageView";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -22,6 +23,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <CrackModeExit />
         </CrackModeProvider>
       </ThemeProvider>
+      <Analytics />
     </BrowserRouter>
   </React.StrictMode>
 );
