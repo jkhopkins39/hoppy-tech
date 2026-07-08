@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { motion, type Variants } from "framer-motion";
 import NavBar from "../components/NavBar";
@@ -11,7 +11,8 @@ import Dashboard from "./Dashboard";
 import Portal from "./Portal";
 import Portfolio from "./Portfolio";
 import ThankYou from "./ThankYou";
-import AISolutions from "./AISolutions";
+import Solutions from "./Solutions";
+import Enterprise from "./Enterprise";
 import Refer from "./Refer";
 import Quote from "./Quote";
 import Footer from "../components/Footer";
@@ -241,7 +242,7 @@ function HomePage() {
               title: "AI & Machine Learning",
               desc: "Integrating intelligence into applications using TensorFlow, PyTorch, and Gemini; I believe AI is the next frontier!",
               accent: BRAND.skyBlue,
-              learnMore: "/ai-solutions",
+              learnMore: "/solutions",
             },
             {
               icon: (
@@ -366,7 +367,9 @@ function SiteLayout() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/thanks" element={<ThankYou />} />
-          <Route path="/ai-solutions" element={<AISolutions />} />
+          <Route path="/ai-solutions" element={<Navigate to="/solutions" replace />} />
+          <Route path="/solutions" element={<Solutions />} />
+          <Route path="/enterprise" element={<Enterprise />} />
           <Route path="/refer" element={<Refer />} />
           <Route path="/quote" element={<Quote />} />
         </Routes>

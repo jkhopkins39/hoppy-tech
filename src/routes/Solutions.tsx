@@ -6,6 +6,25 @@ import { BRAND } from "../config/brandColors";
 
 const solutions = [
   {
+    id: "websites",
+    icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
+    title: "Websites & Web Apps",
+    tagline: "Fast, modern, and built to convert",
+    accent: BRAND.skyBlue,
+    summary: "A fully responsive site with an admin dashboard you actually control — no developer required for everyday updates.",
+    details: [
+      "5 responsive pages plus an admin dashboard",
+      "SEO foundation, analytics, and speed optimization available",
+      "E-commerce and booking modules drop right in",
+      "Hosted, maintained, and built to scale with you",
+    ],
+    example: "A local service business launches a 5-page site with an admin dashboard — they update pricing and photos themselves, no developer needed.",
+  },
+  {
     id: "chatbot",
     icon: (
       <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14,16 +33,34 @@ const solutions = [
     ),
     title: "AI Chatbots & Assistants",
     tagline: "Always-on support that actually helps",
-    accent: BRAND.skyBlue,
-    summary: "Deploy a custom AI assistant that knows your business inside out — answering questions, qualifying leads, and handling support 24/7.",
+    accent: BRAND.orange,
+    summary: "A custom AI assistant that knows your business inside out — answering questions, qualifying leads, and handling support 24/7.",
     details: [
       "Trained on your product docs, FAQs, and policies",
       "Handles customer support, bookings, and lead capture",
       "Seamlessly hands off complex issues to your team",
-      "Access to database, with RAG capabilities",
-      "Many more options available upon request"
+      "Button-driven quote builder just like this site's own",
     ],
     example: "A law firm's chatbot handles initial consultations, collects case details, and schedules follow-ups — freeing attorneys for billable work.",
+  },
+  {
+    id: "ecommerce",
+    icon: (
+      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+    ),
+    title: "Online Stores",
+    tagline: "Sell products without the platform fees",
+    accent: BRAND.skyBlueLight,
+    summary: "A full e-commerce module — product catalog, cart, and Stripe payments — built directly into your own site and dashboard.",
+    details: [
+      "Product catalog and shopping cart",
+      "Stripe payments with transparent processing fees",
+      "Order management inside your admin dashboard",
+      "Pairs well with booking and email add-ons",
+    ],
+    example: "A boutique retailer replaces a $40/mo storefront subscription with a one-time build they fully own.",
   },
   {
     id: "automation",
@@ -34,15 +71,15 @@ const solutions = [
     ),
     title: "Workflow Automation",
     tagline: "Eliminate the busywork",
-    accent: BRAND.orange,
-    summary: "Let AI handle repetitive tasks such as data entry, email routing, and report generation, so you can focus on high-value work.",
+    accent: BRAND.orangeLight,
+    summary: "Let automation handle repetitive tasks — data entry, email routing, report generation — so you focus on higher-value work.",
     details: [
       "Automated invoice processing and data extraction",
       "Smart email triage and auto-responses",
       "Scheduled reporting and analytics summaries",
       "CRM updates triggered by customer interactions",
     ],
-    example: "An e-commerce store automatically tags and routes customer emails, generates daily inventory reports, and drafts responses to common inquiries.",
+    example: "An e-commerce store automatically tags and routes customer emails and drafts responses to common inquiries.",
   },
   {
     id: "content",
@@ -53,76 +90,38 @@ const solutions = [
     ),
     title: "Content Generation",
     tagline: "Scale your voice, not your headcount",
-    accent: BRAND.skyBlueLight,
+    accent: BRAND.skyBlue,
     summary: "Generate on-brand blog posts, product descriptions, social content, and marketing copy at scale — all in your unique voice.",
     details: [
       "Blog articles, SEO content, and landing pages",
       "Product descriptions for entire catalogs",
       "Social media posts and ad copy variations",
-      "Personalized email campaigns",
+      "Bundled with the Social Media Management add-on",
     ],
     example: "A retailer with 10,000 SKUs uses AI to write compelling product descriptions in minutes, cutting content costs by 80%.",
   },
   {
-    id: "search",
+    id: "mobile",
     icon: (
       <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
       </svg>
     ),
-    title: "Intelligent Search",
-    tagline: "Find anything, understand everything",
+    title: "Mobile Apps",
+    tagline: "Take your brand to iOS & Android",
     accent: BRAND.navyMid,
-    summary: "Replace clunky keyword search with semantic AI search that understands intent — across your docs, products, or knowledge base.",
+    summary: "A native mobile app that complements your web presence — from a simple branded shell to a fully custom build.",
     details: [
-      "Unified search platform to retrieve internal data from multiple sources",
-      "Product recommendation engines",
-      "Smart autocomplete and query suggestions",
+      "Basic tier mirrors your website with push notifications",
+      "Full-featured tier adds native device access and offline mode",
+      "Apple Developer and Google Play accounts required separately",
+      "Scoped and priced during your guided quote",
     ],
-    example: "A SaaS company's support portal answers questions in plain English by searching thousands of documentation pages instantly.",
-  },
-  {
-    id: "vision",
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-      </svg>
-    ),
-    title: "Computer Vision",
-    tagline: "Teach your app to see",
-    accent: BRAND.orangeLight,
-    summary: "Analyze images and video to detect objects, extract text, verify identities, or automate quality control processes.",
-    details: [
-      "Zoom meeting audio/video analysis for updating internal documentation and policies",
-      "Product image tagging and classification",
-      "Document OCR and data extraction",
-      "Quality control and defect detection",
-    ],
-    example: "A manufacturing company uses computer vision to inspect parts on the assembly line, catching defects in real time before they ship.",
-  },
-  {
-    id: "analytics",
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
-    title: "Predictive Analytics",
-    tagline: "Know what's coming before it arrives",
-    accent: BRAND.skyBlue,
-    summary: "Use your historical data to forecast sales, anticipate churn, optimize inventory, and make smarter decisions faster.",
-    details: [
-      "Sales and demand forecasting",
-      "Customer churn prediction and retention triggers",
-      "Dynamic pricing and inventory optimization",
-      "Anomaly detection and fraud prevention",
-    ],
-    example: "A subscription business predicts which customers are likely to cancel 30 days early, triggering personalized retention offers.",
+    example: "A service business launches a basic branded app so loyal customers can book and get push notifications without opening a browser.",
   },
 ];
 
-export default function AISolutions() {
+export default function Solutions() {
   const navigate = useNavigate();
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -136,9 +135,9 @@ export default function AISolutions() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="text-accent text-[13px] font-mono uppercase tracking-widest">AI Applications</span>
+            <span className="text-accent text-[13px] font-mono uppercase tracking-widest">Websites, Chatbots & Apps</span>
             <h1 className="mt-3 text-[clamp(2.2rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight text-ink">
-              What AI can do<br />
+              Built to ship,<br />
               <span
                 className="italic"
                 style={{
@@ -150,12 +149,12 @@ export default function AISolutions() {
                   paddingRight: "0.1em",
                 }}
               >
-                for your business
+                priced in minutes
               </span>
             </h1>
             <p className="mt-4 text-muted text-lg leading-relaxed max-w-2xl">
-              In the age of AI, don't fall behind the curve. There are a lot of ways you can leverage AI for your business needs to save money, time, and manpower, as
-              well as gain insights and optimize how you get things done.
+              Websites, chatbots, e-commerce, automation, and apps — the kind of projects you can scope yourself.
+              Pick what you need below, then walk through the guided quote to see live pricing.
             </p>
           </motion.div>
         </section>
@@ -255,11 +254,11 @@ export default function AISolutions() {
                         ))}
                       </ul>
                       <button
-                        onClick={(e) => { e.stopPropagation(); navigate("/contact"); }}
+                        onClick={(e) => { e.stopPropagation(); navigate("/quote"); }}
                         className="mt-4 w-full py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:scale-[1.02] flex-none"
                         style={{ backgroundColor: s.accent, color: "#fff" }}
                       >
-                        Build this for me →
+                        Get a live quote →
                       </button>
                     </div>
                   </motion.div>
@@ -267,6 +266,33 @@ export default function AISolutions() {
               );
             })}
           </div>
+        </section>
+
+        {/* Enterprise banner */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="rounded-2xl border p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-5"
+            style={{ borderColor: "var(--border-color)", backgroundColor: "var(--surface)" }}
+          >
+            <div>
+              <h3 className="font-semibold text-ink text-lg mb-1">Need something bigger?</h3>
+              <p className="text-muted text-sm max-w-xl">
+                Business intelligence dashboards, RAG knowledgebases, computer vision, and predictive analytics live on their
+                own page — those are usually worth a real conversation first.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/enterprise")}
+              className="px-6 py-3 font-semibold rounded-xl text-[14px] flex-none transition-all duration-200 hover:scale-[1.02]"
+              style={{ backgroundColor: "var(--accent)", color: "var(--accent-foreground)" }}
+            >
+              Explore Enterprise Solutions →
+            </button>
+          </motion.div>
         </section>
 
         {/* Bottom CTA */}
@@ -289,17 +315,17 @@ export default function AISolutions() {
               Not sure where to start?
             </h2>
             <p className="text-muted text-lg max-w-xl mx-auto mb-8">
-              I get it, there's a lot of options. If it wasn't mentioned here, reach out to me with your idea and we can make it happen!
+              Answer a few quick questions in the guided quote and I'll help you figure out exactly what you need.
             </p>
             <button
-              onClick={() => navigate("/contact")}
+              onClick={() => navigate("/quote")}
               className="px-8 py-4 font-semibold rounded-xl text-white transition-all duration-200 hover:scale-[1.02] text-[15px]"
               style={{
                 backgroundColor: "var(--accent)",
                 boxShadow: "0 8px 30px color-mix(in srgb, var(--accent) 35%, transparent)",
               }}
             >
-              Let's Talk
+              Start the Guided Quote
             </button>
           </motion.div>
         </section>

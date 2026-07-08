@@ -7,6 +7,8 @@ import { useCrackMode } from "../context/CrackModeContext";
 
 const NAV_LINKS = [
   { label: "About", path: "/about" },
+  { label: "Solutions", path: "/solutions" },
+  { label: "Enterprise", path: "/enterprise" },
   { label: "Portfolio", path: "/portfolio" },
   { label: "Blog", path: "/blog" },
   { label: "Pricing", path: "/quote" },
