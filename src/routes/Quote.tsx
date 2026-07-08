@@ -6,135 +6,131 @@ import { MsgContent } from "../lib/chatFormat";
 import { BRAND } from "../config/brandColors";
 import { DEFAULT_SEL, computeQuote, fmtUSD, type Sel } from "../lib/quoteEngine";
 
-// ─── Conversation step machine ────────────────────────────────────────────────
+// ─── Batch field model ─────────────────────────────────────────────────────────
+// Each conversation turn after the intro presents a small batch of fields (checkboxes
+// and/or tier pickers) at once — the user selects whatever applies, then hits
+// Continue to submit the whole batch in a single turn instead of one question each.
+
+interface CheckboxField {
+  kind: "checkbox";
+  key: keyof Sel;
+  label: string;
+  price: string;
+  onValue: boolean | number;
+  offValue: boolean | number;
+}
+
+interface TierField {
+  kind: "tier";
+  key: keyof Sel;
+  label: string;
+  options: { value: string | number; label: string }[];
+  noneValue: string | number;
+}
+
+type Field = CheckboxField | TierField;
+
+function checkboxField(key: keyof Sel, label: string, price: string): CheckboxField {
+  return { kind: "checkbox", key, label, price, onValue: true, offValue: false };
+}
+
+function videoField(key: "video30s" | "video60s", label: string, price: string): CheckboxField {
+  return { kind: "checkbox", key, label, price, onValue: 1, offValue: 0 };
+}
+
+function tierField(key: keyof Sel, label: string, options: { value: string | number; label: string }[], noneValue: string | number): TierField {
+  return { kind: "tier", key, label, options, noneValue };
+}
 
 type Interest = "website" | "chatbot" | "ecommerce" | "mobile" | "unsure" | null;
 
-interface Option {
-  label: string;
-  sublabel?: string;
-  apply: (sel: Sel) => Sel;
-}
-
-interface Step {
+interface Batch {
   id: string;
-  prompt: (sel: Sel, interest: Interest) => string;
-  skip?: (sel: Sel, interest: Interest) => boolean;
-  options: (sel: Sel, interest: Interest) => Option[];
+  prompt: (interest: Interest) => string;
+  fields: (sel: Sel) => Field[];
 }
 
-const YES_NO = (
-  prompt: string,
-  key: keyof Pick<Sel, "chatbot" | "ecommerce" | "booking" | "emailSystem" | "mediaStorage" | "seo" | "customDashboard" | "workflows">,
-  yesLabel: string,
-  noLabel = "No thanks, skip it",
-  skip?: (sel: Sel, interest: Interest) => boolean,
-): Step => ({
-  id: key,
-  prompt: () => prompt,
-  skip,
-  options: () => [
-    { label: yesLabel, apply: (sel) => ({ ...sel, [key]: true }) },
-    { label: noLabel, apply: (sel) => ({ ...sel, [key]: false }) },
-  ],
-});
-
-const STEPS: Step[] = [
+const BATCHES: Batch[] = [
   {
-    id: "standardWebsite",
-    prompt: (_sel, interest) =>
+    id: "core",
+    prompt: (interest) =>
       interest === "chatbot"
-        ? "Since you already have a site, want me to include a full site refresh too — or just the chatbot?"
-        : "Every project starts with the same solid foundation: 5 responsive pages (Home, About, Services/Portfolio, Testimonials, Contact) plus an admin dashboard. Include the Standard Website Package?",
-    options: () => [
-      { label: "Yes, include it — $400", apply: (sel) => ({ ...sel, standardWebsite: true }) },
-      { label: "No thanks, skip it", apply: (sel) => ({ ...sel, standardWebsite: false }) },
-    ],
-  },
-  YES_NO(
-    "Want an AI chatbot on your site? It answers questions, qualifies leads, and routes visitors 24/7 — trained on your content.",
-    "chatbot",
-    "Yes — $250 setup + $15/mo",
-    "No thanks",
-    (sel) => sel.chatbot === true,
-  ),
-  YES_NO(
-    "Selling products or services online? The E-Commerce Module adds a full store with Stripe payments and order management.",
-    "ecommerce",
-    "Yes — $350 one-time",
-    "No thanks",
-    (sel) => sel.ecommerce === true,
-  ),
-  {
-    id: "mobileApp",
-    prompt: () => "Do you need a companion mobile app for iOS and Android?",
-    options: () => [
-      { label: "No mobile app needed", apply: (sel) => ({ ...sel, mobileApp: "none" }) },
-      { label: "Basic app — $2,500", sublabel: "Mirrors your site with push notifications", apply: (sel) => ({ ...sel, mobileApp: "basic" }) },
-      { label: "Full-featured — custom scope", sublabel: "Unique features, offline mode, native device access", apply: (sel) => ({ ...sel, mobileApp: "full" }) },
-    ],
-  },
-  YES_NO(
-    "Need customers to self-book appointments? Includes a calendar sync and automated confirmations.",
-    "booking",
-    "Yes — $200 setup + $15/mo",
-  ),
-  YES_NO(
-    "Want a built-in email system — contact form notifications plus the ability to send newsletters from your own domain?",
-    "emailSystem",
-    "Yes — $20/mo",
-  ),
-  YES_NO(
-    "Need extra cloud storage for images, PDFs, or other files beyond the basics?",
-    "mediaStorage",
-    "Yes — starting at $10/mo",
-  ),
-  YES_NO(
-    "Want the SEO Foundation Package? Technical audit, meta tags, schema markup, sitemap, GA4, and Search Console setup.",
-    "seo",
-    "Yes — $200 one-time",
-  ),
-  YES_NO(
-    "Would a custom analytics dashboard help — a visual view of your key business metrics pulled from your site, CRM, or sales tools?",
-    "customDashboard",
-    "Yes — $600 setup + $25/mo",
-  ),
-  {
-    id: "apiIntegrations",
-    prompt: () => "How many third-party integrations do you need — CRM, ERP, shipping, payment processors? Each is $200.",
-    options: () => [
-      { label: "None needed", apply: (sel) => ({ ...sel, apiIntegrations: 0 }) },
-      { label: "1 integration — $200", apply: (sel) => ({ ...sel, apiIntegrations: 1 }) },
-      { label: "2 integrations — $400", apply: (sel) => ({ ...sel, apiIntegrations: 2 }) },
-      { label: "3 or more", sublabel: "We'll finalize the exact count on your call", apply: (sel) => ({ ...sel, apiIntegrations: 3 }) },
-    ],
-  },
-  YES_NO(
-    "Any repetitive manual processes we could automate — lead nurturing, invoice generation, report distribution, data syncing?",
-    "workflows",
-    "Yes — $750 setup + $50/mo",
-  ),
-  {
-    id: "socialTier",
-    prompt: () =>
-      "Want help managing your social media? Every paid tier includes scheduling, posting, and a dashboard — the difference is how much AI-generated content we produce for you.",
-    options: () => [
-      { label: "No thanks", apply: (sel) => ({ ...sel, socialTier: "none" }) },
-      { label: "Basic — $150/mo", sublabel: "You provide the content, we schedule & post", apply: (sel) => ({ ...sel, socialTier: "basic" }) },
-      { label: "Full — $400/mo", sublabel: "Adds up to 3 min of AI video/month", apply: (sel) => ({ ...sel, socialTier: "full" }) },
-      { label: "Elite — $1,337/mo", sublabel: "Up to 15 min of AI video + dedicated posting app", apply: (sel) => ({ ...sel, socialTier: "elite" }) },
+        ? "Let's start with the essentials — since you already have a site, pick anything else that applies:"
+        : "Let's start with the essentials — pick any that apply:",
+    fields: () => [
+      checkboxField("standardWebsite", "Standard Website Package", "$400"),
+      checkboxField("chatbot", "AI Chatbot", "$250 + $15/mo"),
+      checkboxField("ecommerce", "E-Commerce Module", "$350"),
     ],
   },
   {
-    id: "video",
-    prompt: () => "Need any one-off AI-generated videos — for ads, hero sections, or product showcases?",
-    skip: (sel) => sel.socialTier === "full" || sel.socialTier === "elite",
-    options: () => [
-      { label: "No videos needed", apply: (sel) => sel },
-      { label: "Add a 30s video — $125", apply: (sel) => ({ ...sel, video30s: sel.video30s + 1 }) },
-      { label: "Add a 60s video — $225", apply: (sel) => ({ ...sel, video60s: sel.video60s + 1 }) },
-      { label: "Add both", apply: (sel) => ({ ...sel, video30s: sel.video30s + 1, video60s: sel.video60s + 1 }) },
+    id: "operations",
+    prompt: () => "Any of these operational add-ons sound useful?",
+    fields: () => [
+      checkboxField("booking", "Booking & Appointments", "$200 + $15/mo"),
+      checkboxField("emailSystem", "Email System", "$20/mo"),
+      checkboxField("mediaStorage", "Media & File Storage", "$10/mo"),
     ],
+  },
+  {
+    id: "growth",
+    prompt: () => "What about these growth tools?",
+    fields: () => [
+      checkboxField("seo", "SEO Foundation Package", "$200"),
+      checkboxField("customDashboard", "Custom Analytics Dashboard", "$600 + $25/mo"),
+      checkboxField("workflows", "Automated Business Workflows", "$750 + $50/mo"),
+    ],
+  },
+  {
+    id: "scale",
+    prompt: () => "Need either of these to scale further?",
+    fields: () => [
+      tierField(
+        "mobileApp",
+        "Mobile App",
+        [
+          { value: "none", label: "None" },
+          { value: "basic", label: "Basic — $2,500" },
+          { value: "full", label: "Full-featured — custom" },
+        ],
+        "none",
+      ),
+      tierField(
+        "apiIntegrations",
+        "API Integrations",
+        [
+          { value: 0, label: "None" },
+          { value: 1, label: "1 — $200" },
+          { value: 2, label: "2 — $400" },
+          { value: 3, label: "3+" },
+        ],
+        0,
+      ),
+    ],
+  },
+  {
+    id: "social",
+    prompt: () => "Want help with social media, or an AI-generated video here and there?",
+    fields: (sel) => {
+      const fields: Field[] = [
+        tierField(
+          "socialTier",
+          "Social Media Management",
+          [
+            { value: "none", label: "None" },
+            { value: "basic", label: "Basic — $150/mo" },
+            { value: "full", label: "Full — $400/mo" },
+            { value: "elite", label: "Elite — $1,337/mo" },
+          ],
+          "none",
+        ),
+      ];
+      if (sel.socialTier !== "full" && sel.socialTier !== "elite") {
+        fields.push(videoField("video30s", "30s AI Video", "$125"));
+        fields.push(videoField("video60s", "60s AI Video", "$225"));
+      }
+      return fields;
+    },
   },
 ];
 
@@ -142,9 +138,7 @@ const INTRO_PROMPT = "Hi! I'm Jeremy's assistant. What are you looking to build?
 
 interface IntroOption {
   label: string;
-  sublabel?: string;
   interest: Interest;
-  enterprise?: boolean;
   applyInitial?: (sel: Sel) => Sel;
 }
 
@@ -154,7 +148,6 @@ const INTRO_OPTIONS: IntroOption[] = [
   { label: "An online store", interest: "ecommerce", applyInitial: (sel) => ({ ...sel, ecommerce: true }) },
   { label: "A mobile app", interest: "mobile" },
   { label: "Not sure yet — walk me through everything", interest: "unsure" },
-  { label: "Enterprise AI — BI, RAG, or computer vision", interest: null, enterprise: true, sublabel: "Business intelligence, knowledgebases, predictive analytics" },
 ];
 
 // ─── Chat message model ───────────────────────────────────────────────────────
@@ -170,17 +163,27 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
-function nextStepIndex(from: number, sel: Sel, interest: Interest) {
-  let i = from;
-  while (i < STEPS.length && STEPS[i].skip?.(sel, interest)) i++;
-  return i;
+function batchRecap(batch: Batch, sel: Sel): string {
+  const parts: string[] = [];
+  for (const field of batch.fields(sel)) {
+    if (field.kind === "checkbox") {
+      if (sel[field.key] === field.onValue) parts.push(`${field.label} (${field.price})`);
+    } else {
+      const value = sel[field.key];
+      if (value !== field.noneValue) {
+        const opt = field.options.find((o) => o.value === value);
+        if (opt) parts.push(`${field.label}: ${opt.label}`);
+      }
+    }
+  }
+  return parts.length > 0 ? parts.join(", ") : "Nothing from this batch";
 }
 
 export default function Quote() {
   const navigate = useNavigate();
   const [interest, setInterest] = useState<Interest>(null);
   const [sel, setSel] = useState<Sel>(DEFAULT_SEL);
-  const [stepPointer, setStepPointer] = useState(-1); // -1 = intro, STEPS.length = final, -2 = enterprise redirect
+  const [batchPointer, setBatchPointer] = useState(-1); // -1 = intro, BATCHES.length = final
   const [messages, setMessages] = useState<ChatMsg[]>([{ id: 0, role: "assistant", text: INTRO_PROMPT }]);
   const idRef = useRef(1);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -220,43 +223,47 @@ export default function Quote() {
     return `Here's what we've got so far:\n\n${bullets}\n\n${totals}\n\nReady to send this to Jeremy?`;
   }
 
-  function goToStep(pointer: number, currentSel: Sel, currentInterest: Interest) {
-    const idx = nextStepIndex(pointer, currentSel, currentInterest);
-    setStepPointer(idx);
-    if (idx >= STEPS.length) {
+  function goToBatch(pointer: number, currentSel: Sel, currentInterest: Interest) {
+    setBatchPointer(pointer);
+    if (pointer >= BATCHES.length) {
       pushMessage("assistant", summaryText(currentSel));
     } else {
-      pushMessage("assistant", STEPS[idx].prompt(currentSel, currentInterest));
+      pushMessage("assistant", BATCHES[pointer].prompt(currentInterest));
     }
   }
 
   function handleIntroOption(opt: IntroOption) {
     pushMessage("user", opt.label);
-    if (opt.enterprise) {
-      setStepPointer(-2);
-      pushMessage(
-        "assistant",
-        "Business Intelligence, RAG knowledgebases, and computer vision are enterprise-grade builds — the fastest path is a quick call with Jeremy so we can scope it properly.",
-      );
-      return;
-    }
     setInterest(opt.interest);
     const newSel = opt.applyInitial ? opt.applyInitial(sel) : sel;
     setSel(newSel);
-    goToStep(0, newSel, opt.interest);
+    goToBatch(0, newSel, opt.interest);
   }
 
-  function handleStepOption(opt: Option) {
-    pushMessage("user", opt.label);
-    const newSel = opt.apply(sel);
-    setSel(newSel);
-    goToStep(stepPointer + 1, newSel, interest);
+  function handleFieldToggle(field: Field) {
+    setSel((prev) => {
+      if (field.kind === "checkbox") {
+        const isOn = prev[field.key] === field.onValue;
+        return { ...prev, [field.key]: isOn ? field.offValue : field.onValue };
+      }
+      return prev;
+    });
+  }
+
+  function handleTierSelect(field: TierField, value: string | number) {
+    setSel((prev) => ({ ...prev, [field.key]: value }));
+  }
+
+  function handleContinue() {
+    const batch = BATCHES[batchPointer];
+    pushMessage("user", batchRecap(batch, sel));
+    goToBatch(batchPointer + 1, sel, interest);
   }
 
   function handleReset() {
     setInterest(null);
     setSel(DEFAULT_SEL);
-    setStepPointer(-1);
+    setBatchPointer(-1);
     setMessages([{ id: 0, role: "assistant", text: INTRO_PROMPT }]);
     idRef.current = 1;
   }
@@ -289,16 +296,16 @@ export default function Quote() {
     return `Hi! I used the Guided Quote chat and I'm interested in the following:\n\n${summary}\n\n${totals}\n\nPlease send me a detailed proposal!`;
   }
 
-  const showingIntro = stepPointer === -1;
-  const showingEnterpriseRedirect = stepPointer === -2;
-  const showingFinal = stepPointer >= STEPS.length && !showingEnterpriseRedirect && !showingIntro;
+  const showingIntro = batchPointer === -1;
+  const showingFinal = batchPointer >= BATCHES.length;
+  const activeBatch = !showingIntro && !showingFinal ? BATCHES[batchPointer] : null;
 
   return (
     <>
       {/* ─── Hero ─────────────────────────────────────────── */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-16 pb-8">
         <motion.div custom={0} initial="hidden" animate="show" variants={fadeUp}>
-          <span className="text-accent text-[13px] font-mono uppercase tracking-widest">Transparent Pricing</span>
+          <span className="text-accent text-[13px] font-mono uppercase tracking-widest">Get a Quote</span>
           <h1 className="mt-2 text-[clamp(2.4rem,5vw,4.2rem)] font-bold leading-[1.1] tracking-tight text-ink">
             Let's Talk{" "}
             <span
@@ -315,7 +322,7 @@ export default function Quote() {
             </span>
           </h1>
           <p className="text-muted text-lg leading-relaxed mt-4">
-            Answer a few quick questions — mostly with a tap, not typing — and I'll build a live estimate as we go.
+            Answer a few quick rounds of questions — tap whatever applies, then continue — and I'll build a live estimate as we go.
           </p>
         </motion.div>
       </section>
@@ -348,7 +355,7 @@ export default function Quote() {
           </div>
 
           {/* Messages */}
-          <div className="flex flex-col gap-3 px-5 py-5 max-h-[520px] overflow-y-auto">
+          <div className="flex flex-col gap-3 px-5 py-5 max-h-[420px] overflow-y-auto">
             {messages.map((msg) => (
               <motion.div
                 key={msg.id}
@@ -372,7 +379,7 @@ export default function Quote() {
             <div ref={scrollRef} />
           </div>
 
-          {/* Options / actions */}
+          {/* Batch fields / actions */}
           <div className="px-5 py-4 border-t flex flex-col gap-2" style={{ borderColor: "var(--border-color)" }}>
             {showingIntro &&
               INTRO_OPTIONS.map((opt) => (
@@ -385,40 +392,74 @@ export default function Quote() {
                   onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "var(--border-color)")}
                 >
                   <span className="font-medium text-ink text-[14px]">{opt.label}</span>
-                  {opt.sublabel && <p className="text-muted text-[12px] mt-0.5">{opt.sublabel}</p>}
                 </button>
               ))}
 
-            {!showingIntro && !showingFinal && !showingEnterpriseRedirect && stepPointer < STEPS.length &&
-              STEPS[stepPointer].options(sel, interest).map((opt) => (
-                <button
-                  key={opt.label}
-                  onClick={() => handleStepOption(opt)}
-                  className="w-full text-left px-4 py-3 rounded-xl border transition-all duration-200"
-                  style={{ borderColor: "var(--border-color)" }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "var(--border-hover)")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "var(--border-color)")}
-                >
-                  <span className="font-medium text-ink text-[14px]">{opt.label}</span>
-                  {opt.sublabel && <p className="text-muted text-[12px] mt-0.5">{opt.sublabel}</p>}
-                </button>
-              ))}
-
-            {showingEnterpriseRedirect && (
+            {activeBatch && (
               <>
+                {activeBatch.fields(sel).map((field) => {
+                  if (field.kind === "checkbox") {
+                    const checked = sel[field.key] === field.onValue;
+                    return (
+                      <button
+                        key={field.key}
+                        onClick={() => handleFieldToggle(field)}
+                        className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border transition-all duration-200"
+                        style={{
+                          borderColor: checked ? BRAND.skyBlue : "var(--border-color)",
+                          backgroundColor: checked ? `${BRAND.skyBlue}18` : "transparent",
+                        }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-none transition-all duration-200"
+                            style={{ borderColor: checked ? BRAND.skyBlue : "var(--border-hover)", backgroundColor: checked ? BRAND.skyBlue : "transparent" }}
+                          >
+                            {checked && (
+                              <svg className="w-3 h-3" fill="none" stroke="white" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </div>
+                          <span className="font-medium text-ink text-[14px]">{field.label}</span>
+                        </div>
+                        <span className="text-[12px] font-mono text-muted flex-none">{field.price}</span>
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <div key={field.key} className="px-1 py-1">
+                      <p className="text-[13px] font-semibold text-ink mb-1.5">{field.label}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {field.options.map((opt) => {
+                          const active = sel[field.key] === opt.value;
+                          return (
+                            <button
+                              key={String(opt.value)}
+                              onClick={() => handleTierSelect(field, opt.value)}
+                              className="px-3.5 py-2 rounded-lg border text-[13px] font-medium transition-all duration-200"
+                              style={{
+                                borderColor: active ? BRAND.skyBlue : "var(--border-color)",
+                                backgroundColor: active ? `${BRAND.skyBlue}18` : "transparent",
+                                color: active ? BRAND.skyBlue : "var(--ink)",
+                              }}
+                            >
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+
                 <button
-                  onClick={() => navigate("/enterprise")}
-                  className="w-full py-3.5 px-6 font-semibold rounded-xl text-[15px] transition-all duration-200 hover:scale-[1.02]"
+                  onClick={handleContinue}
+                  className="w-full mt-1 py-3 px-6 font-semibold rounded-xl text-[15px] transition-all duration-200 hover:scale-[1.02]"
                   style={{ backgroundColor: "var(--accent)", color: "var(--accent-foreground)" }}
                 >
-                  View Enterprise Solutions →
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="w-full py-2.5 text-[13px] font-medium rounded-xl border transition-all duration-200 text-muted"
-                  style={{ borderColor: "var(--border-color)" }}
-                >
-                  Actually, let's talk simple projects
+                  Continue
                 </button>
               </>
             )}
@@ -455,7 +496,7 @@ export default function Quote() {
           </div>
         </div>
 
-        {/* Enterprise pointer */}
+        {/* Enterprise pointer — separate page, not part of this flow */}
         <p className="text-center text-muted text-[13px] mt-6">
           Need enterprise-grade AI, BI, or a RAG knowledgebase?{" "}
           <button onClick={() => navigate("/enterprise")} className="underline font-medium" style={{ color: BRAND.skyBlue }}>

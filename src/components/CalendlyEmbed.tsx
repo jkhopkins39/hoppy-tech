@@ -15,7 +15,7 @@ export default function CalendlyEmbed() {
   return (
     <div
       className="calendly-inline-widget rounded-2xl overflow-hidden"
-      data-url={`${CALENDLY_URL}?hide_gdpr_banner=1`}
+      data-url={`${CALENDLY_URL}?hide_gdpr_banner=1&background_color=faf9f0&primary_color=7ab2fc`}
       style={{ minWidth: "320px", height: "700px" }}
     />
   );

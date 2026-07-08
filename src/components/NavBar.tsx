@@ -11,7 +11,7 @@ const NAV_LINKS = [
   { label: "Enterprise", path: "/enterprise" },
   { label: "Portfolio", path: "/portfolio" },
   { label: "Blog", path: "/blog" },
-  { label: "Pricing", path: "/quote" },
+  { label: "Quote", path: "/quote" },
 ];
 
 const CONTACT_PATH = "/contact";
