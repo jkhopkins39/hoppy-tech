@@ -7,136 +7,6 @@ import { MsgContent } from "../lib/chatFormat";
 import { BRAND } from "../config/brandColors";
 import { DEFAULT_SEL, computeQuote, fmtUSD, type Sel } from "../lib/quoteEngine";
 
-// ─── Standard solutions (self-serve, priced via the guided quote below) ───────
-
-interface StandardSolution {
-  id: string;
-  icon: JSX.Element;
-  title: string;
-  tagline: string;
-  accent: string;
-  summary: string;
-  details: string[];
-  interest: Interest;
-}
-
-const STANDARD_SOLUTIONS: StandardSolution[] = [
-  {
-    id: "websites",
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      </svg>
-    ),
-    title: "Websites & Web Apps",
-    tagline: "Fast, modern, and built to convert",
-    accent: BRAND.skyBlue,
-    summary: "A fully responsive site with an admin dashboard you actually control — no developer required for everyday updates.",
-    details: [
-      "5 responsive pages plus an admin dashboard",
-      "SEO foundation, analytics, and speed optimization available",
-      "E-commerce and booking modules drop right in",
-      "Hosted, maintained, and built to scale with you",
-    ],
-    interest: "website",
-  },
-  {
-    id: "chatbot",
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-      </svg>
-    ),
-    title: "AI Chatbots & Assistants",
-    tagline: "Always-on support that actually helps",
-    accent: BRAND.orange,
-    summary: "A custom AI assistant that knows your business inside out — answering questions, qualifying leads, and handling support 24/7.",
-    details: [
-      "Trained on your product docs, FAQs, and policies",
-      "Handles customer support, bookings, and lead capture",
-      "Seamlessly hands off complex issues to your team",
-      "Button-driven quote builder just like this page's own",
-    ],
-    interest: "chatbot",
-  },
-  {
-    id: "ecommerce",
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
-    ),
-    title: "Online Stores",
-    tagline: "Sell products without the platform fees",
-    accent: BRAND.skyBlueLight,
-    summary: "A full e-commerce module — product catalog, cart, and Stripe payments — built directly into your own site and dashboard.",
-    details: [
-      "Product catalog and shopping cart",
-      "Stripe payments with transparent processing fees",
-      "Order management inside your admin dashboard",
-      "Pairs well with booking and email add-ons",
-    ],
-    interest: "ecommerce",
-  },
-  {
-    id: "automation",
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-      </svg>
-    ),
-    title: "Workflow Automation",
-    tagline: "Eliminate the busywork",
-    accent: BRAND.orangeLight,
-    summary: "Let automation handle repetitive tasks — data entry, email routing, report generation — so you focus on higher-value work.",
-    details: [
-      "Automated invoice processing and data extraction",
-      "Smart email triage and auto-responses",
-      "Scheduled reporting and analytics summaries",
-      "CRM updates triggered by customer interactions",
-    ],
-    interest: "unsure",
-  },
-  {
-    id: "content",
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-      </svg>
-    ),
-    title: "Content Generation",
-    tagline: "Scale your voice, not your headcount",
-    accent: BRAND.skyBlue,
-    summary: "Generate on-brand blog posts, product descriptions, social content, and marketing copy at scale — all in your unique voice.",
-    details: [
-      "Blog articles, SEO content, and landing pages",
-      "Product descriptions for entire catalogs",
-      "Social media posts and ad copy variations",
-      "Bundled with the Social Media Management add-on",
-    ],
-    interest: "unsure",
-  },
-  {
-    id: "mobile",
-    icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-      </svg>
-    ),
-    title: "Mobile Apps",
-    tagline: "Take your brand to iOS & Android",
-    accent: BRAND.navyMid,
-    summary: "A native mobile app that complements your web presence — from a simple branded shell to a fully custom build.",
-    details: [
-      "Basic tier mirrors your website with push notifications",
-      "Full-featured tier adds native device access and offline mode",
-      "Apple Developer and Google Play accounts required separately",
-      "Scoped and priced during your guided quote",
-    ],
-    interest: "mobile",
-  },
-];
-
 // ─── Enterprise solutions (scoped on a strategy call, not self-serve) ─────────
 
 const ENTERPRISE_SOLUTIONS = [
@@ -398,10 +268,9 @@ export default function Quote() {
   const [sel, setSel] = useState<Sel>(DEFAULT_SEL);
   const [batchPointer, setBatchPointer] = useState(-1); // -1 = intro, BATCHES.length = final
   const [messages, setMessages] = useState<ChatMsg[]>([{ id: 0, role: "assistant", text: INTRO_PROMPT }]);
-  const [openDetailId, setOpenDetailId] = useState<string | null>(null);
+  const [openEnterpriseId, setOpenEnterpriseId] = useState<string | null>(null);
   const idRef = useRef(1);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const chatSectionRef = useRef<HTMLDivElement>(null);
 
   const { oneTime, monthly, lines } = useMemo(() => computeQuote(sel), [sel]);
   const isEmpty = lines.length === 0;
@@ -453,17 +322,6 @@ export default function Quote() {
     const newSel = opt.applyInitial ? opt.applyInitial(sel) : sel;
     setSel(newSel);
     goToBatch(0, newSel, opt.interest);
-  }
-
-  function startGuidedQuote(forInterest: Interest) {
-    setTrack("standard");
-    if (batchPointer === -1 && forInterest) {
-      const opt = INTRO_OPTIONS.find((o) => o.interest === forInterest);
-      if (opt) handleIntroOption(opt);
-    }
-    window.setTimeout(() => {
-      chatSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
   }
 
   function handleFieldToggle(field: Field) {
@@ -560,74 +418,8 @@ export default function Quote() {
       <AnimatePresence mode="wait">
         {track === "standard" && (
           <motion.div key="standard" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-            {/* ─── Standard solutions grid ─────────────────────── */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {STANDARD_SOLUTIONS.map((s, i) => {
-                  const isOpen = openDetailId === s.id;
-                  return (
-                    <motion.div
-                      key={s.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-                      className="p-6 rounded-2xl border flex flex-col transition-colors duration-200"
-                      style={{ borderColor: "var(--border-color)", backgroundColor: "var(--surface)" }}
-                    >
-                      <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 flex-none"
-                        style={{ background: `${s.accent}22`, color: s.accent }}
-                      >
-                        {s.icon}
-                      </div>
-                      <h3 className="font-semibold text-ink text-base mb-1">{s.title}</h3>
-                      <p className="text-[13px] font-medium mb-2" style={{ color: s.accent }}>{s.tagline}</p>
-                      <p className="text-muted text-sm leading-relaxed">{s.summary}</p>
-
-                      <AnimatePresence initial={false}>
-                        {isOpen && (
-                          <motion.ul
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.25 }}
-                            className="space-y-2 mt-3 overflow-hidden"
-                          >
-                            {s.details.map((d) => (
-                              <li key={d} className="flex items-start gap-2 text-muted text-xs leading-relaxed">
-                                <svg className="w-3.5 h-3.5 mt-0.5 flex-none" style={{ color: s.accent }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
-                                {d}
-                              </li>
-                            ))}
-                          </motion.ul>
-                        )}
-                      </AnimatePresence>
-
-                      <div className="mt-4 flex gap-2 flex-none">
-                        <button
-                          onClick={() => setOpenDetailId(isOpen ? null : s.id)}
-                          className="flex-1 py-2 rounded-lg border border-subtle text-[12px] font-medium text-muted hover:text-ink transition-all duration-200"
-                        >
-                          {isOpen ? "Hide details" : "Show details"}
-                        </button>
-                        <button
-                          onClick={() => startGuidedQuote(s.interest)}
-                          className="flex-1 py-2 rounded-lg text-[12px] font-semibold transition-all duration-200 hover:scale-[1.02]"
-                          style={{ backgroundColor: s.accent, color: "#fff" }}
-                        >
-                          Get a quote
-                        </button>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </section>
-
             {/* ─── Chat panel ───────────────────────────────────── */}
-            <section ref={chatSectionRef} className="max-w-4xl mx-auto px-4 sm:px-6 pb-16 scroll-mt-24">
+            <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
               <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--border-color)", backgroundColor: "var(--surface)" }}>
                 {/* Header */}
                 <div className="flex items-center justify-between gap-3 px-5 py-4 border-b" style={{ borderColor: "var(--border-color)" }}>
@@ -810,45 +602,8 @@ export default function Quote() {
 
         {track === "enterprise" && (
           <motion.div key="enterprise" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-            {/* ─── Enterprise grid ──────────────────────────────── */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {ENTERPRISE_SOLUTIONS.map((s, i) => (
-                  <motion.div
-                    key={s.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-                    className="rounded-2xl border p-6 flex flex-col"
-                    style={{ borderColor: "var(--border-color)", backgroundColor: "var(--surface)" }}
-                  >
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 flex-none"
-                      style={{ background: `${s.accent}22`, color: s.accent }}
-                    >
-                      {s.icon}
-                    </div>
-                    <h3 className="font-semibold text-ink text-lg mb-1">{s.title}</h3>
-                    <p className="text-[13px] font-medium mb-2" style={{ color: s.accent }}>{s.tagline}</p>
-                    <p className="text-muted text-sm leading-relaxed mb-4">{s.summary}</p>
-                    <ul className="space-y-2 mt-auto">
-                      {s.details.map((d) => (
-                        <li key={d} className="flex items-start gap-2 text-muted text-xs leading-relaxed">
-                          <svg className="w-3.5 h-3.5 mt-0.5 flex-none" style={{ color: s.accent }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          {d}
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                ))}
-              </div>
-            </section>
-
-            {/* ─── Scheduling ────────────────────────────────────── */}
-            <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="text-center mb-8">
+            <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="text-center mb-10">
                 <h2 className="text-3xl md:text-4xl font-bold text-ink mb-3" style={{ fontFamily: "'DM Serif Display', serif" }}>
                   Schedule a Strategy Call
                 </h2>
@@ -857,11 +612,81 @@ export default function Quote() {
                 </p>
               </motion.div>
 
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.1 }}>
-                <CalendlyEmbed />
-              </motion.div>
+              <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
+                {/* ─── Compact capability list ───────────────────── */}
+                <div>
+                  <p className="text-[11px] uppercase tracking-widest text-muted font-semibold mb-3">What we can build</p>
+                  <div className="space-y-2">
+                    {ENTERPRISE_SOLUTIONS.map((s, i) => {
+                      const isOpen = openEnterpriseId === s.id;
+                      return (
+                        <motion.div
+                          key={s.id}
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.35, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                          className="rounded-xl border overflow-hidden"
+                          style={{ borderColor: isOpen ? `${s.accent}40` : "var(--border-color)", backgroundColor: "var(--surface)" }}
+                        >
+                          <button
+                            onClick={() => setOpenEnterpriseId(isOpen ? null : s.id)}
+                            className="w-full flex items-center gap-3 p-3 text-left"
+                          >
+                            <div
+                              className="w-9 h-9 rounded-lg flex items-center justify-center flex-none [&>svg]:w-5 [&>svg]:h-5"
+                              style={{ background: `${s.accent}22`, color: s.accent }}
+                            >
+                              {s.icon}
+                            </div>
+                            <span className="flex-1 font-medium text-ink text-[13px] leading-snug">{s.title}</span>
+                            <svg
+                              className={`w-4 h-4 flex-none text-muted transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+                          <AnimatePresence initial={false}>
+                            {isOpen && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.25 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="px-3 pb-3.5">
+                                  <p className="text-[12px] font-medium mb-1.5" style={{ color: s.accent }}>{s.tagline}</p>
+                                  <p className="text-muted text-xs leading-relaxed mb-2.5">{s.summary}</p>
+                                  <ul className="space-y-1.5">
+                                    {s.details.map((d) => (
+                                      <li key={d} className="flex items-start gap-1.5 text-muted text-[11px] leading-relaxed">
+                                        <svg className="w-3 h-3 mt-0.5 flex-none" style={{ color: s.accent }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        {d}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
 
-              <p className="text-center text-muted text-[13px] mt-6">
+                {/* ─── Calendar ───────────────────────────────────── */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
+                  <CalendlyEmbed />
+                </motion.div>
+              </div>
+
+              <p className="text-center text-muted text-[13px] mt-10">
                 Looking for something simpler?{" "}
                 <button onClick={() => setTrack("standard")} className="underline font-medium" style={{ color: BRAND.orange }}>
                   Explore Standard Projects →
