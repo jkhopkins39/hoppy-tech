@@ -6,24 +6,36 @@ import Footer from "../components/Footer";
 
 const educationHistory = [
   {
-    title: "Kennesaw State University",
-    period: "2022–2026",
+    title: "Zinnia Internship",
+    period: "May 2026",
     description:
-      "Earned a BS in Computer Science with a focus in Artificial Intelligence. Built the majority of my portfolio projects during my time at KSU, ranging from AI integrations to full-stack web applications.",
+      "Interned at Zinnia, applying AI and machine learning to real-world products alongside a growing engineering team.",
+  },
+  {
+    title: "Hoppy Tech Founded",
+    period: "June 2025",
+    description:
+      "Founded Hoppy Tech to build websites, AI tools, and custom software for small businesses.",
+  },
+  {
+    title: "Kennesaw State University",
+    period: "Graduated May 2026",
+    description:
+      "Earned a BS in Computer Science with a focus in Artificial Intelligence, building most of my portfolio projects along the way.",
     image: "/images/education/marietta-campus.jpg",
   },
   {
     title: "University of West Georgia",
     period: "2021–2022",
     description:
-      "Gained a strong foundation in test-driven development, object-oriented programming, and software design. Also worked in the catering department — even had a meeting with the university president.",
+      "Built a foundation in test-driven development, object-oriented programming, and software design.",
     image: "/images/education/UWG.jpg",
   },
   {
     title: "Bremen High School",
     period: "2017–2021",
     description:
-      "Graduated with National Honor Society membership. Served as brass captain of the BHS Marching Blue Devils and worked as a sound & lighting technician in the Fine Arts Center.",
+      "Graduated with National Honor Society membership; marching band brass captain and A/V technician.",
     image: "/images/education/BHS.png",
   },
 ];
@@ -78,7 +90,7 @@ function About() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
             </svg>
           </div>
-          <h2 className="font-bold text-xl text-ink">Education Journey</h2>
+          <h2 className="font-bold text-xl text-ink">My Journey</h2>
         </motion.div>
 
         <EducationTimeline items={educationHistory} />

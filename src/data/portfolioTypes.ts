@@ -11,5 +11,5 @@ export interface Project {
   technologies: string[];
   repoUrl?: string;
   liveUrl?: string;
-  category: 'web' | 'mobile' | 'ai' | 'other';
+  category: 'web' | 'apps' | 'ai';
 }

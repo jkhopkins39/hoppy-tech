@@ -6,7 +6,7 @@ interface TimelineItem {
   title: string;
   period: string;
   description: string;
-  image: string;
+  image?: string;
 }
 
 interface EducationTimelineProps {
@@ -61,11 +61,22 @@ const EducationTimeline: React.FC<EducationTimelineProps> = ({ items }) => {
               >
                 {/* Image */}
                 <div className="relative h-44 overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-full flex items-center justify-center"
+                      style={{ background: `linear-gradient(135deg, ${accent.dot}22, ${accent.dot}08)` }}
+                    >
+                      <svg className="w-10 h-10" fill="none" stroke={accent.dot} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                  )}
                   <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, var(--surface) 0%, transparent 60%)' }} />
 
                   {/* Period badge */}

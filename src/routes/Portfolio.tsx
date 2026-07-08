@@ -9,9 +9,8 @@ import { BRAND, CATEGORY_COLORS, CATEGORY_BG, LIVE_BUTTON_GRADIENT } from '../co
 const categories = [
   { id: 'all', label: 'All' },
   { id: 'web', label: 'Web' },
-  { id: 'mobile', label: 'Mobile' },
+  { id: 'apps', label: 'Apps' },
   { id: 'ai', label: 'AI / ML' },
-  { id: 'other', label: 'Other' },
 ];
 
 function getCategoryStyle(category: string) {
@@ -44,7 +43,6 @@ const Portfolio: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [expandedProject, setExpandedProject] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [darkImageIds, setDarkImageIds] = useState<Set<number>>(new Set());
 
   const toggleDarkImage = (id: number, e: React.MouseEvent) => {
@@ -81,13 +79,7 @@ const Portfolio: React.FC = () => {
   React.useEffect(() => {
     if (searchParams.get('project')) return;
     setExpandedProject(null);
-    setSelectedTag(null);
   }, [selectedCategory, searchParams]);
-
-  React.useEffect(() => {
-    if (searchParams.get('project')) return;
-    setExpandedProject(null);
-  }, [selectedTag, searchParams]);
 
   React.useEffect(() => {
     const raw = searchParams.get('project');
@@ -97,7 +89,6 @@ const Portfolio: React.FC = () => {
     if (!projects.some((p) => p.id === id)) return;
 
     setSelectedCategory('all');
-    setSelectedTag(null);
     setExpandedProject(id);
 
     const timer = window.setTimeout(() => {
@@ -165,22 +156,9 @@ const Portfolio: React.FC = () => {
     setNewProject(prev => ({ ...prev, technologies: (prev.technologies || []).filter(x => x !== t) }));
   };
 
-  const categoryProjects = selectedCategory === 'all'
+  const filteredProjects = selectedCategory === 'all'
     ? projects
     : projects.filter(p => p.category === selectedCategory);
-
-  const availableTags = [...new Set(categoryProjects.flatMap(p => p.technologies))].sort();
-
-  const filteredProjects = selectedTag
-    ? categoryProjects.filter(p => p.technologies.includes(selectedTag))
-    : categoryProjects;
-
-  const activeFilterColor = selectedCategory !== 'all'
-    ? CATEGORY_COLORS[selectedCategory]
-    : undefined;
-  const activeFilterBg = selectedCategory !== 'all'
-    ? CATEGORY_BG[selectedCategory]
-    : undefined;
 
   const inputClass = "w-full px-4 py-3 bg-surface border border-subtle rounded-xl text-ink placeholder-muted-3 focus:border-accent-subtle transition-colors text-sm";
   const labelClass = "block text-[11px] uppercase tracking-widest text-muted font-semibold mb-2";
@@ -262,9 +240,8 @@ const Portfolio: React.FC = () => {
                       <label className={labelClass}>Category</label>
                       <select value={newProject.category} onChange={e => setNewProject({...newProject, category: e.target.value as Project['category']})} className={inputClass}>
                         <option value="web" className="bg-surface">Web</option>
-                        <option value="mobile" className="bg-surface">Mobile</option>
+                        <option value="apps" className="bg-surface">Apps</option>
                         <option value="ai" className="bg-surface">AI / ML</option>
-                        <option value="other" className="bg-surface">Other</option>
                       </select>
                     </div>
                   </div>
@@ -337,47 +314,6 @@ const Portfolio: React.FC = () => {
               </button>
             ))}
           </div>
-
-          {availableTags.length > 0 && (
-            <div>
-              <div className="flex items-center gap-3 mb-3">
-                <p className="text-[11px] uppercase tracking-widest text-muted font-semibold">Technologies</p>
-                {selectedTag && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedTag(null)}
-                    className="text-[11px] text-muted-2 hover:text-ink transition-colors"
-                  >
-                    Clear filter
-                  </button>
-                )}
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                {availableTags.map(tag => {
-                  const isSelected = selectedTag === tag;
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => setSelectedTag(isSelected ? null : tag)}
-                      className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all duration-200 ${
-                        isSelected
-                          ? ''
-                          : 'border border-subtle bg-surface text-muted hover:text-ink'
-                      }`}
-                      style={isSelected ? {
-                        background: activeFilterBg ?? 'color-mix(in srgb, var(--accent) 12%, transparent)',
-                        color: activeFilterColor ?? 'var(--accent)',
-                        border: `1px solid ${activeFilterColor ? `${activeFilterColor}44` : 'color-mix(in srgb, var(--accent) 30%, transparent)'}`,
-                      } : undefined}
-                    >
-                      {tag}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Projects grid */}
@@ -399,172 +335,159 @@ const Portfolio: React.FC = () => {
                   transition={{ duration: 0.4, delay: index * 0.07 }}
                   className="relative h-[460px] rounded-2xl border border-subtle bg-surface overflow-hidden hover:border-white/[0.12] transition-colors duration-300"
                 >
-                  <AnimatePresence mode="wait" initial={false}>
-                    {!isExpanded ? (
-                      <motion.div
-                        key="summary"
-                        variants={cardContentVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        transition={cardTransition}
-                        className="absolute inset-0 flex flex-col group"
-                      >
-                        <div className="relative h-48 overflow-hidden flex-none">
-                          <div className="absolute top-3 right-3 z-20 flex gap-2">
-                            {project.imageDark && (
-                              <button
-                                onClick={(e) => toggleDarkImage(project.id, e)}
-                                title={showDark ? 'Switch to light' : 'Switch to dark'}
-                                className="p-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-white/30 transition-all"
-                              >
-                                {showDark ? (
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71m12.02 0-.71-.71M6.34 6.34l-.71-.71M12 7a5 5 0 100 10A5 5 0 0012 7z" />
-                                  </svg>
-                                ) : (
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-                                  </svg>
-                                )}
-                              </button>
-                            )}
-                            {isLoggedIn && (
-                              <>
-                                <button onClick={(e) => { e.stopPropagation(); handleEditProject(project); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-blue-400/40 transition-all">
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                </button>
-                                <button onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-red-400/40 transition-all">
-                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                </button>
-                              </>
-                            )}
-                          </div>
-                          <picture>
+                  <div className="absolute inset-0 flex flex-col group">
+                    <div className="relative h-48 overflow-hidden flex-none">
+                      <div className="absolute top-3 right-3 z-20 flex gap-2">
+                        {project.imageDark && (
+                          <button
+                            onClick={(e) => toggleDarkImage(project.id, e)}
+                            title={showDark ? 'Switch to light' : 'Switch to dark'}
+                            className="p-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-white/30 transition-all"
+                          >
                             {showDark ? (
-                              project.imageDarkWebP ? <source srcSet={project.imageDarkWebP} type="image/webp" /> : null
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07-.71.71M6.34 17.66l-.71.71m12.02 0-.71-.71M6.34 6.34l-.71-.71M12 7a5 5 0 100 10A5 5 0 0012 7z" />
+                              </svg>
                             ) : (
-                              project.imageWebP ? <source srcSet={project.imageWebP} type="image/webp" /> : null
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                              </svg>
                             )}
-                            <img
-                              src={showDark ? project.imageDark! : (project.imageFallback || project.image)}
-                              alt={project.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                              loading="lazy"
-                              onError={(e) => {
-                                const t = e.target as HTMLImageElement;
-                                if (!showDark && project.imageFallback && project.imageFallback !== project.image) t.src = project.imageFallback;
-                                else t.style.display = 'none';
-                              }}
-                            />
-                          </picture>
-                          <div className="absolute inset-0 bg-gradient-to-t from-[var(--canvas)] via-transparent to-transparent opacity-70" />
-                          <div className="absolute bottom-3 left-3">
-                            <span
-                              className="px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-wider"
-                              style={{ background: bg, color }}
-                            >
-                              {project.category}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col flex-1 p-5 min-h-0">
-                          <div className="h-[2px] w-8 mb-4 rounded-full flex-none" style={{ background: color }} />
-                          <h3 className="font-semibold text-[17px] text-ink mb-1.5 leading-snug">{project.title}</h3>
-                          <p className="text-muted text-sm leading-relaxed mb-4 line-clamp-2">{project.shortDescription}</p>
-                          <div className="flex flex-wrap gap-1.5 mb-4">
-                            {project.technologies.slice(0, 3).map(t => (
-                              <TechTag key={t} tech={t} category={project.category} />
-                            ))}
-                            {project.technologies.length > 3 && (
-                              <span
-                                className="px-2.5 py-1 rounded-lg text-[11px] font-medium"
-                                style={{
-                                  background: bg,
-                                  color,
-                                  border: `1px solid ${color}33`,
-                                }}
-                              >
-                                +{project.technologies.length - 3}
-                              </span>
-                            )}
-                          </div>
-                          <button
-                            onClick={() => setExpandedProject(project.id)}
-                            className="mt-auto w-full py-2.5 rounded-xl border border-subtle hover:border-white/[0.12] text-[13px] font-medium text-muted hover:text-ink transition-all duration-200 flex items-center justify-center gap-1.5"
-                          >
-                            Learn more
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
                           </button>
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="detail"
-                        variants={cardContentVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        transition={cardTransition}
-                        className="absolute inset-0 flex flex-col p-5 min-h-0"
-                        style={{
-                          borderColor: `${color}40`,
-                          background: `linear-gradient(135deg, ${color}0A 0%, ${color}04 100%)`,
-                        }}
-                      >
-                        <div className="flex items-center justify-between mb-3 flex-none">
-                          <h3 className="font-semibold text-[15px] text-ink leading-snug pr-2">{project.title}</h3>
-                          <button
-                            onClick={() => setExpandedProject(null)}
-                            className="flex items-center gap-1 text-xs font-medium flex-none"
-                            style={{ color }}
+                        )}
+                        {isLoggedIn && (
+                          <>
+                            <button onClick={(e) => { e.stopPropagation(); handleEditProject(project); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-blue-400/40 transition-all">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id); }} className="p-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:border-red-400/40 transition-all">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                      <picture>
+                        {showDark ? (
+                          project.imageDarkWebP ? <source srcSet={project.imageDarkWebP} type="image/webp" /> : null
+                        ) : (
+                          project.imageWebP ? <source srcSet={project.imageWebP} type="image/webp" /> : null
+                        )}
+                        <img
+                          src={showDark ? project.imageDark! : (project.imageFallback || project.image)}
+                          alt={project.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
+                          onError={(e) => {
+                            const t = e.target as HTMLImageElement;
+                            if (!showDark && project.imageFallback && project.imageFallback !== project.image) t.src = project.imageFallback;
+                            else t.style.display = 'none';
+                          }}
+                        />
+                      </picture>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--canvas)] via-transparent to-transparent opacity-70" />
+                      <div className="absolute bottom-3 left-3">
+                        <span
+                          className="px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-wider"
+                          style={{ background: bg, color }}
+                        >
+                          {project.category}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col flex-1 p-5 min-h-0">
+                      <div className="h-[2px] w-8 mb-4 rounded-full flex-none" style={{ background: color }} />
+                      <h3 className="font-semibold text-[17px] text-ink mb-1.5 leading-snug flex-none">{project.title}</h3>
+
+                      <div className="flex-1 min-h-0 mb-4">
+                        <AnimatePresence mode="wait" initial={false}>
+                          {!isExpanded ? (
+                            <motion.p
+                              key="short"
+                              variants={cardContentVariants}
+                              initial="initial"
+                              animate="animate"
+                              exit="exit"
+                              transition={cardTransition}
+                              className="text-muted text-sm leading-relaxed line-clamp-2"
+                            >
+                              {project.shortDescription}
+                            </motion.p>
+                          ) : (
+                            <motion.p
+                              key="full"
+                              variants={cardContentVariants}
+                              initial="initial"
+                              animate="animate"
+                              exit="exit"
+                              transition={cardTransition}
+                              className="text-muted text-sm leading-relaxed h-full overflow-y-auto"
+                            >
+                              {project.description}
+                            </motion.p>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1.5 mb-4 flex-none">
+                        {project.technologies.slice(0, 3).map(t => (
+                          <TechTag key={t} tech={t} category={project.category} />
+                        ))}
+                        {project.technologies.length > 3 && (
+                          <span
+                            className="px-2.5 py-1 rounded-lg text-[11px] font-medium"
+                            style={{
+                              background: bg,
+                              color,
+                              border: `1px solid ${color}33`,
+                            }}
                           >
-                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
-                            Back
-                          </button>
-                        </div>
+                            +{project.technologies.length - 3}
+                          </span>
+                        )}
+                      </div>
 
-                        <p className="text-muted text-sm leading-relaxed flex-1 overflow-y-auto mb-4">{project.description}</p>
-
-                        <div className="flex flex-wrap gap-1.5 mb-4 flex-none">
-                          {project.technologies.map(t => (
-                            <TechTag key={t} tech={t} category={project.category} />
-                          ))}
-                        </div>
-
-                        <div className="flex gap-3 flex-none">
-                          {project.repoUrl && (
-                            <a
-                              href={project.repoUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 py-2.5 flex items-center justify-center gap-2 rounded-xl border border-subtle text-[13px] font-medium text-muted hover:text-ink hover:border-white/[0.15] transition-all"
-                            >
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /></svg>
-                              Repo
-                            </a>
-                          )}
-                          {project.liveUrl && (
-                            <a
-                              href={project.liveUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 py-2.5 flex items-center justify-center gap-2 rounded-xl text-[13px] font-semibold text-canvas transition-all hover:scale-[1.02]"
-                              style={{ background: LIVE_BUTTON_GRADIENT }}
-                            >
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                              Live
-                            </a>
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                      <div className="flex gap-2 flex-none">
+                        <button
+                          onClick={() => setExpandedProject(isExpanded ? null : project.id)}
+                          className="flex-1 py-2.5 rounded-xl border border-subtle hover:border-white/[0.12] text-[13px] font-medium text-muted hover:text-ink transition-all duration-200 flex items-center justify-center gap-1.5"
+                        >
+                          {isExpanded ? 'Show less' : 'Learn more'}
+                          <svg
+                            className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? '-rotate-90' : 'rotate-90'}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                        {project.repoUrl && (
+                          <a
+                            href={project.repoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="View repository"
+                            className="w-11 flex-none flex items-center justify-center rounded-xl border border-subtle text-muted hover:text-ink hover:border-white/[0.15] transition-all"
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /></svg>
+                          </a>
+                        )}
+                        {project.liveUrl && (
+                          <a
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 py-2.5 flex items-center justify-center gap-2 rounded-xl text-[13px] font-semibold text-canvas transition-all hover:scale-[1.02]"
+                            style={{ background: LIVE_BUTTON_GRADIENT }}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                            Live
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </motion.div>
               );
             })}
@@ -576,7 +499,7 @@ const Portfolio: React.FC = () => {
             <svg className="w-12 h-12 mx-auto mb-4 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
-            <p>{selectedTag ? 'No projects match this technology filter.' : 'No projects in this category yet.'}</p>
+            <p>No projects in this category yet.</p>
           </div>
         )}
       </div>

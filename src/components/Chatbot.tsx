@@ -29,10 +29,28 @@ const Chatbot: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const fabRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (panelRef.current?.contains(target)) return;
+      if (fabRef.current?.contains(target)) return;
+      setIsOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -206,6 +224,7 @@ const Chatbot: React.FC = () => {
     <div className="chatbot-root pointer-events-none fixed inset-0 z-[60]">
       {/* Floating button */}
       <button
+        ref={fabRef}
         type="button"
         onClick={toggleChat}
         aria-label={isOpen ? 'Close chat' : 'Open chat'}
@@ -267,6 +286,7 @@ const Chatbot: React.FC = () => {
             style={{ height: '440px' }}
           >
           <div
+            ref={panelRef}
             className="w-full h-full flex flex-col rounded-2xl overflow-hidden"
             style={{
               background: 'var(--surface)',

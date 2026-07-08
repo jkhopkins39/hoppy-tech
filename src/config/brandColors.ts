@@ -33,16 +33,14 @@ export const BRAND_ACCENTS = [
 
 export const CATEGORY_COLORS: Record<string, string> = {
   web: BRAND.skyBlue,
-  mobile: BRAND.skyBlueLight,
+  apps: BRAND.skyBlueLight,
   ai: BRAND.orange,
-  other: BRAND.navyMid,
 };
 
 export const CATEGORY_BG: Record<string, string> = {
   web: `rgba(${SKY_BLUE_RGB}, 0.14)`,
-  mobile: `rgba(${SKY_BLUE_LIGHT_RGB}, 0.14)`,
+  apps: `rgba(${SKY_BLUE_LIGHT_RGB}, 0.14)`,
   ai: 'rgba(251, 133, 0, 0.14)',
-  other: 'rgba(11, 50, 85, 0.2)',
 };
 
 export const LIVE_BUTTON_GRADIENT = `linear-gradient(135deg, ${BRAND.skyBlueLight}, ${BRAND.skyBlue})`;

@@ -103,7 +103,6 @@ const Contact: React.FC = () => {
       email,
       phone,
       name: String(fd.get('name') ?? '').trim(),
-      company: String(fd.get('company') ?? '').trim(),
       project_type: String(fd.get('project_type') ?? '').trim(),
       problem: String(fd.get('problem') ?? '').trim(),
       timeline: String(fd.get('timeline') ?? '').trim(),
@@ -220,12 +219,6 @@ const Contact: React.FC = () => {
                 <div>
                   <label className={labelClass}>Name</label>
                   <input type="text" name="name" placeholder="Jane Smith (optional)" className={inputClass} />
-                </div>
-
-                {/* Company */}
-                <div>
-                  <label className={labelClass}>Company / Business Name</label>
-                  <input type="text" name="company" placeholder="Acme Corp (optional)" className={inputClass} />
                 </div>
 
                 {/* Project Type */}

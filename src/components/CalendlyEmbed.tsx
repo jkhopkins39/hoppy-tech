@@ -55,7 +55,7 @@ export default function CalendlyEmbed() {
     <div
       ref={containerRef}
       className="rounded-2xl overflow-hidden"
-      style={{ minWidth: "320px", height: "700px" }}
+      style={{ minWidth: "320px", height: "clamp(420px, 62vh, 620px)" }}
     />
   );
 }

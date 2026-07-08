@@ -11,8 +11,6 @@ import Dashboard from "./Dashboard";
 import Portal from "./Portal";
 import Portfolio from "./Portfolio";
 import ThankYou from "./ThankYou";
-import Solutions from "./Solutions";
-import Enterprise from "./Enterprise";
 import Refer from "./Refer";
 import Quote from "./Quote";
 import Footer from "../components/Footer";
@@ -242,7 +240,7 @@ function HomePage() {
               title: "AI & Machine Learning",
               desc: "Integrating intelligence into applications using TensorFlow, PyTorch, and Gemini; I believe AI is the next frontier!",
               accent: BRAND.skyBlue,
-              learnMore: "/solutions",
+              learnMore: "/quote",
             },
             {
               icon: (
@@ -367,9 +365,9 @@ function SiteLayout() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/thanks" element={<ThankYou />} />
-          <Route path="/ai-solutions" element={<Navigate to="/solutions" replace />} />
-          <Route path="/solutions" element={<Solutions />} />
-          <Route path="/enterprise" element={<Enterprise />} />
+          <Route path="/ai-solutions" element={<Navigate to="/quote" replace />} />
+          <Route path="/solutions" element={<Navigate to="/quote" replace />} />
+          <Route path="/enterprise" element={<Navigate to="/quote" replace />} />
           <Route path="/refer" element={<Refer />} />
           <Route path="/quote" element={<Quote />} />
         </Routes>
