@@ -156,6 +156,11 @@ function designTierOptions(): { value: string; label: string; description?: stri
       label: `${DESIGN_TIERS.iconLogo.label} — ${fmtUSD(DESIGN_TIERS.iconLogo.oneTime)}`,
       description: DESIGN_TIERS.iconLogo.description,
     },
+    {
+      value: "discuss",
+      label: DESIGN_TIERS.discuss.label,
+      description: DESIGN_TIERS.discuss.description,
+    },
   ];
 }
 

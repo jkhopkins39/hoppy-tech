@@ -7,6 +7,7 @@ import GtagPageView from "./components/GtagPageView";
 import { ThemeProvider } from "./context/ThemeContext";
 import { CrackModeProvider } from "./context/CrackModeContext";
 import CrackModeExit from "./components/CrackModeExit";
+import { LanguageProvider } from "./context/LanguageContext";
 import { initAdminAuth } from "./lib/auth";
 import "./styles/index.css";
 import "./styles/crack-mode.css";
@@ -19,8 +20,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <GtagPageView />
       <ThemeProvider>
         <CrackModeProvider>
-          <App />
-          <CrackModeExit />
+          <LanguageProvider>
+            <App />
+            <CrackModeExit />
+          </LanguageProvider>
         </CrackModeProvider>
       </ThemeProvider>
       <Analytics />

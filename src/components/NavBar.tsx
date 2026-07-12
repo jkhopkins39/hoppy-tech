@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import DarkModeToggle from "./DarkModeToggle";
+import LanguageToggle from "./LanguageToggle";
 import { AUTH_CHANGE_EVENT, isAdminLoggedIn } from "../lib/auth";
 import { LETTERMARK_URL, WEBSITE_LOGO_ALT } from "../config/brand";
 import { useCrackMode } from "../context/CrackModeContext";
@@ -162,14 +163,16 @@ const NavBar = () => {
               Contact Me
             </button>
 
-            {/* Theme toggle */}
-            <div className="ml-2 flex items-center">
+            {/* Theme + language */}
+            <div className="ml-2 flex items-center gap-2">
+              <LanguageToggle />
               <DarkModeToggle />
             </div>
           </div>
 
           {/* Mobile: toggle + hamburger */}
           <div className="md:hidden flex items-center gap-2" ref={menuRef}>
+            <LanguageToggle />
             <DarkModeToggle />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -245,6 +248,10 @@ const NavBar = () => {
 
           {/* Drawer links */}
           <div className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
+            <div className="px-4 pb-4">
+              <p className="text-[11px] uppercase tracking-widest text-muted font-semibold mb-2">Language</p>
+              <LanguageToggle />
+            </div>
             {NAV_LINKS.map((link) => (
               <button
                 key={link.path}

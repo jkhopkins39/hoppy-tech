@@ -19,7 +19,7 @@ export interface Sel {
   apiIntegrations: number;
   workflows: boolean;
   mobileApp: "none" | "basic" | "full";
-  designTier: "none" | "basic" | "advanced" | "iconLogo";
+  designTier: "none" | "basic" | "advanced" | "iconLogo" | "discuss";
 }
 
 export const DEFAULT_SEL: Sel = {
@@ -82,6 +82,11 @@ export const DESIGN_TIERS = {
     label: "Icon logo only",
     description: "A standalone icon mark — no full brand package.",
     oneTime: 200,
+  },
+  discuss: {
+    label: "Not sure yet — let's talk it through",
+    description:
+      "You know you want design help but aren't sure what you need. We'll discuss your goals on a call and figure out the right fit together.",
   },
 } as const;
 
@@ -205,6 +210,8 @@ export function computeQuote(sel: Sel) {
     });
   } else if (sel.designTier === "iconLogo") {
     add({ label: "Icon Logo", oneTime: DESIGN_TIERS.iconLogo.oneTime });
+  } else if (sel.designTier === "discuss") {
+    add({ label: "Visual Design — scope to discuss", custom: true });
   }
 
   return { oneTime, monthly, hasCustom, lines };

@@ -495,3 +495,22 @@ a {
 [data-framer-motion] * {
   transition: none !important;
 }
+
+/* ─── Google Translate (hidden widget, custom EN/ES toggle) ─ */
+.goog-te-banner-frame,
+.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.goog-te-gadget-icon {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+  position: static !important;
+}
+
+#google_translate_element,
+.goog-te-gadget {
+  display: none !important;
+}
