@@ -3,6 +3,7 @@ export type SiteLanguage = "en" | "es";
 const STORAGE_KEY = "ht-lang";
 const SCRIPT_ID = "google-translate-script";
 const MOUNT_ID = "google_translate_element";
+const COOKIE_EXPIRES = "Thu, 01 Jan 1970 00:00:00 UTC";
 
 declare global {
   interface Window {
@@ -15,13 +16,9 @@ declare global {
               pageLanguage: string;
               includedLanguages: string;
               autoDisplay: boolean;
-              layout?: number;
             },
             id: string,
           ): void;
-          InlineLayout: {
-            SIMPLE: number;
-          };
         };
       };
     };
@@ -38,42 +35,65 @@ export function setStoredLanguage(lang: SiteLanguage) {
   localStorage.setItem(STORAGE_KEY, lang);
 }
 
-function findTranslateSelect(): HTMLSelectElement | null {
-  return document.querySelector<HTMLSelectElement>(".goog-te-combo");
+export function getActiveLanguage(): SiteLanguage {
+  const hasSpanishCookie = document.cookie
+    .split(";")
+    .some((part) => part.trim() === "googtrans=/en/es");
+  return hasSpanishCookie ? "es" : getStoredLanguage();
 }
 
-export function applyGoogleTranslate(lang: SiteLanguage): boolean {
-  const select = findTranslateSelect();
-  if (!select) return false;
+function clearGoogTransCookies() {
+  const base = "path=/";
+  const expired = `expires=${COOKIE_EXPIRES}`;
+  document.cookie = `googtrans=;${base};${expired}`;
 
-  const value = lang === "en" ? "" : lang;
-  if (select.value !== value) {
-    select.value = value;
-    select.dispatchEvent(new Event("change"));
+  const host = window.location.hostname;
+  if (!host || host === "localhost" || host === "127.0.0.1") return;
+
+  document.cookie = `googtrans=;${base};domain=${host};${expired}`;
+  const parts = host.split(".");
+  if (parts.length >= 2) {
+    document.cookie = `googtrans=;${base};domain=.${parts.slice(-2).join(".")};${expired}`;
+  }
+}
+
+function setGoogTransCookie(lang: SiteLanguage) {
+  if (lang === "en") {
+    clearGoogTransCookies();
+    window.location.hash = "";
+    return;
   }
 
-  document.documentElement.lang = lang;
-  return true;
+  document.cookie = `googtrans=/en/${lang};path=/`;
+  window.location.hash = `#googtrans(en|${lang})`;
 }
 
 export function loadGoogleTranslate(): Promise<void> {
   if (loadPromise) return loadPromise;
 
   loadPromise = new Promise((resolve) => {
-    if (document.getElementById(SCRIPT_ID)) {
+    if (window.google?.translate?.TranslateElement) {
       resolve();
       return;
     }
 
+    if (document.getElementById(SCRIPT_ID)) {
+      const timer = window.setInterval(() => {
+        if (window.google?.translate?.TranslateElement) {
+          window.clearInterval(timer);
+          resolve();
+        }
+      }, 50);
+      return;
+    }
+
     window.googleTranslateElementInit = () => {
-      const InlineLayout = window.google?.translate?.TranslateElement?.InlineLayout;
       if (window.google?.translate?.TranslateElement) {
         new window.google.translate.TranslateElement(
           {
             pageLanguage: "en",
             includedLanguages: "en,es",
             autoDisplay: false,
-            layout: InlineLayout?.SIMPLE,
           },
           MOUNT_ID,
         );
@@ -83,7 +103,7 @@ export function loadGoogleTranslate(): Promise<void> {
 
     const script = document.createElement("script");
     script.id = SCRIPT_ID;
-    script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+    script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
     script.async = true;
     document.body.appendChild(script);
   });
@@ -91,18 +111,16 @@ export function loadGoogleTranslate(): Promise<void> {
   return loadPromise;
 }
 
-export async function switchSiteLanguage(lang: SiteLanguage): Promise<void> {
-  setStoredLanguage(lang);
-  await loadGoogleTranslate();
+export function switchSiteLanguage(lang: SiteLanguage): void {
+  const current = getActiveLanguage();
+  if (current === lang) return;
 
-  for (let attempt = 0; attempt < 30; attempt += 1) {
-    if (applyGoogleTranslate(lang)) return;
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
+  setStoredLanguage(lang);
+  setGoogTransCookie(lang);
+  window.location.reload();
 }
 
-export async function restoreStoredLanguage(): Promise<void> {
-  const lang = getStoredLanguage();
-  if (lang === "en") return;
-  await switchSiteLanguage(lang);
+export function refreshTranslation(lang: SiteLanguage): void {
+  if (lang !== "es") return;
+  window.location.hash = "#googtrans(en|es)";
 }

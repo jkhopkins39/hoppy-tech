@@ -9,42 +9,36 @@ import {
 } from "react";
 import { useLocation } from "react-router-dom";
 import {
-  applyGoogleTranslate,
-  getStoredLanguage,
+  getActiveLanguage,
   loadGoogleTranslate,
-  restoreStoredLanguage,
+  refreshTranslation,
   switchSiteLanguage,
   type SiteLanguage,
 } from "../lib/googleTranslate";
 
 interface LanguageContextValue {
   language: SiteLanguage;
-  setLanguage: (lang: SiteLanguage) => Promise<void>;
+  setLanguage: (lang: SiteLanguage) => void;
 }
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
-  const [language, setLanguageState] = useState<SiteLanguage>(() => getStoredLanguage());
+  const [language, setLanguageState] = useState<SiteLanguage>(() => getActiveLanguage());
 
   useEffect(() => {
-    loadGoogleTranslate().then(() => restoreStoredLanguage());
+    loadGoogleTranslate();
   }, []);
 
   useEffect(() => {
-    if (language !== "es") return;
-
-    const timer = window.setTimeout(() => {
-      applyGoogleTranslate("es");
-    }, 350);
-
+    const timer = window.setTimeout(() => refreshTranslation(language), 400);
     return () => window.clearTimeout(timer);
   }, [location.pathname, location.search, language]);
 
-  const setLanguage = useCallback(async (lang: SiteLanguage) => {
+  const setLanguage = useCallback((lang: SiteLanguage) => {
     setLanguageState(lang);
-    await switchSiteLanguage(lang);
+    switchSiteLanguage(lang);
   }, []);
 
   const value = useMemo(
