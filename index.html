@@ -84,20 +84,39 @@
       "@context": "https://schema.org",
       "@graph": [
         {
-          "@type": "Organization",
+          "@type": ["Organization", "ProfessionalService"],
           "@id": "https://www.hoppytech.com/#organization",
           "name": "Hoppy Tech",
           "alternateName": ["HoppyTech", "hoppytech"],
-          "description": "Hoppy Tech is the professional brand and portfolio of Jeremy Hopkins—software, AI, and web development at hoppytech.com.",
+          "legalName": "Hoppy Tech",
+          "description": "Hoppy Tech is a technology company specializing in web development, software engineering, and AI solutions for individuals and businesses.",
+          "disambiguatingDescription": "A technology company and web-development studio — not related to hobbies or the word 'hobby'.",
           "url": "https://www.hoppytech.com/",
           "logo": {
             "@type": "ImageObject",
-            "url": "https://www.hoppytech.com/WebsiteLogo.png?v=3"
+            "url": "https://www.hoppytech.com/WebsiteLogo.png?v=4"
+          },
+          "email": "jeremy@hoppytech.com",
+          "telephone": "+1-770-686-6503",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "email": "jeremy@hoppytech.com",
+            "telephone": "+1-770-686-6503",
+            "areaServed": "US",
+            "availableLanguage": "English"
           },
           "sameAs": [
             "https://github.com/jkhopkins39",
             "https://linkedin.com/in/jeremy-hopkins-160001275",
             "https://instagram.com/jeremykhopkins"
+          ],
+          "areaServed": { "@type": "Country", "name": "United States" },
+          "knowsAbout": [
+            "Web Development",
+            "Software Engineering",
+            "Artificial Intelligence",
+            "Machine Learning"
           ],
           "founder": { "@id": "https://www.hoppytech.com/#person" }
         },
