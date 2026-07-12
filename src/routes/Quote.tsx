@@ -138,7 +138,7 @@ function tierField(
   return { kind: "tier", key, label, options, noneValue, layout };
 }
 
-function designTierOptions() {
+function designTierOptions(): { value: string; label: string; description?: string }[] {
   return [
     { value: "none", label: DESIGN_TIERS.none.label, description: DESIGN_TIERS.none.description },
     {
@@ -156,7 +156,7 @@ function designTierOptions() {
       label: `${DESIGN_TIERS.iconLogo.label} — ${fmtUSD(DESIGN_TIERS.iconLogo.oneTime)}`,
       description: DESIGN_TIERS.iconLogo.description,
     },
-  ] as const;
+  ];
 }
 
 type Interest = "website" | "chatbot" | "ecommerce" | "mobile" | "unsure" | null;
