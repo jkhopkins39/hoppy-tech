@@ -5,7 +5,16 @@ import Footer from "../components/Footer";
 import CalendlyEmbed from "../components/CalendlyEmbed";
 import { MsgContent } from "../lib/chatFormat";
 import { BRAND } from "../config/brandColors";
-import { DEFAULT_SEL, computeQuote, fmtUSD, type Sel } from "../lib/quoteEngine";
+import {
+  DEFAULT_SEL,
+  DESIGN_TIERS,
+  PRICES,
+  computeQuote,
+  fmtUSD,
+  hasDesignSelection,
+  priceLabel,
+  type Sel,
+} from "../lib/quoteEngine";
 
 // ─── Enterprise solutions (scoped on a strategy call, not self-serve) ─────────
 
@@ -104,8 +113,9 @@ interface TierField {
   kind: "tier";
   key: keyof Sel;
   label: string;
-  options: { value: string | number; label: string }[];
+  options: { value: string | number; label: string; description?: string }[];
   noneValue: string | number;
+  layout?: "compact" | "stacked";
 }
 
 type Field = CheckboxField | TierField;
@@ -118,8 +128,35 @@ function videoField(key: "video30s" | "video60s", label: string, price: string):
   return { kind: "checkbox", key, label, price, onValue: 1, offValue: 0 };
 }
 
-function tierField(key: keyof Sel, label: string, options: { value: string | number; label: string }[], noneValue: string | number): TierField {
-  return { kind: "tier", key, label, options, noneValue };
+function tierField(
+  key: keyof Sel,
+  label: string,
+  options: { value: string | number; label: string; description?: string }[],
+  noneValue: string | number,
+  layout: "compact" | "stacked" = "compact",
+): TierField {
+  return { kind: "tier", key, label, options, noneValue, layout };
+}
+
+function designTierOptions() {
+  return [
+    { value: "none", label: DESIGN_TIERS.none.label, description: DESIGN_TIERS.none.description },
+    {
+      value: "basic",
+      label: `${DESIGN_TIERS.basic.label} — est. ${fmtUSD(DESIGN_TIERS.basic.estimate)}*`,
+      description: DESIGN_TIERS.basic.description,
+    },
+    {
+      value: "advanced",
+      label: `${DESIGN_TIERS.advanced.label} — est. ${fmtUSD(DESIGN_TIERS.advanced.estimate)}*`,
+      description: DESIGN_TIERS.advanced.description,
+    },
+    {
+      value: "iconLogo",
+      label: `${DESIGN_TIERS.iconLogo.label} — ${fmtUSD(DESIGN_TIERS.iconLogo.oneTime)}`,
+      description: DESIGN_TIERS.iconLogo.description,
+    },
+  ] as const;
 }
 
 type Interest = "website" | "chatbot" | "ecommerce" | "mobile" | "unsure" | null;
@@ -138,27 +175,59 @@ const BATCHES: Batch[] = [
         ? "Let's start with the essentials — since you already have a site, pick anything else that applies:"
         : "Let's start with the essentials — pick any that apply:",
     fields: () => [
-      checkboxField("standardWebsite", "Standard Website Package", "$400"),
-      checkboxField("chatbot", "AI Chatbot", "$250 + $15/mo"),
-      checkboxField("ecommerce", "E-Commerce Module", "$350"),
+      checkboxField(
+        "standardWebsite",
+        "Standard Website Package",
+        priceLabel(PRICES.standardWebsite.oneTime),
+      ),
+      checkboxField(
+        "chatbot",
+        "AI Chatbot",
+        priceLabel(PRICES.chatbot.oneTime, PRICES.chatbot.monthly),
+      ),
+      checkboxField("ecommerce", "E-Commerce Module", priceLabel(PRICES.ecommerce.oneTime)),
+    ],
+  },
+  {
+    id: "design",
+    prompt: () =>
+      "Need design help? Bella (bella@hoppytech.com) handles all visual work — logos, brand identity, and styling. Pick one option or skip.",
+    fields: () => [
+      tierField("designTier", "Visual Design", designTierOptions(), "none", "stacked"),
     ],
   },
   {
     id: "operations",
     prompt: () => "Any of these operational add-ons sound useful?",
     fields: () => [
-      checkboxField("booking", "Booking & Appointments", "$200 + $15/mo"),
-      checkboxField("emailSystem", "Email System", "$20/mo"),
-      checkboxField("mediaStorage", "Media & File Storage", "$10/mo"),
+      checkboxField(
+        "booking",
+        "Booking & Appointments",
+        priceLabel(PRICES.booking.oneTime),
+      ),
+      checkboxField("emailSystem", "Email System", priceLabel(undefined, PRICES.emailSystem.monthly)),
+      checkboxField(
+        "mediaStorage",
+        "Media & File Storage",
+        priceLabel(undefined, PRICES.mediaStorage.monthly),
+      ),
     ],
   },
   {
     id: "growth",
     prompt: () => "What about these growth tools?",
     fields: () => [
-      checkboxField("seo", "SEO Foundation Package", "$200"),
-      checkboxField("customDashboard", "Custom Analytics Dashboard", "$600 + $25/mo"),
-      checkboxField("workflows", "Automated Business Workflows", "$750 + $50/mo"),
+      checkboxField("seo", "SEO Foundation Package", priceLabel(PRICES.seo.oneTime)),
+      checkboxField(
+        "customDashboard",
+        "Custom Analytics Dashboard",
+        priceLabel(PRICES.customDashboard.oneTime),
+      ),
+      checkboxField(
+        "workflows",
+        "Automated Business Workflows",
+        priceLabel(PRICES.workflows.oneTime),
+      ),
     ],
   },
   {
@@ -170,7 +239,7 @@ const BATCHES: Batch[] = [
         "Mobile App",
         [
           { value: "none", label: "None" },
-          { value: "basic", label: "Basic — $2,500" },
+          { value: "basic", label: `Basic — ${fmtUSD(PRICES.mobileAppBasic.oneTime)}` },
           { value: "full", label: "Full-featured — custom" },
         ],
         "none",
@@ -180,8 +249,8 @@ const BATCHES: Batch[] = [
         "API Integrations",
         [
           { value: 0, label: "None" },
-          { value: 1, label: "1 — $200" },
-          { value: 2, label: "2 — $400" },
+          { value: 1, label: `1 — ${fmtUSD(PRICES.apiIntegration.oneTime)}` },
+          { value: 2, label: `2 — ${fmtUSD(PRICES.apiIntegration.oneTime * 2)}` },
           { value: 3, label: "3+" },
         ],
         0,
@@ -198,16 +267,16 @@ const BATCHES: Batch[] = [
           "Social Media Management",
           [
             { value: "none", label: "None" },
-            { value: "basic", label: "Basic — $150/mo" },
-            { value: "full", label: "Full — $400/mo" },
-            { value: "elite", label: "Elite — $1,337/mo" },
+            { value: "basic", label: `Basic — ${fmtUSD(PRICES.socialBasic.monthly)}/mo` },
+            { value: "full", label: `Full — ${fmtUSD(PRICES.socialFull.monthly)}/mo` },
+            { value: "elite", label: `Elite — ${fmtUSD(PRICES.socialElite.monthly)}/mo` },
           ],
           "none",
         ),
       ];
       if (sel.socialTier !== "full" && sel.socialTier !== "elite") {
-        fields.push(videoField("video30s", "30s AI Video", "$125"));
-        fields.push(videoField("video60s", "60s AI Video", "$225"));
+        fields.push(videoField("video30s", "30s AI Video", priceLabel(PRICES.video30s.oneTime)));
+        fields.push(videoField("video60s", "60s AI Video", priceLabel(PRICES.video60s.oneTime)));
       }
       return fields;
     },
@@ -259,6 +328,17 @@ function batchRecap(batch: Batch, sel: Sel): string {
   return parts.length > 0 ? parts.join(", ") : "Nothing from this batch";
 }
 
+function formatLineItem(l: ReturnType<typeof computeQuote>["lines"][number]): string {
+  if (l.custom) return `- ${l.label} — custom pricing`;
+  const parts = [l.label];
+  if (l.estimate && l.oneTime) parts.push(`est. ${fmtUSD(l.oneTime)} (price may vary)`);
+  else {
+    if (l.oneTime) parts.push(`${fmtUSD(l.oneTime)} setup`);
+    if (l.monthly) parts.push(`${fmtUSD(l.monthly)}/mo`);
+  }
+  return `- ${parts.join(" — ")}`;
+}
+
 type Track = "standard" | "enterprise" | null;
 
 export default function Quote() {
@@ -288,23 +368,19 @@ export default function Quote() {
     if (ls.length === 0) {
       return "Looks like you skipped everything! No worries — you can still reach out and we'll figure out the right fit together.";
     }
-    const bullets = ls
-      .map((l) => {
-        if (l.custom) return `- ${l.label} — custom pricing`;
-        const parts = [l.label];
-        if (l.oneTime) parts.push(`${fmtUSD(l.oneTime)} setup`);
-        if (l.monthly) parts.push(`${fmtUSD(l.monthly)}/mo`);
-        return `- ${parts.join(" — ")}`;
-      })
-      .join("\n");
+    const bullets = ls.map(formatLineItem).join("\n");
+    const designNote = hasDesignSelection(currentSel)
+      ? "\n\n*Visual design selected — Bella will be copied on your request.*"
+      : "";
     const totals = [
       ot > 0 ? `**One-time total: ${fmtUSD(ot)}**` : null,
       mo > 0 ? `**Monthly recurring: ${fmtUSD(mo)}/mo**` : null,
       hc ? "*Some selections require a custom quote — exact pricing will be in your proposal.*" : null,
+      hasDesignSelection(currentSel) ? "*Design estimates may change based on scope — Bella will confirm final pricing.*" : null,
     ]
       .filter(Boolean)
       .join("\n");
-    return `Here's what we've got so far:\n\n${bullets}\n\n${totals}\n\nReady to send this to Jeremy?`;
+    return `Here's what we've got so far:\n\n${bullets}\n\n${totals}${designNote}\n\nReady to send this to Jeremy?`;
   }
 
   function goToBatch(pointer: number, currentSel: Sel, currentInterest: Interest) {
@@ -522,25 +598,52 @@ export default function Quote() {
                         return (
                           <div key={field.key} className="px-1 py-1">
                             <p className="text-[13px] font-semibold text-ink mb-1.5">{field.label}</p>
-                            <div className="flex flex-wrap gap-2">
-                              {field.options.map((opt) => {
-                                const active = sel[field.key] === opt.value;
-                                return (
-                                  <button
-                                    key={String(opt.value)}
-                                    onClick={() => handleTierSelect(field, opt.value)}
-                                    className="px-3.5 py-2 rounded-lg border text-[13px] font-medium transition-all duration-200"
-                                    style={{
-                                      borderColor: active ? BRAND.skyBlue : "var(--border-color)",
-                                      backgroundColor: active ? `${BRAND.skyBlue}18` : "transparent",
-                                      color: active ? BRAND.skyBlue : "var(--ink)",
-                                    }}
-                                  >
-                                    {opt.label}
-                                  </button>
-                                );
-                              })}
-                            </div>
+                            {field.layout === "stacked" ? (
+                              <div className="flex flex-col gap-2">
+                                {field.options.map((opt) => {
+                                  const active = sel[field.key] === opt.value;
+                                  return (
+                                    <button
+                                      key={String(opt.value)}
+                                      onClick={() => handleTierSelect(field, opt.value)}
+                                      className="w-full text-left px-4 py-3 rounded-xl border transition-all duration-200"
+                                      style={{
+                                        borderColor: active ? BRAND.skyBlue : "var(--border-color)",
+                                        backgroundColor: active ? `${BRAND.skyBlue}18` : "transparent",
+                                      }}
+                                    >
+                                      <p className="font-medium text-ink text-[14px]">{opt.label}</p>
+                                      {opt.description && (
+                                        <p className="mt-1 text-[12px] leading-relaxed text-muted">{opt.description}</p>
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                                {field.key === "designTier" && (
+                                  <p className="text-[11px] text-muted px-1">* Estimated price — final quote may vary by scope.</p>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="flex flex-wrap gap-2">
+                                {field.options.map((opt) => {
+                                  const active = sel[field.key] === opt.value;
+                                  return (
+                                    <button
+                                      key={String(opt.value)}
+                                      onClick={() => handleTierSelect(field, opt.value)}
+                                      className="px-3.5 py-2 rounded-lg border text-[13px] font-medium transition-all duration-200"
+                                      style={{
+                                        borderColor: active ? BRAND.skyBlue : "var(--border-color)",
+                                        backgroundColor: active ? `${BRAND.skyBlue}18` : "transparent",
+                                        color: active ? BRAND.skyBlue : "var(--ink)",
+                                      }}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
@@ -561,7 +664,12 @@ export default function Quote() {
                         <button
                           onClick={() => {
                             const message = summaryRequestMessage(sel);
-                            navigate("/contact", { state: { quoteMessage: message } });
+                            navigate("/contact", {
+                              state: {
+                                quoteMessage: message,
+                                notifyBella: hasDesignSelection(sel),
+                              },
+                            });
                           }}
                           className="w-full py-3.5 px-6 font-semibold rounded-xl text-[15px] transition-all duration-200 hover:scale-[1.02]"
                           style={{ backgroundColor: "var(--accent)", color: "var(--accent-foreground)" }}
@@ -704,23 +812,17 @@ export default function Quote() {
 
 function summaryRequestMessage(currentSel: Sel) {
   const { oneTime: ot, monthly: mo, hasCustom: hc, lines: ls } = computeQuote(currentSel);
-  const summary = ls
-    .map((l) => {
-      const parts = [`• ${l.label}`];
-      if (l.custom) parts.push("(custom pricing needed)");
-      else {
-        if (l.oneTime) parts.push(`${fmtUSD(l.oneTime)} setup`);
-        if (l.monthly) parts.push(`${fmtUSD(l.monthly)}/mo`);
-      }
-      return parts.join(" — ");
-    })
-    .join("\n");
+  const summary = ls.map((l) => formatLineItem(l).replace(/^- /, "• ")).join("\n");
   const totals = [
     ot > 0 ? `One-time total: ${fmtUSD(ot)}` : null,
     mo > 0 ? `Monthly recurring: ${fmtUSD(mo)}/mo` : null,
     hc ? "Some items require a custom quote." : null,
+    hasDesignSelection(currentSel) ? "Design estimates may change — Bella will confirm final pricing." : null,
   ]
     .filter(Boolean)
     .join("\n");
-  return `Hi! I used the Guided Quote and I'm interested in the following:\n\n${summary}\n\n${totals}\n\nPlease send me a detailed proposal!`;
+  const designNote = hasDesignSelection(currentSel)
+    ? "\n\n(Visual design selected — please copy Bella on this request.)"
+    : "";
+  return `Hi! I used the Guided Quote and I'm interested in the following:\n\n${summary}\n\n${totals}${designNote}\n\nPlease send me a detailed proposal!`;
 }

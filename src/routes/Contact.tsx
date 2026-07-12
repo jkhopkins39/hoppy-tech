@@ -74,7 +74,8 @@ const BUDGETS = [
 const Contact: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const quoteMessage = (location.state as { quoteMessage?: string } | null)?.quoteMessage ?? '';
+  const quoteMessage = (location.state as { quoteMessage?: string; notifyBella?: boolean } | null)?.quoteMessage ?? '';
+  const notifyBella = (location.state as { notifyBella?: boolean } | null)?.notifyBella ?? false;
   const [honeypot1, setHoneypot1] = useState('');
   const [honeypot2, setHoneypot2] = useState('');
   const [formLoadTime] = useState(Date.now());
@@ -107,6 +108,7 @@ const Contact: React.FC = () => {
       problem: String(fd.get('problem') ?? '').trim(),
       timeline: String(fd.get('timeline') ?? '').trim(),
       budget: String(fd.get('budget') ?? '').trim(),
+      include_design_team: notifyBella,
       contact_website: honeypot1,
       contact_fax: honeypot2,
     };
@@ -233,6 +235,11 @@ const Contact: React.FC = () => {
                 {/* Core Problem */}
                 <div>
                   <label className={labelClass}>What problem needs to be solved?</label>
+                  {notifyBella && (
+                    <p className="mb-2 rounded-xl border border-accent-subtle bg-surface-2 px-3 py-2 text-[13px] leading-relaxed text-muted">
+                      Your quote includes visual design — Bella will be copied on this submission.
+                    </p>
+                  )}
                   <textarea
                     name="problem"
                     placeholder="Describe the core challenge or what you're trying to build. (optional)"

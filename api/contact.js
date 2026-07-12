@@ -41,6 +41,7 @@ export default async function handler(req) {
     problem = '',
     timeline = '',
     budget = '',
+    include_design_team = false,
     contact_website: honeypot1 = '',
     contact_fax: honeypot2 = '',
   } = body;
@@ -136,6 +137,7 @@ export default async function handler(req) {
           ${row('Project Type', escapeHtml(project_type))}
           ${row('Timeline', escapeHtml(timeline))}
           ${row('Budget', escapeHtml(budget))}
+          ${include_design_team ? row('Design services', 'Yes — Bella copied on this inquiry') : ''}
         </table>
 
         <div style="margin-top:24px;padding-top:24px;border-top:1px solid #e5e7eb;">
@@ -156,13 +158,15 @@ export default async function handler(req) {
   `;
 
   try {
-    const to = process.env.RESEND_TO ?? 'jeremy@hoppytech.com';
+    const primaryTo = process.env.RESEND_TO ?? 'jeremy@hoppytech.com';
+    const designTo = process.env.RESEND_DESIGN_TO ?? 'bella@hoppytech.com';
+    const to = include_design_team ? [primaryTo, designTo] : primaryTo;
     const from = process.env.RESEND_FROM ?? 'Hoppy Tech Intake <hello@hoppytech.com>';
 
     const sendPayload = {
       from,
       to,
-      subject: `New Project Inquiry${project_type ? ` — ${String(project_type).slice(0, 60)}` : ''}${name ? ` from ${String(name).slice(0, 40)}` : ''}`,
+      subject: `New Project Inquiry${project_type ? ` — ${String(project_type).slice(0, 60)}` : ''}${name ? ` from ${String(name).slice(0, 40)}` : ''}${include_design_team ? ' [Design]' : ''}`,
       html,
     };
     if (cleanEmail) sendPayload.replyTo = cleanEmail;
