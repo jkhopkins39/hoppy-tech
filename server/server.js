@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import OpenAI from 'openai';
 import { Resend } from 'resend';
+import { getIntakeRecipients } from '../api/_lib/intakeEmail.js';
 
 // Load environment variables
 dotenv.config();
@@ -107,9 +108,7 @@ app.post('/api/contact', async (req, res) => {
   }
 
   try {
-    const primaryTo = process.env.RESEND_TO ?? 'jeremy@hoppytech.com';
-    const designTo = process.env.RESEND_DESIGN_TO ?? 'bella@hoppytech.com';
-    const to = include_design_team ? [primaryTo, designTo] : primaryTo;
+    const to = getIntakeRecipients();
 
     const { error } = await resend.emails.send({
       from: 'Hoppy Tech <info@hoppytech.com>',
@@ -119,7 +118,7 @@ app.post('/api/contact', async (req, res) => {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
           <h2 style="margin-bottom: 4px;">New Contact Form Submission</h2>
-          ${include_design_team ? '<p style="color:#0369a1;font-size:13px;">Visual design requested — Bella copied.</p>' : ''}
+          ${include_design_team ? '<p style="color:#0369a1;font-size:13px;">Visual design requested.</p>' : ''}
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;" />
 
           <table style="width: 100%; border-collapse: collapse; font-size: 14px;">

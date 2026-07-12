@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { getEdgeCorsHeaders } from './_lib/cors.js';
+import { getIntakeRecipients } from './_lib/intakeEmail.js';
 
 export const config = { runtime: 'edge' };
 
@@ -93,7 +94,7 @@ export default async function handler(req) {
   `;
 
   try {
-    const to = process.env.RESEND_TO ?? 'jeremy@hoppytech.com';
+    const to = getIntakeRecipients();
 
     await resend.emails.send({
       from: 'Hoppy Tech Referrals <hello@hoppytech.com>',

@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { getEdgeCorsHeaders } from './_lib/cors.js';
+import { getIntakeRecipients } from './_lib/intakeEmail.js';
 import { getSupabaseHoppyAdmin } from './_lib/supabase-admin.js';
 
 export const config = { runtime: 'edge' };
@@ -137,7 +138,7 @@ export default async function handler(req) {
           ${row('Project Type', escapeHtml(project_type))}
           ${row('Timeline', escapeHtml(timeline))}
           ${row('Budget', escapeHtml(budget))}
-          ${include_design_team ? row('Design services', 'Yes — Bella copied on this inquiry') : ''}
+          ${include_design_team ? row('Design services', 'Yes — visual design requested') : ''}
         </table>
 
         <div style="margin-top:24px;padding-top:24px;border-top:1px solid #e5e7eb;">
@@ -158,9 +159,7 @@ export default async function handler(req) {
   `;
 
   try {
-    const primaryTo = process.env.RESEND_TO ?? 'jeremy@hoppytech.com';
-    const designTo = process.env.RESEND_DESIGN_TO ?? 'bella@hoppytech.com';
-    const to = include_design_team ? [primaryTo, designTo] : primaryTo;
+    const to = getIntakeRecipients();
     const from = process.env.RESEND_FROM ?? 'Hoppy Tech Intake <hello@hoppytech.com>';
 
     const sendPayload = {
