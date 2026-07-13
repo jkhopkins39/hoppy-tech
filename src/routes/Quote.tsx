@@ -124,10 +124,6 @@ function checkboxField(key: keyof Sel, label: string, price: string): CheckboxFi
   return { kind: "checkbox", key, label, price, onValue: true, offValue: false };
 }
 
-function videoField(key: "video30s" | "video60s", label: string, price: string): CheckboxField {
-  return { kind: "checkbox", key, label, price, onValue: 1, offValue: 0 };
-}
-
 function tierField(
   key: keyof Sel,
   label: string,
@@ -233,6 +229,17 @@ const BATCHES: Batch[] = [
         "Automated Business Workflows",
         priceLabel(PRICES.workflows.oneTime),
       ),
+      tierField(
+        "socialTier",
+        "Social Media Management",
+        [
+          { value: "none", label: "None" },
+          { value: "basic", label: `Basic — ${fmtUSD(PRICES.socialBasic.monthly)}/mo` },
+          { value: "full", label: `Full — ${fmtUSD(PRICES.socialFull.monthly)}/mo` },
+          { value: "elite", label: `Elite — ${fmtUSD(PRICES.socialElite.monthly)}/mo` },
+        ],
+        "none",
+      ),
     ],
   },
   {
@@ -261,30 +268,6 @@ const BATCHES: Batch[] = [
         0,
       ),
     ],
-  },
-  {
-    id: "social",
-    prompt: () => "Want help with social media, or an AI-generated video here and there?",
-    fields: (sel) => {
-      const fields: Field[] = [
-        tierField(
-          "socialTier",
-          "Social Media Management",
-          [
-            { value: "none", label: "None" },
-            { value: "basic", label: `Basic — ${fmtUSD(PRICES.socialBasic.monthly)}/mo` },
-            { value: "full", label: `Full — ${fmtUSD(PRICES.socialFull.monthly)}/mo` },
-            { value: "elite", label: `Elite — ${fmtUSD(PRICES.socialElite.monthly)}/mo` },
-          ],
-          "none",
-        ),
-      ];
-      if (sel.socialTier !== "full" && sel.socialTier !== "elite") {
-        fields.push(videoField("video30s", "30s AI Video", priceLabel(PRICES.video30s.oneTime)));
-        fields.push(videoField("video60s", "60s AI Video", priceLabel(PRICES.video60s.oneTime)));
-      }
-      return fields;
-    },
   },
 ];
 

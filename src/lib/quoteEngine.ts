@@ -10,8 +10,6 @@ export interface Sel {
   mediaStorage: boolean;
   chatbot: boolean;
   socialTier: "none" | "basic" | "full" | "elite";
-  video30s: number;
-  video60s: number;
   ecommerce: boolean;
   booking: boolean;
   seo: boolean;
@@ -28,8 +26,6 @@ export const DEFAULT_SEL: Sel = {
   mediaStorage: false,
   chatbot: false,
   socialTier: "none",
-  video30s: 0,
-  video60s: 0,
   ecommerce: false,
   booking: false,
   seo: false,
@@ -56,8 +52,6 @@ export const PRICES = {
   socialBasic: { monthly: 150 },
   socialFull: { monthly: 400 },
   socialElite: { monthly: 1_337 },
-  video30s: { oneTime: 200 },
-  video60s: { oneTime: 350 },
 } as const;
 
 /** Visual design services — handled by Bella (bella@hoppytech.com). */
@@ -149,19 +143,6 @@ export function computeQuote(sel: Sel) {
     add({ label: "Full Socials Package", monthly: PRICES.socialFull.monthly });
   } else if (sel.socialTier === "elite") {
     add({ label: "Elite Socials Package", monthly: PRICES.socialElite.monthly });
-  }
-
-  if (sel.video30s > 0) {
-    add({
-      label: `30s AI Video ×${sel.video30s}`,
-      oneTime: sel.video30s * PRICES.video30s.oneTime,
-    });
-  }
-  if (sel.video60s > 0) {
-    add({
-      label: `60s AI Video ×${sel.video60s}`,
-      oneTime: sel.video60s * PRICES.video60s.oneTime,
-    });
   }
 
   if (sel.ecommerce) add({ label: "E-Commerce Module", oneTime: PRICES.ecommerce.oneTime });
