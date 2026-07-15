@@ -169,6 +169,11 @@ const Footer: React.FC = () => {
                 <a
                   href={`tel:${contactInfo.phone}`}
                   className="text-sm text-muted hover:text-ink transition-colors duration-200"
+                  onClick={(e) => {
+                    if (typeof window.gtag_report_conversion !== "function") return;
+                    e.preventDefault();
+                    window.gtag_report_conversion(`tel:${contactInfo.phone}`);
+                  }}
                 >
                   {contactInfo.phone}
                 </a>
