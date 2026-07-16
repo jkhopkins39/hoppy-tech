@@ -13,6 +13,7 @@ declare global {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
     gtag_report_conversion?: (url?: string) => false;
+    fbq?: (...args: unknown[]) => void;
   }
 }
 
