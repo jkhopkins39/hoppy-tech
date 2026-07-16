@@ -51,11 +51,6 @@
       fbq('init', '1752800439210381');
       fbq('track', 'PageView');
     </script>
-    <noscript>
-      <img height="1" width="1" style="display:none"
-        src="https://www.facebook.com/tr?id=1752800439210381&ev=PageView&noscript=1"
-        alt="" />
-    </noscript>
     <!-- End Meta Pixel Code -->
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -200,6 +195,12 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MBHXPHX8"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
+    <!-- Meta Pixel (noscript) — must live in body; Vite rejects img in noscript-in-head -->
+    <noscript>
+      <img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id=1752800439210381&ev=PageView&noscript=1"
+        alt="" />
+    </noscript>
     <noscript>
       <style>
         /* reset list chrome for the bar */
