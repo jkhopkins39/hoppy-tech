@@ -41,6 +41,16 @@ const sections: { title: string; body: React.ReactNode }[] = [
           We use those forms strictly for business inquiries and communication.
         </p>
         <p>
+          If you use our website chat assistant, we collect the messages you send
+          so the assistant can respond, and we keep a transcript of the
+          conversation (linked to an anonymous session ID, not your identity) to
+          improve responses and follow up on inquiries raised through chat.
+        </p>
+        <p>
+          If you use our referral form, we collect your name and email, along
+          with the name and contact details of the business you refer.
+        </p>
+        <p>
           We may also collect limited technical data (such as pages visited and
           approximate device or browser information) through analytics and
           advertising tools described below.
@@ -81,9 +91,14 @@ const sections: { title: string; body: React.ReactNode }[] = [
         </p>
         <p>
           We may rely on trusted service providers solely to run our business
-          and website (for example, hosting, email delivery, or analytics).
-          Those providers process data only as needed to provide their
-          services to us.
+          and website — including{" "}
+          <strong className="text-ink font-medium">Supabase</strong> (database
+          storage), <strong className="text-ink font-medium">Resend</strong>{" "}
+          (email delivery), <strong className="text-ink font-medium">Vercel</strong>{" "}
+          (hosting and analytics), and{" "}
+          <strong className="text-ink font-medium">Anthropic</strong> (our AI
+          chat assistant provider). Those providers process data only as needed
+          to provide their services to us.
         </p>
         <p>
           We may disclose information if required by law or to protect our
@@ -103,10 +118,11 @@ const sections: { title: string; body: React.ReactNode }[] = [
           submitted on our website — for business communication only.
         </p>
         <p>
-          We also use Google Ads and Google Analytics tags to understand how
-          visitors find and use our site, and to measure conversions (such as
-          form submissions or click-to-call). Meta Pixel may be used for similar
-          advertising measurement.
+          We also use Google Ads and Google Analytics tags, and{" "}
+          <strong className="text-ink font-medium">Vercel Analytics</strong>, to
+          understand how visitors find and use our site, and to measure
+          conversions (such as form submissions or click-to-call). Meta Pixel
+          may be used for similar advertising measurement.
         </p>
       </>
     ),
@@ -121,6 +137,11 @@ const sections: { title: string; body: React.ReactNode }[] = [
           through your browser settings. Disabling cookies may affect some site
           features or how accurately we measure ad performance.
         </p>
+        <p>
+          If you use our on-site Google Translate feature, Google sets a cookie
+          to remember your selected language and loads Google&rsquo;s translation
+          script from translate.google.com.
+        </p>
       </>
     ),
   },
@@ -133,6 +154,12 @@ const sections: { title: string; body: React.ReactNode }[] = [
           manage an ongoing relationship, or meet ordinary business and legal
           requirements. When it is no longer needed, we delete or de-identify it
           in the normal course of operations.
+        </p>
+        <p>
+          Chat assistant transcripts are kept so we can review and improve
+          responses and follow up on inquiries raised through chat. You can
+          request deletion of a chat transcript at any time — see &ldquo;Your
+          choices&rdquo; below.
         </p>
       </>
     ),
