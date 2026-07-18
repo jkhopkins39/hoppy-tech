@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-/** Service-role client for hoppy_tech schema tables (contact_submissions, chat_sessions). */
+/** Service-role client for hoppy_tech schema tables (contact_submissions, chat_sessions, google_leads). */
 export function getSupabaseHoppyAdmin() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const key =

@@ -12,6 +12,9 @@ export interface ContactSubmission {
   timeline: string | null;
   budget: string | null;
   read: boolean | null;
+  /** e.g. "google_ads" when ingested from Ads lead-form webhook */
+  source?: string | null;
+  google_lead_id?: string | null;
 }
 
 export interface ChatMessage {
@@ -86,4 +89,8 @@ export function submissionLabel(sub: ContactSubmission): string {
 
 export function submissionPreview(sub: ContactSubmission): string {
   return sub.problem?.trim() || 'No description provided.';
+}
+
+export function isGoogleAdsLead(sub: ContactSubmission): boolean {
+  return sub.source === 'google_ads' || sub.project_type === 'Google Ads Lead';
 }

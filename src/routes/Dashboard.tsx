@@ -10,6 +10,7 @@ import {
   deleteSubmissions,
   fetchChatSessions,
   fetchSubmissions,
+  isGoogleAdsLead,
   submissionLabel,
   submissionPreview,
   updateSubmissionRead,
@@ -278,6 +279,11 @@ const Dashboard: React.FC = () => {
                       >
                         <p className={`text-[13px] font-medium truncate ${!sub.read ? 'text-ink' : 'text-muted'}`}>
                           {submissionLabel(sub)}
+                          {isGoogleAdsLead(sub) && (
+                            <span className="ml-2 inline-block align-middle px-1.5 py-0.5 rounded text-[10px] font-bold bg-accent/10 text-accent">
+                              Ads
+                            </span>
+                          )}
                         </p>
                         <p className="text-[12px] text-muted-2 truncate mt-0.5">{submissionPreview(sub)}</p>
                         <p className="text-[11px] text-muted-3 mt-1">{formatDate(sub.created_at)}</p>
@@ -299,7 +305,14 @@ const Dashboard: React.FC = () => {
                     >
                       <div className="px-6 py-5 border-b border-white/[0.05] flex items-start justify-between gap-4">
                         <div>
-                          <p className="font-semibold text-ink text-[15px]">{submissionLabel(selectedSubmission)}</p>
+                          <p className="font-semibold text-ink text-[15px]">
+                            {submissionLabel(selectedSubmission)}
+                            {isGoogleAdsLead(selectedSubmission) && (
+                              <span className="ml-2 inline-block align-middle px-1.5 py-0.5 rounded text-[10px] font-bold bg-accent/10 text-accent">
+                                Google Ads
+                              </span>
+                            )}
+                          </p>
                           <p className="text-muted text-xs mt-0.5">{formatDate(selectedSubmission.created_at)}</p>
                           <div className="text-muted-2 text-xs mt-2 space-y-1">
                             {selectedSubmission.email && <p>Email: {selectedSubmission.email}</p>}
