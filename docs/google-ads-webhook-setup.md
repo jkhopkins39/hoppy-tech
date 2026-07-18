@@ -13,8 +13,10 @@ Hoppy Tech is **Vite + Vercel `/api`**, not Next.js — the live URL is still a 
 ## Live webhook URL
 
 ```
-https://hoppytech.com/api/webhooks/google-ads
+https://www.hoppytech.com/api/webhooks/google-ads
 ```
+
+**Use `www`.** Apex `https://hoppytech.com/...` returns a **308 redirect** to www. Google’s lead-form webhook often does not follow POST redirects, which shows as: *“Your data management system didn't respond correctly.”*
 
 (Use your production domain after deploy.)
 
@@ -51,7 +53,7 @@ Push / deploy hoppy-tech so `api/webhooks/google-ads.js` is on production.
 
 1. Google Ads → your **Lead form** asset/extension  
 2. Webhook / CRM integration:  
-   - **Webhook URL:** `https://hoppytech.com/api/webhooks/google-ads`  
+   - **Webhook URL:** `https://www.hoppytech.com/api/webhooks/google-ads`  
    - **Key:** exactly the same as `GOOGLE_ADS_WEBHOOK_KEY`  
 3. Use **Send test data** in the Ads UI  
 

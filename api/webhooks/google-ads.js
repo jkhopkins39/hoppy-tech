@@ -5,9 +5,11 @@
  *   POST https://hoppytech.com/api/webhooks/google-ads
  *
  * Configure in Google Ads lead form:
- *   Webhook URL  → https://hoppytech.com/api/webhooks/google-ads
+ *   Webhook URL  → https://www.hoppytech.com/api/webhooks/google-ads
  *   Google key   → same value as env GOOGLE_ADS_WEBHOOK_KEY
  *
+ * IMPORTANT: Use the www host. Apex hoppytech.com 308-redirects to www,
+ * and Google Ads webhooks typically fail on redirects.
  * Payload shape (Google Lead Form Webhook):
  * {
  *   lead_id, campaign_id, form_id, google_key | Google_key, is_test, gcl_id,
@@ -64,6 +66,14 @@ function extractFields(userColumnData) {
   const byId = (id) =>
     columns.find((c) => String(c?.column_id ?? '').toUpperCase() === id)?.string_value;
 
+  const byIdIncludes = (...needles) => {
+    const found = columns.find((c) => {
+      const id = String(c?.column_id ?? '').toLowerCase();
+      return needles.some((n) => id.includes(n));
+    });
+    return found?.string_value;
+  };
+
   const byName = (...needles) => {
     const found = columns.find((c) => {
       const name = String(c?.column_name ?? '').toLowerCase();
@@ -90,11 +100,21 @@ function extractFields(userColumnData) {
     pickString(byName('phone', 'phone number', 'user phone')) ||
     null;
 
-  // Custom multiple-choice — map your Ads question label to include “business size”
-  // or set column_id to BUSINESS_SIZE in the form question if available.
+  // Custom Q example from Ads: column_id "what_size_is_your_company?" → "1-10"
+  // Do NOT match COMPANY_NAME (that is the company name field, not size).
   const businessSize =
     pickString(byId('BUSINESS_SIZE')) ||
-    pickString(byName('business size', 'company size', 'team size', 'employees')) ||
+    pickString(
+      byIdIncludes(
+        'what_size',
+        'business_size',
+        'company_size',
+        'team_size',
+        'size_is_your_company',
+        'size_is_your',
+      ),
+    ) ||
+    pickString(byName('business size', 'company size', 'team size', 'employees', 'size is your company')) ||
     null;
 
   return { fullName, email, phone, businessSize };
@@ -111,6 +131,13 @@ function asTextId(value) {
   return String(value);
 }
 
+function json(status, body, corsHeaders) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
 export default async function handler(req) {
   const corsHeaders = getEdgeCorsHeaders(req, 'POST, OPTIONS');
 
@@ -119,27 +146,19 @@ export default async function handler(req) {
   }
 
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ success: false, message: 'Method not allowed' }), {
-      status: 405,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    // Google expects: 4xx → { "message": "..." }
+    return json(405, { message: 'Method not allowed' }, corsHeaders);
   }
 
   const expectedKey = process.env.GOOGLE_ADS_WEBHOOK_KEY;
   if (!expectedKey) {
     console.error('GOOGLE_ADS_WEBHOOK_KEY is not set');
-    return new Response(JSON.stringify({ success: false, message: 'Webhook not configured' }), {
-      status: 503,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json(503, { message: 'Webhook not configured' }, corsHeaders);
   }
 
   const body = await req.json().catch(() => null);
   if (!body || typeof body !== 'object') {
-    return new Response(JSON.stringify({ success: false, message: 'Invalid JSON body' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json(400, { message: 'Invalid JSON body' }, corsHeaders);
   }
 
   // Auth: Google puts the key in the JSON (`google_key` or `Google_key`).
@@ -155,18 +174,12 @@ export default async function handler(req) {
     (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
 
   if (!keysMatch(providedKey, expectedKey)) {
-    return new Response(JSON.stringify({ success: false, message: 'Unauthorized' }), {
-      status: 401,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json(401, { message: 'Unauthorized' }, corsHeaders);
   }
 
   const leadId = asTextId(body.lead_id);
   if (!leadId) {
-    return new Response(JSON.stringify({ success: false, message: 'Missing lead_id' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json(400, { message: 'Missing lead_id' }, corsHeaders);
   }
 
   // Google’s array is `user_column_data`. Accept `user_column` as a defensive alias.
@@ -174,25 +187,16 @@ export default async function handler(req) {
   const { fullName, email, phone, businessSize } = extractFields(userColumns);
 
   if (email && !EMAIL_RE.test(email)) {
-    return new Response(JSON.stringify({ success: false, message: 'Invalid email in payload' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json(400, { message: 'Invalid email in payload' }, corsHeaders);
   }
 
   if (!email && !phone) {
-    return new Response(JSON.stringify({ success: false, message: 'Lead missing email and phone' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json(400, { message: 'Lead missing email and phone' }, corsHeaders);
   }
 
   const sb = getSupabaseHoppyAdmin();
   if (!sb) {
-    return new Response(JSON.stringify({ success: false, message: 'Database not configured' }), {
-      status: 503,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json(503, { message: 'Database not configured' }, corsHeaders);
   }
 
   // Idempotent: duplicate Google retries with the same lead_id should succeed.
@@ -202,11 +206,9 @@ export default async function handler(req) {
     .eq('lead_id', leadId)
     .maybeSingle();
 
+  // Google success response body must be `{}` (empty JSON object).
   if (existing) {
-    return new Response(JSON.stringify({ success: true, duplicate: true, lead_id: leadId }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json(200, {}, corsHeaders);
   }
 
   const campaignId = asTextId(body.campaign_id);
@@ -247,10 +249,7 @@ export default async function handler(req) {
 
   if (contactError) {
     console.error('contact_submissions insert error:', contactError);
-    return new Response(JSON.stringify({ success: false, message: 'Failed to save lead' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return json(500, { message: 'Failed to save lead' }, corsHeaders);
   }
 
   const googleLead = {
@@ -271,12 +270,8 @@ export default async function handler(req) {
 
   if (leadError) {
     console.error('google_leads insert error:', leadError);
-    // Contact row already saved — still return 200 so Google does not retry forever,
-    // but log for follow-up. Prefer unique-violation path above for true dupes.
-    return new Response(JSON.stringify({ success: true, partial: true, lead_id: leadId }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    // Contact row already saved — still return 200 so Google does not retry forever.
+    return json(200, {}, corsHeaders);
   }
 
   // Best-effort email notify (do not fail the webhook if Resend is down).
@@ -324,8 +319,5 @@ export default async function handler(req) {
     }
   }
 
-  return new Response(JSON.stringify({ success: true, lead_id: leadId }), {
-    status: 200,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
+  return json(200, {}, corsHeaders);
 }
