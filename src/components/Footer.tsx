@@ -264,9 +264,17 @@ const Footer: React.FC = () => {
           <p className="text-muted-2 text-xs">
             © {new Date().getFullYear()} Jeremy Hopkins. All rights reserved.
           </p>
-          <p className="text-muted-2 text-xs">
-            Built with React & TypeScript
-          </p>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/privacy"
+              className="text-muted-2 text-xs hover:text-ink transition-colors duration-200"
+            >
+              Privacy Policy
+            </Link>
+            <p className="text-muted-2 text-xs">
+              Built with React & TypeScript
+            </p>
+          </div>
         </div>
       </div>
     </footer>
