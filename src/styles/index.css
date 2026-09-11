@@ -366,6 +366,14 @@ a {
 .client-logo-link {
   border-color: var(--border-color);
   background: #fff;
+  /* ~50% taller than natural logo+padding height; logos stay same size & centered */
+  min-height: 10.7rem;
+}
+
+@media (min-width: 640px) {
+  .client-logo-link {
+    min-height: 12rem;
+  }
 }
 
 .client-logo-link:hover {
