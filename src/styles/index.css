@@ -373,6 +373,10 @@ a {
   background: #fff;
 }
 
+.client-logo-mark {
+  max-width: 100%;
+}
+
 .client-logo-tooltip {
   position: absolute;
   bottom: calc(100% + 0.5rem);
@@ -412,7 +416,18 @@ a {
 .client-logo-img {
   opacity: 0.88;
   filter: grayscale(18%) brightness(1.05);
-  transition: opacity 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+  max-height: 4.875rem;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (min-width: 640px) {
+  .client-logo-img {
+    max-height: 5.625rem;
+  }
 }
 
 [data-theme="light"] .client-logo-img {
@@ -434,14 +449,52 @@ a {
 
 @media (min-width: 640px) {
   .client-logo-img--cornerstone {
+    max-height: 6rem;
+  }
+}
+
+.client-logo-img--illuminated {
+  max-height: 5rem;
+  filter: none;
+  opacity: 1;
+}
+
+@media (min-width: 640px) {
+  .client-logo-img--illuminated {
     max-height: 5.75rem;
   }
 }
 
-.client-logo-img--illuminated,
+.client-logo-img--jb-recycling {
+  max-height: 5.1rem;
+}
+
+@media (min-width: 640px) {
+  .client-logo-img--jb-recycling {
+    max-height: 5.85rem;
+  }
+}
+
 .client-logo-img--krush {
+  max-height: 4.95rem;
   filter: none;
   opacity: 1;
+}
+
+@media (min-width: 640px) {
+  .client-logo-img--krush {
+    max-height: 5.7rem;
+  }
+}
+
+.client-logo-img--one-talent {
+  max-height: 5.2rem;
+}
+
+@media (min-width: 640px) {
+  .client-logo-img--one-talent {
+    max-height: 6rem;
+  }
 }
 
 .client-logo-link:hover .client-logo-img--illuminated,
