@@ -35,7 +35,7 @@ if (!apiKey) {
   console.log('✅ Gemini API key is configured');
 }
 
-const MODEL = 'gemini-2.0-flash';
+const MODEL = 'gemini-3.5-flash-lite';
 const MAX_OUTPUT_TOKENS = 384;
 
 function chunkText(chunk) {

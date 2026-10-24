@@ -1,10 +1,13 @@
 import { GoogleGenAI } from '@google/genai';
 import { CHAT_SYSTEM_PROMPT } from './_lib/chatPrompt.js';
 import { getEdgeCorsHeaders } from './_lib/cors.js';
+import { getGeminiApiKey } from './_lib/env.js';
 
 export const config = { runtime: 'edge' };
 
-const MODEL = 'gemini-3-flash-preview';
+// Prefer current stable Flash models; preview last as a last resort.
+const PRIMARY_MODEL = 'gemini-3.5-flash-lite';
+const FALLBACK_MODELS = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3-flash-preview'];
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 300;
 const MAX_MESSAGES = 20;
@@ -12,13 +15,6 @@ const MAX_MESSAGE_LENGTH = 2000;
 const RATE_LIMIT = 20;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 
-const apiKey =
-  process.env.HT_GEMINI_API_KEY ||
-  process.env.GEMINI_API_KEY ||
-  process.env.GOOGLE_GEMINI_API_KEY ||
-  process.env.GOOGLE_API_KEY;
-
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 const rateBuckets = new Map();
 
 function jsonResponse(body, status, req) {
@@ -51,6 +47,12 @@ function isRetryable(err) {
     || m.includes('overloaded') || m.includes('high demand') || m.includes('resource exhausted');
 }
 
+function isModelUnavailable(err) {
+  const m = String(err?.message ?? err).toLowerCase();
+  return m.includes('not found') || m.includes('not supported') || m.includes('invalid model')
+    || m.includes('unknown model') || m.includes('404');
+}
+
 function friendlyError(err) {
   const m = String(err?.message ?? err).toLowerCase();
   if (m.includes('503') || m.includes('unavailable') || m.includes('high demand') || m.includes('overloaded')) {
@@ -59,10 +61,27 @@ function friendlyError(err) {
   if (m.includes('429') || m.includes('resource exhausted')) {
     return 'Rate limit reached. Please wait a moment and try again.';
   }
-  if (m.includes('401') || m.includes('403') || m.includes('api key')) {
+  if (m.includes('401') || m.includes('403') || m.includes('api key') || m.includes('api_key')) {
     return 'API authentication error. Please contact Jeremy.';
   }
+  if (isModelUnavailable(err)) {
+    return 'Chat model is unavailable right now. Please try again shortly.';
+  }
   return 'An unexpected error occurred. Please try again.';
+}
+
+async function streamWithModel(ai, model, contents, genConfig, writer, enc) {
+  const stream = await ai.models.generateContentStream({
+    model,
+    contents,
+    config: genConfig,
+  });
+
+  for await (const chunk of stream) {
+    const text = chunk.text || '';
+    if (text) await writer.write(enc.encode(`${JSON.stringify({ t: text })}\n`));
+  }
+  await writer.write(enc.encode(`${JSON.stringify({ done: true })}\n`));
 }
 
 export default async function handler(req) {
@@ -79,7 +98,10 @@ export default async function handler(req) {
     return jsonResponse({ error: 'Too many requests. Please try again later.' }, 429, req);
   }
 
-  if (!ai) {
+  // Read key inside the handler so Edge always sees the deployed HT_* value.
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    console.error('chat: HT_GEMINI_API_KEY is not set');
     return jsonResponse({ error: 'Chat is temporarily unavailable.' }, 503, req);
   }
 
@@ -113,33 +135,29 @@ export default async function handler(req) {
     systemInstruction: CHAT_SYSTEM_PROMPT,
   };
 
+  const ai = new GoogleGenAI({ apiKey });
+  const models = [PRIMARY_MODEL, ...FALLBACK_MODELS];
+
   const { readable, writable } = new TransformStream();
   const writer = writable.getWriter();
   const enc = new TextEncoder();
 
   (async () => {
     let lastErr;
-    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      try {
-        if (attempt > 0) await new Promise((r) => setTimeout(r, RETRY_DELAY_MS * attempt));
-
-        const stream = await ai.models.generateContentStream({
-          model: MODEL,
-          contents,
-          config: genConfig,
-        });
-
-        for await (const chunk of stream) {
-          const text = chunk.text || '';
-          if (text) await writer.write(enc.encode(`${JSON.stringify({ t: text })}\n`));
+    modelLoop: for (const model of models) {
+      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          if (attempt > 0) await new Promise((r) => setTimeout(r, RETRY_DELAY_MS * attempt));
+          await streamWithModel(ai, model, contents, genConfig, writer, enc);
+          lastErr = null;
+          break modelLoop;
+        } catch (err) {
+          lastErr = err;
+          console.error(`chat: model=${model} attempt=${attempt}`, err?.message || err);
+          if (isModelUnavailable(err)) break;
+          if (attempt < MAX_RETRIES && isRetryable(err)) continue;
+          break;
         }
-        await writer.write(enc.encode(`${JSON.stringify({ done: true })}\n`));
-        lastErr = null;
-        break;
-      } catch (err) {
-        lastErr = err;
-        if (attempt < MAX_RETRIES && isRetryable(err)) continue;
-        break;
       }
     }
 
