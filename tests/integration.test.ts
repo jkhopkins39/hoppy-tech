@@ -2,10 +2,7 @@
  * Hoppy Tech portal — integration tests
  *
  * Requires env vars:
- *   VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY  → Supabase portal auth
- *
- * ⚠️  hoppytech Contact.tsx still calls web3forms.com directly.
- *     Migrate to a /api/contact Vercel serverless function + Resend.
+ *   HT_SUPABASE_PROJECT_URL, HT_SUPABASE_PUBLISHABLE_KEY  → Supabase portal auth
  *
  * Run:  npx vitest run tests/integration.test.ts
  */
@@ -13,8 +10,11 @@
 import { describe, it, expect } from "vitest";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.HT_SUPABASE_PROJECT_URL || process.env.VITE_SUPABASE_URL;
+const supabaseKey =
+  process.env.HT_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.VITE_SUPABASE_ANON_KEY;
 const supabaseConfigured = !!(supabaseUrl && supabaseKey);
 const itSupabase = supabaseConfigured ? it : it.skip;
 

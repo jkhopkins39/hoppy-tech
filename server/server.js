@@ -28,7 +28,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.HT_RESEND_API_KEY || process.env.RESEND_API_KEY);
 
 // Serve static files from dist directory
 app.use(express.static('dist'));
@@ -102,8 +102,8 @@ app.post('/api/contact', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid email address.' });
   }
 
-  if (!process.env.RESEND_API_KEY) {
-    console.error('RESEND_API_KEY is not set');
+  if (!process.env.HT_RESEND_API_KEY && !process.env.RESEND_API_KEY) {
+    console.error('HT_RESEND_API_KEY is not set');
     return res.status(500).json({ success: false, message: 'Email service not configured.' });
   }
 

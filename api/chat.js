@@ -13,6 +13,7 @@ const RATE_LIMIT = 20;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 
 const apiKey =
+  process.env.HT_GEMINI_API_KEY ||
   process.env.GEMINI_API_KEY ||
   process.env.GOOGLE_GEMINI_API_KEY ||
   process.env.GOOGLE_API_KEY;

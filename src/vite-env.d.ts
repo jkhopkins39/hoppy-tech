@@ -1,20 +1,12 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_SUPABASE_URL?: string;
-  readonly VITE_SUPABASE_PUBLISHABLE_KEY?: string;
-  readonly VITE_SUPABASE_ANON_KEY?: string;
-  readonly VITE_ADMIN_EMAIL?: string;
-  readonly VITE_WEB3FORMS_ACCESS_KEY?: string;
+  /** Shared Hoppy Tech Supabase project URL (injected by vite.config). */
+  readonly HT_SUPABASE_PROJECT_URL?: string;
+  /** Shared Hoppy Tech Supabase publishable key (injected by vite.config). */
+  readonly HT_SUPABASE_PUBLISHABLE_KEY?: string;
 }
 
-declare global {
-  interface Window {
-    dataLayer?: unknown[];
-    gtag?: (...args: unknown[]) => void;
-    gtag_report_conversion?: (url?: string) => false;
-    fbq?: (...args: unknown[]) => void;
-  }
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
 }
-
-export {};

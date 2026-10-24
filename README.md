@@ -85,20 +85,21 @@ The frontend will run on `http://localhost:5173` and the API server on `http://l
 ### For Production (Vercel)
 Add these environment variables in your Vercel project settings:
 
-**Frontend (exposed to browser — `VITE_` prefix):**
-- `VITE_SUPABASE_URL`: Supabase project URL
-- `VITE_SUPABASE_ANON_KEY`: Supabase publishable (anon) key
-- `VITE_ADMIN_EMAIL`: Admin email allowlist for UI (e.g. `jeremy@hoppytech.com`)
-- `VITE_WEB3FORMS_ACCESS_KEY`: Web3Forms access key (submitted from the browser; restrict by domain in Web3Forms dashboard)
+**Shared Hoppy Tech (`HT_*` — linked/shared env):**
+- `HT_SUPABASE_PROJECT_URL`: Supabase project URL
+- `HT_SUPABASE_PUBLISHABLE_KEY`: Supabase publishable key (also injected into the Vite client via `vite.config.ts`)
+- `HT_SUPABASE_SECRET_KEY`: Supabase secret / service-role key (**server only**)
 
-**Server only (never prefix with `VITE_`):**
-- `SUPABASE_URL`: Same Supabase project URL
-- `SUPABASE_SERVICE_ROLE_KEY`: Supabase secret (service role) key
-- `ADMIN_EMAIL`: Admin email verified on API routes (e.g. `jeremy@hoppytech.com`)
-- `GEMINI_API_KEY`: Chatbot and contact-form screening agent
-- `GITHUB_TOKEN`: Authenticated blog publishing
+**Email + admin:**
+- `HT_RESEND_API_KEY`: Resend API key
+- `RESEND_FROM`: e.g. `Hoppy Tech Intake <hello@hoppytech.com>`
+- `RESEND_TO`: your inbox (comma-separated if multiple)
+- `ADMIN_EMAIL`: e.g. `jeremy@hoppytech.com`
 
-Admin login uses **Supabase Auth** — do not store `USERNAME` / `PASSWORD` in Vercel.
+**AI:**
+- `HT_GEMINI_API_KEY`: Chatbot and contact-form screening
+
+Admin login uses **Supabase Auth** — do not store `USERNAME` / `PASSWORD` in Vercel. Ads webhook / design-team CC / ZeroBounce / Twilio are optional and currently unused.
 
 ## Contact-form screening
 
@@ -118,7 +119,7 @@ Admin login uses **Supabase Auth** — do not store `USERNAME` / `PASSWORD` in V
    network call**. This is the backstop that still works when the model is
    rate-limited or down. Ordinary swearing is deliberately *not* blocked here —
    a frustrated customer is still a customer — it is flagged and passed to the AI.
-4. **Screening agent** — `gemini-3.5-flash-lite` (reusing `GEMINI_API_KEY`)
+4. **Screening agent** — `gemini-3.5-flash-lite` (reusing `HT_GEMINI_API_KEY`)
    classifies the message and returns `accept` / `review` / `reject`. Rejections
    route the sender to `/sorry`; `review` still emails, flagged in the subject
    line. Set `CONTACT_SCREENING=off` to bypass. Every submission is stored either
@@ -147,14 +148,13 @@ Supabase SQL editor to add the required columns.
 Copy `.env.example` to `.env` and fill in values:
 
 ```bash
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your_publishable_key
-VITE_ADMIN_EMAIL=jeremy@hoppytech.com
-VITE_WEB3FORMS_ACCESS_KEY=your_web3forms_access_key_here
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_secret_key
+HT_SUPABASE_PROJECT_URL=https://your-project.supabase.co
+HT_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
+HT_SUPABASE_SECRET_KEY=your_secret_key
+HT_RESEND_API_KEY=
+RESEND_FROM=Hoppy Tech Intake <hello@hoppytech.com>
+RESEND_TO=jeremy@hoppytech.com
 ADMIN_EMAIL=jeremy@hoppytech.com
-GEMINI_API_KEY=your_gemini_api_key_here
-GITHUB_TOKEN=your_github_token_here
+HT_GEMINI_API_KEY=your_gemini_api_key_here
 PORT=3001
 ``` 

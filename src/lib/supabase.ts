@@ -1,9 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Injected from HT_* shared Vercel vars via vite.config (not VITE_ prefix).
+const supabaseUrl = import.meta.env.HT_SUPABASE_PROJECT_URL as string | undefined;
+const supabaseAnonKey = import.meta.env.HT_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 
 export const supabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 

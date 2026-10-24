@@ -28,9 +28,9 @@ app.use(cors({
 }));
 app.use(express.json());
 
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
+const apiKey = process.env.HT_GEMINI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY;
 if (!apiKey) {
-  console.error('❌ GEMINI_API_KEY environment variable is not set!');
+  console.error('❌ HT_GEMINI_API_KEY environment variable is not set!');
 } else {
   console.log('✅ Gemini API key is configured');
 }
@@ -52,9 +52,9 @@ app.post('/api/chat', async (req, res) => {
   }
 
   try {
-    const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    const key = process.env.HT_GEMINI_API_KEY || process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (!key) {
-      return res.status(500).json({ error: 'GEMINI_API_KEY is not set in .env' });
+      return res.status(500).json({ error: 'HT_GEMINI_API_KEY is not set in .env' });
     }
 
     const ai = new GoogleGenAI({ apiKey: key });

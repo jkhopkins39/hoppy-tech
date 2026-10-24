@@ -11,9 +11,13 @@ dotenv.config();
 
 const baseUrl = process.argv[2] || 'http://localhost:3001';
 const adminEmail = process.env.ADMIN_EMAIL || 'jeremy@hoppytech.com';
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseAnon = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const serviceRole = process.env.SUPABASE_SECRET_KEY;
+const supabaseUrl =
+  process.env.HT_SUPABASE_PROJECT_URL || process.env.VITE_SUPABASE_URL;
+const supabaseAnon =
+  process.env.HT_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const serviceRole =
+  process.env.HT_SUPABASE_SECRET_KEY || process.env.SUPABASE_SECRET_KEY;
 
 let passed = 0;
 let failed = 0;
@@ -40,7 +44,7 @@ async function testBlogUnauthorized() {
 
 async function testVerifyInvalidToken() {
   if (!supabaseUrl || !serviceRole) {
-    fail('Server Supabase env vars present', 'missing SUPABASE_URL or SUPABASE_SECRET_KEY');
+    fail('Server Supabase env vars present', 'missing HT_SUPABASE_PROJECT_URL or HT_SUPABASE_SECRET_KEY');
     return;
   }
 
@@ -56,7 +60,7 @@ async function testSupabaseSignInAndBlogAuth() {
     return;
   }
   if (!supabaseUrl || !supabaseAnon) {
-    fail('Supabase sign-in env vars present', 'missing SUPABASE_URL or SUPABASE_PUBLISHABLE_KEY');
+    fail('Supabase sign-in env vars present', 'missing HT_SUPABASE_PROJECT_URL or HT_SUPABASE_PUBLISHABLE_KEY');
     return;
   }
 

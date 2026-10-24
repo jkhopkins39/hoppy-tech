@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import { getEdgeCorsHeaders } from './_lib/cors.js';
 import { getIntakeRecipients } from './_lib/intakeEmail.js';
+import { getResendApiKey } from './_lib/env.js';
 import { getSupabaseHoppyAdmin } from './_lib/supabase-admin.js';
 import { getClientMeta } from './_lib/clientMeta.js';
 import { validateEmail, validatePhone } from './_lib/validateContact.js';
@@ -236,12 +237,13 @@ export default async function handler(req) {
     );
   }
 
-  if (!process.env.RESEND_API_KEY) {
-    console.error('RESEND_API_KEY is not set');
+  const resendKey = getResendApiKey();
+  if (!resendKey) {
+    console.error('HT_RESEND_API_KEY is not set');
     return json({ success: false, message: 'Email service not configured.' }, 503, corsHeaders);
   }
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const resend = new Resend(resendKey);
 
   const row_ = (label, value) =>
     value ? `<tr>

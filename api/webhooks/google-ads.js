@@ -28,6 +28,7 @@
 import { Resend } from 'resend';
 import { getEdgeCorsHeaders } from '../_lib/cors.js';
 import { getIntakeRecipients } from '../_lib/intakeEmail.js';
+import { getResendApiKey } from '../_lib/env.js';
 import { getSupabaseHoppyAdmin } from '../_lib/supabase-admin.js';
 
 export const config = { runtime: 'edge' };
@@ -275,9 +276,10 @@ export default async function handler(req) {
   }
 
   // Best-effort email notify (do not fail the webhook if Resend is down).
-  if (process.env.RESEND_API_KEY) {
+  const resendKey = getResendApiKey();
+  if (resendKey) {
     try {
-      const resend = new Resend(process.env.RESEND_API_KEY);
+      const resend = new Resend(resendKey);
       const row = (label, value) =>
         value
           ? `<tr>

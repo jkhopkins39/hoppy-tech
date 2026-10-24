@@ -1,6 +1,11 @@
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 import { getEdgeCorsHeaders } from './_lib/cors.js';
+import {
+  getResendApiKey,
+  getSupabasePublishableKey,
+  getSupabaseUrl,
+} from './_lib/env.js';
 
 export const config = { runtime: 'edge' };
 
@@ -34,10 +39,7 @@ export default async function handler(req) {
     });
   }
 
-  const supabase = createClient(
-    process.env.VITE_SUPABASE_URL,
-    process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-  );
+  const supabase = createClient(getSupabaseUrl(), getSupabasePublishableKey());
   const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken);
   if (authError || !user || user.app_metadata?.role !== 'agency_owner') {
     return new Response(JSON.stringify({ error: 'Forbidden' }), {
@@ -52,7 +54,7 @@ export default async function handler(req) {
     });
   }
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const resend = new Resend(getResendApiKey());
   const recipients = CLIENT_EMAILS.filter(c => c.email);
 
   const html = `

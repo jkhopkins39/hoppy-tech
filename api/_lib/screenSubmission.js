@@ -188,6 +188,7 @@ function parseVerdict(text) {
 }
 
 const apiKey =
+  process.env.HT_GEMINI_API_KEY ||
   process.env.GEMINI_API_KEY ||
   process.env.GOOGLE_GEMINI_API_KEY ||
   process.env.GOOGLE_API_KEY;
@@ -206,7 +207,7 @@ export async function screenSubmission(submission, signals = {}) {
   }
 
   if (!ai) {
-    console.warn('GEMINI_API_KEY not set — contact screening skipped');
+    console.warn('HT_GEMINI_API_KEY not set — contact screening skipped');
     return PASS('unscreened', 'Screening unavailable.');
   }
 

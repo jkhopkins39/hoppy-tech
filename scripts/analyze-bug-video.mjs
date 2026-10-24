@@ -28,8 +28,8 @@ for (const line of readFileSync(envPath, 'utf-8').split('\n')) {
   if (!process.env[key]) process.env[key] = val;
 }
 
-const API_KEY = process.env.GEMINI_API_KEY;
-if (!API_KEY) { console.error('GEMINI_API_KEY missing from .env'); process.exit(1); }
+const API_KEY = process.env.HT_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+if (!API_KEY) { console.error('HT_GEMINI_API_KEY missing from .env'); process.exit(1); }
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 // Try these in order until one succeeds (503 = transient overload, retried per model)

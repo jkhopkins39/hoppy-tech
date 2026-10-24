@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getSupabaseSecretKey, getSupabaseUrl } from './env.js';
 
 let adminClient = null;
 
@@ -7,11 +8,8 @@ export function isAgencyOwner(user) {
 }
 
 function getSupabaseAdmin() {
-  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const serviceRoleKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_SECRET_KEY ||
-    process.env.VITE_SUPABASE_SECRET_KEY;
+  const url = getSupabaseUrl();
+  const serviceRoleKey = getSupabaseSecretKey();
 
   if (!url || !serviceRoleKey) {
     throw new Error('Supabase service role is not configured');
