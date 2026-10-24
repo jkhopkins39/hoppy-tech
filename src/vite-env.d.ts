@@ -10,3 +10,14 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+declare global {
+  interface Window {
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
+    gtag_report_conversion?: (url?: string) => false;
+    fbq?: (...args: unknown[]) => void;
+  }
+}
+
+export {};
