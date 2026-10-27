@@ -4,8 +4,8 @@ export type TenantKey =
   | 'illuminated'
   | 'bells'
   | 'watch_luxury'
-  | 'bella_portfolio'
-  | 'joshua_firm';
+  | 'joshua_firm'
+  | 'krush';
 
 export interface TenantConfig {
   key: TenantKey;
@@ -57,19 +57,19 @@ export const TENANTS: Record<TenantKey, TenantConfig> = {
     adminUrl: "https://www.watchtradingpost.com/admin/dashboard",
     callbackUrl: "https://www.watchtradingpost.com/admin/auth/callback",
   },
-  bella_portfolio: {
-    key: 'bella_portfolio',
-    label: "Isabella Plymale",
-    description: "UX/UI & graphic design portfolio",
-    adminUrl: "https://www.isabellaplymale.com/admin",
-    callbackUrl: "https://www.isabellaplymale.com/admin",
-  },
   joshua_firm: {
     key: 'joshua_firm',
     label: "Joshua 19 Law Firm",
     description: "Law firm",
     adminUrl: "https://joshua19lawfirm.com/admin",
     callbackUrl: "https://joshua19lawfirm.com/admin",
+  },
+  krush: {
+    key: 'krush',
+    label: "Krush Windshield Repair",
+    description: "Mobile auto glass / windshield repair",
+    adminUrl: "https://www.krushwindshieldrepair.com/admin",
+    callbackUrl: "https://www.krushwindshieldrepair.com/admin",
   },
 };
 

@@ -11,6 +11,7 @@
  */
 
 import { GoogleGenAI } from '@google/genai';
+import { HARD_LIMITS } from './apiUsageGuard.js';
 
 const MODEL = 'gemini-3.5-flash-lite';
 /**
@@ -21,8 +22,8 @@ const MODEL = 'gemini-3.5-flash-lite';
  */
 const FALLBACK_MODELS = ['gemini-3.1-flash-lite', 'gemini-3.5-flash'];
 const ATTEMPT_TIMEOUT_MS = 7000;
-const TOTAL_BUDGET_MS = 16000;
-const MAX_OUTPUT_TOKENS = 512;
+const TOTAL_BUDGET_MS = HARD_LIMITS.SCREEN_TOTAL_BUDGET_MS;
+const MAX_OUTPUT_TOKENS = HARD_LIMITS.SCREEN_MAX_OUTPUT_TOKENS;
 
 const CATEGORIES = [
   'genuine_inquiry',

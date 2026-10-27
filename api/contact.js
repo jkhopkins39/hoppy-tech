@@ -5,14 +5,37 @@ import { getResendApiKey } from './_lib/env.js';
 import { getSupabaseHoppyAdmin } from './_lib/supabase-admin.js';
 import { getClientMeta } from './_lib/clientMeta.js';
 import { validateEmail, validatePhone } from './_lib/validateContact.js';
+import { validateSchema } from './_lib/validateSchema.js';
 import { prefilter, hasMildProfanity } from './_lib/contentFilter.js';
 import { screenSubmission } from './_lib/screenSubmission.js';
+import { HARD_LIMITS } from './_lib/apiUsageGuard.js';
 
 export const config = { runtime: 'edge' };
 
+/** Env may only tighten — never raise above HARD_LIMITS.FORM_PER_IP_HOUR. */
+function clampedFormLimit(requested, fallback) {
+  const n = Number(requested);
+  const base = Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
+  return Math.min(base, HARD_LIMITS.FORM_PER_IP_HOUR);
+}
+
 /** Max submissions per IP per hour, and the minimum gap between two of them. */
-const MAX_PER_HOUR = Number(process.env.CONTACT_RATE_LIMIT_PER_HOUR ?? 5);
-const MIN_GAP_MS = 45_000;
+const MAX_PER_HOUR = clampedFormLimit(process.env.CONTACT_RATE_LIMIT_PER_HOUR, 5);
+const MIN_GAP_MS = Math.max(45_000, HARD_LIMITS.FORM_MIN_GAP_MS);
+
+const CONTACT_SCHEMA = {
+  email: { max: 254 },
+  phone: { max: 40 },
+  name: { max: 120 },
+  company: { max: 120 },
+  project_type: { max: 120 },
+  problem: { max: 5000 },
+  timeline: { max: 120 },
+  budget: { max: 120 },
+  include_design_team: { type: 'boolean' },
+  contact_website: { max: 200 },
+  contact_fax: { max: 40 },
+};
 
 /** Columns added by 20260727_contact_security.sql — dropped if the migration hasn't run yet. */
 const SECURITY_COLUMNS = [
@@ -90,8 +113,13 @@ export default async function handler(req) {
   }
 
   const body = await req.json().catch(() => null);
-  if (!body) {
-    return json({ success: false, message: 'Invalid request' }, 400, corsHeaders);
+  const parsed = validateSchema(body, CONTACT_SCHEMA);
+  if (!parsed.ok) {
+    return json(
+      { success: false, field: parsed.field, message: parsed.message ?? 'Invalid request' },
+      400,
+      corsHeaders,
+    );
   }
 
   const {
@@ -106,7 +134,7 @@ export default async function handler(req) {
     include_design_team = false,
     contact_website: honeypot1 = '',
     contact_fax: honeypot2 = '',
-  } = body;
+  } = parsed.data;
 
   // Bots fill the hidden fields — give them a success they can't learn from.
   if (honeypot1 || honeypot2) {
@@ -114,10 +142,6 @@ export default async function handler(req) {
   }
 
   const meta = getClientMeta(req);
-
-  if (String(problem).length > 5000) {
-    return json({ success: false, message: 'Input too long.' }, 400, corsHeaders);
-  }
 
   const rawEmail = String(email).trim().slice(0, 254);
   const rawPhone = String(phone).trim().slice(0, 40);
