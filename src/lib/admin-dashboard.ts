@@ -104,15 +104,21 @@ export function submissionPreview(sub: ContactSubmission): string {
   return sub.problem?.trim() || 'No description provided.';
 }
 
-/** Badge for submissions the screening agent blocked or flagged. Null when clean. */
+/**
+ * Screening badge: accept → Legit, review → Review, reject → Filtered.
+ * Null for legacy rows with no screening decision.
+ */
 export function screeningBadge(
   sub: ContactSubmission,
 ): { label: string; className: string } | null {
   if (sub.screening_decision === 'reject') {
-    return { label: 'Blocked', className: 'bg-red-500/10 text-red-400' };
+    return { label: 'Filtered', className: 'bg-red-500/10 text-red-400' };
   }
   if (sub.screening_decision === 'review') {
     return { label: 'Review', className: 'bg-amber-500/10 text-amber-400' };
+  }
+  if (sub.screening_decision === 'accept') {
+    return { label: 'Legit', className: 'bg-emerald-500/10 text-emerald-400' };
   }
   return null;
 }

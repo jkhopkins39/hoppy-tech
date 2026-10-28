@@ -4,7 +4,12 @@ import { getIntakeRecipients } from './_lib/intakeEmail.js';
 import { getResendApiKey } from './_lib/env.js';
 import { getClientMeta } from './_lib/clientMeta.js';
 import { validateSchema } from './_lib/validateSchema.js';
-import { prefilter, hasMildProfanity } from './_lib/contentFilter.js';
+import {
+  prefilter,
+  hasMildProfanity,
+  isOwnerTestSubmission,
+  OWNER_TEST_SCREENING,
+} from './_lib/contentFilter.js';
 import { screenRefer } from './_lib/screenRefer.js';
 import { guardFormSubmission } from './_lib/apiUsageGuard.js';
 
@@ -101,32 +106,29 @@ export default async function handler(req) {
     notes: notes ? String(notes) : '',
   };
 
-  const blocked = prefilter(submission, [
-    'referrer_name',
-    'business_name',
-    'contact_name',
-    'notes',
-  ]);
+  const TEXT_KEYS = ['referrer_name', 'business_name', 'notes'];
 
-  const screening = blocked
-    ? {
-        decision: 'reject',
-        category: blocked.category,
-        confidence: 100,
-        reason: blocked.reason,
-        screened: true,
-        prefiltered: blocked.matched,
-      }
-    : await screenRefer(submission, {
-        geo: meta.geo,
-        mildProfanity: hasMildProfanity(submission, [
-          'referrer_name',
-          'business_name',
-          'contact_name',
-          'notes',
-        ]),
-      });
+  // Owner test: referrer named Jeremy (or jeremy@hoppytech.com) skips prefilter + AI.
+  const ownerTest = isOwnerTestSubmission({ ...submission, email: submission.referrer_email });
+  const blocked = ownerTest ? null : prefilter(submission, TEXT_KEYS);
 
+  const screening = ownerTest
+    ? OWNER_TEST_SCREENING
+    : blocked
+      ? {
+          decision: 'reject',
+          category: blocked.category,
+          confidence: 100,
+          reason: blocked.reason,
+          screened: true,
+          prefiltered: blocked.matched,
+        }
+      : await screenRefer(submission, {
+          geo: meta.geo,
+          mildProfanity: hasMildProfanity(submission, [...TEXT_KEYS, 'contact_name']),
+        });
+
+  // Referrals aren't stored; rejected spam simply never reaches Resend.
   if (screening.decision === 'reject') {
     console.warn(
       `Refer rejected [${screening.category}] from ${meta.ip ?? 'unknown IP'}: ${screening.reason}`,

@@ -6,7 +6,12 @@ import { getSupabaseHoppyAdmin } from './_lib/supabase-admin.js';
 import { getClientMeta } from './_lib/clientMeta.js';
 import { validateEmail, validatePhone } from './_lib/validateContact.js';
 import { validateSchema } from './_lib/validateSchema.js';
-import { prefilter, hasMildProfanity } from './_lib/contentFilter.js';
+import {
+  prefilter,
+  hasMildProfanity,
+  isOwnerTestSubmission,
+  OWNER_TEST_SCREENING,
+} from './_lib/contentFilter.js';
 import { screenSubmission } from './_lib/screenSubmission.js';
 import { HARD_LIMITS } from './_lib/apiUsageGuard.js';
 
@@ -169,25 +174,6 @@ export default async function handler(req) {
     return json({ success: false, message: 'Submission storage is not configured.' }, 503, corsHeaders);
   }
 
-  // ── Per-IP flood protection ──────────────────────────────────────────
-  const activity = await getRecentActivity(sb, meta.ip);
-
-  if (activity && activity.msSinceLast !== null && activity.msSinceLast < MIN_GAP_MS) {
-    return json(
-      { success: false, message: 'You just sent a message. Give it a moment before sending another.' },
-      429,
-      corsHeaders,
-    );
-  }
-
-  if (activity && activity.count >= MAX_PER_HOUR) {
-    return json(
-      { success: false, message: 'Too many submissions from this connection. Please email jeremy@hoppytech.com directly.' },
-      429,
-      corsHeaders,
-    );
-  }
-
   const cleanProblem = String(problem).trim().slice(0, 5000) || 'No description provided.';
 
   const submission = {
@@ -204,26 +190,50 @@ export default async function handler(req) {
   // ── Screening ────────────────────────────────────────────────────────
   // The deterministic filter runs first: it needs no network call, so blatant
   // trolling is still caught when the model is rate-limited or unavailable.
+  // Owner tests (name contains "Jeremy" / jeremy@hoppytech.com) skip prefilter
+  // + AI, skip IP rate limits, and always email.
   const forScreening = { ...submission, problem: String(problem).trim() };
-  const blocked = prefilter(forScreening);
+  const ownerTest = isOwnerTestSubmission(forScreening);
 
-  const screening = blocked
-    ? {
-        decision: 'reject',
-        category: blocked.category,
-        confidence: 100,
-        reason: blocked.reason,
-        screened: true,
-        prefiltered: blocked.matched,
-      }
-    : await screenSubmission(forScreening, {
-        emailOk: emailCheck.value ? true : null,
-        phoneOk: phoneCheck.value ? true : null,
-        geo: meta.geo,
-        priorSubmissions: activity?.count ?? 0,
-        fromQuote: Boolean(include_design_team),
-        mildProfanity: hasMildProfanity(forScreening),
-      });
+  // ── Per-IP flood protection (skipped for owner tests) ───────────────
+  const activity = ownerTest ? null : await getRecentActivity(sb, meta.ip);
+
+  if (activity && activity.msSinceLast !== null && activity.msSinceLast < MIN_GAP_MS) {
+    return json(
+      { success: false, message: 'You just sent a message. Give it a moment before sending another.' },
+      429,
+      corsHeaders,
+    );
+  }
+
+  if (activity && activity.count >= MAX_PER_HOUR) {
+    return json(
+      { success: false, message: 'Too many submissions from this connection. Please email jeremy@hoppytech.com directly.' },
+      429,
+      corsHeaders,
+    );
+  }
+  const blocked = ownerTest ? null : prefilter(forScreening);
+
+  const screening = ownerTest
+    ? OWNER_TEST_SCREENING
+    : blocked
+      ? {
+          decision: 'reject',
+          category: blocked.category,
+          confidence: 100,
+          reason: blocked.reason,
+          screened: true,
+          prefiltered: blocked.matched,
+        }
+      : await screenSubmission(forScreening, {
+          emailOk: emailCheck.value ? true : null,
+          phoneOk: phoneCheck.value ? true : null,
+          geo: meta.geo,
+          priorSubmissions: activity?.count ?? 0,
+          fromQuote: Boolean(include_design_team),
+          mildProfanity: hasMildProfanity(forScreening),
+        });
 
   // Everything is stored, including rejections, so false positives are recoverable.
   const row = {
@@ -242,6 +252,7 @@ export default async function handler(req) {
       screened: screening.screened,
       prefiltered: screening.prefiltered ?? null,
       is_sales_pitch: screening.isSalesPitch ?? false,
+      owner_test: Boolean(screening.ownerTest),
       include_design_team: Boolean(include_design_team),
     },
   };

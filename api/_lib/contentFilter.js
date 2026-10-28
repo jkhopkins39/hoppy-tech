@@ -103,16 +103,73 @@ function matchAny(patterns, text) {
   return null;
 }
 
+/** Name field keys used for joke-alias checks and the owner-test allowlist. */
+export const NAME_KEYS = [
+  'name', 'full_name', 'fullName', 'contact_name', 'referrer_name',
+  'firstName', 'lastName', 'first_name', 'last_name',
+];
+
+/** Company-ish keys, checked together with the name for joke aliases. */
+const COMPANY_KEYS = ['company', 'business_name'];
+
+/** Free-text body keys used when the caller does not pass its own list. */
+const DEFAULT_TEXT_KEYS = [
+  'name', 'company', 'problem', 'message', 'details', 'description',
+  'additionalDetails', 'additional_details', 'notes',
+];
+
 /**
- * @param {{ name?: string, company?: string, problem?: string }} submission
+ * Owner test allowlist: submissions from people named Jeremy always pass
+ * screening and must fire the notification email (even for message "test").
+ * Skips prefilter + AI entirely.
+ * @param {Record<string, unknown>} submission
+ */
+export function isOwnerTestSubmission(submission) {
+  if (!submission) return false;
+  const name = NAME_KEYS.map((k) => submission[k]).filter(Boolean).join(' ');
+  const email = String(submission.email ?? '').trim().toLowerCase();
+  if (/\bjeremy\b/i.test(name)) return true;
+  if (email === 'jeremy@hoppytech.com') return true;
+  return false;
+}
+
+/** Screening result used in place of prefilter + AI for owner tests. */
+export const OWNER_TEST_SCREENING = {
+  decision: 'accept',
+  category: 'genuine_inquiry',
+  confidence: 100,
+  reason: 'Owner test submission (Jeremy allowlist).',
+  screened: true,
+  ownerTest: true,
+};
+
+/**
+ * Name text = every NAME_KEYS field. Company text = company / business_name.
+ * Body text = the remaining keys in `textKeys` (name/company-style keys are
+ * excluded so laughter/filler checks still apply to the message alone).
+ */
+function collect(submission, textKeys) {
+  const name = despace(normalize(NAME_KEYS.map((k) => submission[k]).filter(Boolean).join(' ')));
+  const company = despace(normalize(COMPANY_KEYS.map((k) => submission[k]).filter(Boolean).join(' ')));
+  const bodyKeys = (textKeys ?? DEFAULT_TEXT_KEYS)
+    .filter((k) => !NAME_KEYS.includes(k) && !COMPANY_KEYS.includes(k));
+  const problem = bodyKeys
+    .map((k) => despace(normalize(submission[k])))
+    .filter(Boolean)
+    .join(' ');
+  return { name, company, problem };
+}
+
+/**
+ * @param {Record<string, unknown>} submission
+ * @param {string[]} [textKeys] Keys to treat as free-text / name fields
+ *        (e.g. refer form: referrer_name, business_name, contact_name, notes).
  * @returns {{ category: string, reason: string, matched: string }|null}
  *          Non-null means reject outright. Null means "not obviously junk" —
  *          hand it to the AI screener.
  */
-export function prefilter(submission) {
-  const name = despace(normalize(submission.name));
-  const company = despace(normalize(submission.company));
-  const problem = despace(normalize(submission.problem));
+export function prefilter(submission, textKeys) {
+  const { name, company, problem } = collect(submission ?? {}, textKeys);
   const all = [name, company, problem].filter(Boolean).join(' | ');
 
   const explicit = matchAny(EXPLICIT, all);
@@ -171,9 +228,14 @@ const MILD_PROFANITY = [
   'idiot', 'stupid', 'moron', 'sucks', 'garbage', 'trash',
 ].map(stretchy);
 
-export function hasMildProfanity(submission) {
+/**
+ * @param {Record<string, unknown>} submission
+ * @param {string[]} [textKeys] Defaults to name keys + company + body text.
+ */
+export function hasMildProfanity(submission, textKeys) {
+  const keys = textKeys ?? [...NAME_KEYS, ...COMPANY_KEYS, ...DEFAULT_TEXT_KEYS];
   const text = despace(normalize(
-    [submission.name, submission.company, submission.problem].filter(Boolean).join(' '),
+    [...new Set(keys)].map((k) => submission?.[k]).filter(Boolean).join(' '),
   ));
   return Boolean(matchAny(MILD_PROFANITY, text));
 }
