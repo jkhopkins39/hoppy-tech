@@ -21,7 +21,7 @@ export default function Portal() {
 
   useEffect(() => {
     if (!supabaseConfigured || !supabase) {
-      setError('Supabase is not configured. Add HT_SUPABASE_PROJECT_URL and HT_SUPABASE_PUBLISHABLE_KEY to Vercel env vars.');
+      setError('Supabase is not configured. Add SUPABASE_URL + SUPABASE_PUBLISHABLE_KEY (or HT_SUPABASE_*) to Vercel env vars and redeploy.');
       setView('error');
       return;
     }

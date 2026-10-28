@@ -9,13 +9,20 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     base: '/',
-    // Only these two HT_ vars are embedded in the client bundle — never the secret.
+    // Only URL + publishable key are embedded in the client — never the secret.
+    // Accept HT_*, VITE_*, and plain SUPABASE_* (as set in Vercel).
     define: {
       'import.meta.env.HT_SUPABASE_PROJECT_URL': JSON.stringify(
-        env.HT_SUPABASE_PROJECT_URL || env.VITE_SUPABASE_URL || '',
+        env.HT_SUPABASE_PROJECT_URL ||
+          env.SUPABASE_URL ||
+          env.SUPABASE_PROJECT_URL ||
+          env.VITE_SUPABASE_URL ||
+          '',
       ),
       'import.meta.env.HT_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(
         env.HT_SUPABASE_PUBLISHABLE_KEY ||
+          env.SUPABASE_PUBLISHABLE_KEY ||
+          env.SUPABASE_ANON_KEY ||
           env.VITE_SUPABASE_PUBLISHABLE_KEY ||
           env.VITE_SUPABASE_ANON_KEY ||
           '',
