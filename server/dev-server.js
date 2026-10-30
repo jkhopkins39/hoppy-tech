@@ -4,6 +4,11 @@ import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 import { getClientIp, rateLimit } from '../api/_lib/rateLimit.js';
 import { CHAT_SYSTEM_PROMPT } from '../api/_lib/chatPrompt.js';
+import { gateChatTopic } from '../api/_lib/chatTopicGuard.js';
+
+const CHAT_SITE = 'hoppy-tech';
+const CHAT_ALLOWED_TOPICS =
+  "Jeremy Hopkins' portfolio and services: his background, skills, projects, hiring/intake, quotes, and contacting Jeremy about web/AI work";
 
 dotenv.config();
 
@@ -67,6 +72,24 @@ app.post('/api/chat', async (req, res) => {
     const conversation = messages
       .filter((m) => m?.role === 'user' || m?.role === 'assistant')
       .slice(-20);
+
+    const latestUser = String(conversation[conversation.length - 1]?.content ?? '').slice(0, 2000);
+    const topicGate = await gateChatTopic({
+      site: CHAT_SITE,
+      ip,
+      message: latestUser,
+      allowedTopics: CHAT_ALLOWED_TOPICS,
+      apiKey: key,
+    });
+    if (topicGate.action !== 'allow' && topicGate.reply) {
+      res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
+      res.status(200);
+      res.write(`${JSON.stringify({ t: topicGate.reply })}\n`);
+      res.write(`${JSON.stringify({ done: true })}\n`);
+      res.end();
+      return;
+    }
 
     const contents = conversation.map((msg) => ({
       role: msg.role === 'assistant' ? 'model' : 'user',

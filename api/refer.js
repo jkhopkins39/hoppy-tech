@@ -11,7 +11,10 @@ import {
   OWNER_TEST_SCREENING,
 } from './_lib/contentFilter.js';
 import { screenRefer } from './_lib/screenRefer.js';
-import { guardFormSubmission } from './_lib/apiUsageGuard.js';
+import {
+  enforceIpProtection,
+  noteScreeningForIp,
+} from './_lib/ipProtection.js';
 
 export const config = { runtime: 'edge' };
 
@@ -92,10 +95,6 @@ export default async function handler(req) {
   }
 
   const meta = getClientMeta(req);
-  const rate = guardFormSubmission(meta.ip || 'unknown');
-  if (!rate.ok) {
-    return json({ success: false, message: rate.error }, rate.status, corsHeaders);
-  }
 
   const submission = {
     referrer_name: String(referrer_name),
@@ -110,6 +109,18 @@ export default async function handler(req) {
 
   // Owner test: referrer named Jeremy (or jeremy@hoppytech.com) skips prefilter + AI.
   const ownerTest = isOwnerTestSubmission({ ...submission, email: submission.referrer_email });
+  if (!ownerTest) {
+    const rate = await enforceIpProtection({
+      site: 'hoppy_tech',
+      ip: meta.ip || 'unknown',
+    });
+    if (!rate.ok) {
+      if (rate.code === 'ip_blocked') {
+        return json({ success: true }, 200, corsHeaders);
+      }
+      return json({ success: false, message: rate.error }, rate.status, corsHeaders);
+    }
+  }
   const blocked = ownerTest ? null : prefilter(submission, TEXT_KEYS);
 
   const screening = ownerTest
@@ -127,6 +138,17 @@ export default async function handler(req) {
           geo: meta.geo,
           mildProfanity: hasMildProfanity(submission, [...TEXT_KEYS, 'contact_name']),
         });
+
+  if (!ownerTest) {
+    await noteScreeningForIp({
+      site: 'hoppy_tech',
+      ip: meta.ip || 'unknown',
+      decision: screening.decision,
+      category: screening.category,
+      confidence: screening.confidence,
+      source: blocked ? 'prefilter' : 'ai',
+    });
+  }
 
   // Referrals aren't stored; rejected spam simply never reaches Resend.
   if (screening.decision === 'reject') {

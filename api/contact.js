@@ -14,6 +14,10 @@ import {
 } from './_lib/contentFilter.js';
 import { screenSubmission } from './_lib/screenSubmission.js';
 import { HARD_LIMITS } from './_lib/apiUsageGuard.js';
+import {
+  enforceIpProtection,
+  noteScreeningForIp,
+} from './_lib/ipProtection.js';
 
 export const config = { runtime: 'edge' };
 
@@ -195,23 +199,32 @@ export default async function handler(req) {
   const forScreening = { ...submission, problem: String(problem).trim() };
   const ownerTest = isOwnerTestSubmission(forScreening);
 
-  // ── Per-IP flood protection (skipped for owner tests) ───────────────
-  const activity = ownerTest ? null : await getRecentActivity(sb, meta.ip);
-
-  if (activity && activity.msSinceLast !== null && activity.msSinceLast < MIN_GAP_MS) {
-    return json(
-      { success: false, message: 'You just sent a message. Give it a moment before sending another.' },
-      429,
-      corsHeaders,
-    );
-  }
-
-  if (activity && activity.count >= MAX_PER_HOUR) {
-    return json(
-      { success: false, message: 'Too many submissions from this connection. Please email jeremy@hoppytech.com directly.' },
-      429,
-      corsHeaders,
-    );
+  // ── Shared DB blocklist + rate limit (skipped for owner tests) ─────
+  let priorSubmissions = 0;
+  if (!ownerTest) {
+    const gate = await enforceIpProtection({
+      site: 'hoppy_tech',
+      ip: meta.ip,
+      maxPerHour: MAX_PER_HOUR,
+      minGapMs: MIN_GAP_MS,
+    });
+    if (!gate.ok) {
+      if (gate.code === 'ip_blocked') {
+        return json({ success: true }, 200, corsHeaders);
+      }
+      return json(
+        {
+          success: false,
+          message:
+            gate.code === 'min_gap'
+              ? 'You just sent a message. Give it a moment before sending another.'
+              : 'Too many submissions from this connection. Please email jeremy@hoppytech.com directly.',
+        },
+        gate.status,
+        corsHeaders,
+      );
+    }
+    priorSubmissions = Math.max(0, MAX_PER_HOUR - (gate.remaining ?? 0) - 1);
   }
   const blocked = ownerTest ? null : prefilter(forScreening);
 
@@ -230,10 +243,21 @@ export default async function handler(req) {
           emailOk: emailCheck.value ? true : null,
           phoneOk: phoneCheck.value ? true : null,
           geo: meta.geo,
-          priorSubmissions: activity?.count ?? 0,
+          priorSubmissions,
           fromQuote: Boolean(include_design_team),
           mildProfanity: hasMildProfanity(forScreening),
         });
+
+  if (!ownerTest) {
+    await noteScreeningForIp({
+      site: 'hoppy_tech',
+      ip: meta.ip,
+      decision: screening.decision,
+      category: screening.category,
+      confidence: screening.confidence,
+      source: blocked ? 'prefilter' : 'ai',
+    });
+  }
 
   // Everything is stored, including rejections, so false positives are recoverable.
   const row = {

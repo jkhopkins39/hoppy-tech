@@ -9,8 +9,25 @@ import {
   clampChatInput,
   getClientIpFromHeaders,
 } from './_lib/apiUsageGuard.js';
+import { gateChatTopic } from './_lib/chatTopicGuard.js';
 
 export const config = { runtime: 'edge' };
+
+const CHAT_SITE = 'hoppy-tech';
+const CHAT_ALLOWED_TOPICS =
+  "Jeremy Hopkins' portfolio and services: his background, skills, projects, hiring/intake, quotes, and contacting Jeremy about web/AI work";
+
+function ndjsonReply(text, req) {
+  const body = `${JSON.stringify({ t: text })}\n${JSON.stringify({ done: true })}\n`;
+  return new Response(body, {
+    headers: {
+      ...getEdgeCorsHeaders(req),
+      'Content-Type': 'application/x-ndjson; charset=utf-8',
+      'Cache-Control': 'no-cache, no-transform',
+      'X-Accel-Buffering': 'no',
+    },
+  });
+}
 
 // Prefer current stable Flash models; preview last as a last resort.
 const PRIMARY_MODEL = 'gemini-3.5-flash-lite';
@@ -111,6 +128,21 @@ export default async function handler(req) {
 
   if (conversation.length === 0 || conversation[conversation.length - 1]?.role !== 'user') {
     return jsonResponse({ error: 'A user message is required' }, 400, req);
+  }
+
+  const latestUser = clampChatInput(
+    String(conversation[conversation.length - 1]?.content ?? '').slice(0, MAX_MESSAGE_LENGTH),
+  );
+
+  const topicGate = await gateChatTopic({
+    site: CHAT_SITE,
+    ip,
+    message: latestUser,
+    allowedTopics: CHAT_ALLOWED_TOPICS,
+    apiKey,
+  });
+  if (topicGate.action !== 'allow' && topicGate.reply) {
+    return ndjsonReply(topicGate.reply, req);
   }
 
   const contents = conversation.map((m) => ({
