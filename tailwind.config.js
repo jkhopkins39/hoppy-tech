@@ -7,6 +7,9 @@ export default {
         display: ['"DM Serif Display"', 'Georgia', 'serif'],
         sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
+        'studio-display': ['Syne', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        'studio-sans': ['"Source Sans 3"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        'studio-mono': ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
       },
       colors: {
         // CSS-variable-based tokens (theme-aware)
@@ -22,6 +25,21 @@ export default {
           light:   '#FFB703',
           dark:    '#E67700',
         },
+        // Hoppy Social studio. Names stay off the marketing tokens (ink, muted).
+        studio: {
+          void: 'hsl(30 14% 5.5% / <alpha-value>)',
+          paper: 'hsl(42 33% 88% / <alpha-value>)',
+          ink: 'hsl(30 16% 8% / <alpha-value>)',
+          tape: 'hsl(30 12% 16% / <alpha-value>)',
+          tungsten: 'hsl(36 64% 52% / <alpha-value>)',
+          cue: 'hsl(5 62% 47% / <alpha-value>)',
+          gel: 'hsl(194 24% 49% / <alpha-value>)',
+          muted: 'hsl(36 12% 62% / <alpha-value>)',
+          line: 'hsl(32 10% 22% / <alpha-value>)',
+        },
+      },
+      boxShadow: {
+        studio: '0 0 0 1px hsl(32 10% 22%), 0 24px 48px -24px hsl(30 14% 5.5% / 0.8)',
       },
       maxHeight: {
         'screen-mid': '800px',

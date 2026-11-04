@@ -27,6 +27,13 @@ export default defineConfig(({ mode }) => {
           env.VITE_SUPABASE_ANON_KEY ||
           '',
       ),
+      'import.meta.env.HT_SOCIAL_API_URL': JSON.stringify(
+        env.HT_SOCIAL_API_URL ||
+          env.SOCIAL_API_URL ||
+          (mode === 'production'
+            ? 'https://hoppy-social-agent-production.up.railway.app'
+            : 'http://127.0.0.1:8000'),
+      ),
     },
     build: {
       outDir: 'dist',

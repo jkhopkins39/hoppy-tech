@@ -775,3 +775,40 @@ body {
 .goog-te-gadget {
   font-size: 0 !important;
 }
+
+/* Hoppy Social studio — scoped so the marketing site keeps its own tokens.
+   Heading rules above are unlayered, so they beat Tailwind utilities.
+   Restate type and color here or light-mode --ink paints navy on the dark stage. */
+.studio-root {
+  color: hsl(42 33% 88%);
+  background-color: hsl(30 14% 5.5%);
+  font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+}
+
+.studio-root h1,
+.studio-root h2,
+.studio-root h3,
+.studio-root h4,
+.studio-root h5,
+.studio-root h6 {
+  font-family: Syne, ui-sans-serif, system-ui, sans-serif;
+  color: hsl(42 33% 88%);
+  line-height: 1.05;
+}
+
+.studio-root,
+.studio-root *,
+.studio-root *::before,
+.studio-root *::after {
+  transition: none;
+}
+
+.studio-root .film-perf {
+  background-image: radial-gradient(hsl(30 14% 5.5%) 38%, transparent 40%);
+  background-size: 12px 28px;
+  background-repeat: repeat-y;
+}
+
+.studio-root .crop-frame {
+  box-shadow: inset 0 0 0 2px hsl(36 64% 52% / 0.85);
+}

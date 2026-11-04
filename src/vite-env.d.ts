@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly HT_SUPABASE_PROJECT_URL?: string;
   /** Shared Hoppy Tech Supabase publishable key (injected by vite.config). */
   readonly HT_SUPABASE_PUBLISHABLE_KEY?: string;
+  /** Hoppy Social agent origin. Local dev defaults to the FastAPI port. */
+  readonly HT_SOCIAL_API_URL?: string;
 }
 
 interface ImportMeta {

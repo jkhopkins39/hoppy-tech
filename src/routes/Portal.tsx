@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase, supabaseConfigured } from '../lib/supabase';
 import { TENANTS, OWNER_APPS, getTenantConfig, buildCallbackUrl, type TenantConfig } from '../lib/portal';
 import { BRAND } from '../config/brandColors';
+import { hasSocialAccess } from '../social/access';
 
 /* ── Types ────────────────────────────────────────────────── */
 
-type ViewState = 'loading' | 'login' | 'routing' | 'hub' | 'error';
+type ViewState = 'loading' | 'login' | 'routing' | 'chooser' | 'hub' | 'error';
 
 /* ── Root component ───────────────────────────────────────── */
 
@@ -73,8 +75,21 @@ export default function Portal() {
       return;
     }
 
+    const social = hasSocialAccess(user);
+    const config = tenant ? getTenantConfig(tenant) : null;
+
+    if (tenant && social) {
+      if (!config) {
+        setError('Your account has an unrecognised tenant. Contact your administrator.');
+        setView('error');
+        return;
+      }
+      setRoutingTo(config);
+      setView('chooser');
+      return;
+    }
+
     if (tenant) {
-      const config = getTenantConfig(tenant);
       if (config && session.access_token && session.refresh_token) {
         redirectedRef.current = true;
         setRoutingTo(config);
@@ -84,6 +99,12 @@ export default function Portal() {
         setError('Your account has an unrecognised tenant. Contact your administrator.');
         setView('error');
       }
+      return;
+    }
+
+    if (social) {
+      redirectedRef.current = true;
+      window.location.assign('/social');
       return;
     }
 
@@ -101,6 +122,19 @@ export default function Portal() {
   if (view === 'error') return <Screen><ErrorCard message={error} /></Screen>;
   if (view === 'login') return <Screen><LoginForm onError={setError} /></Screen>;
   if (view === 'routing') return <Screen><RoutingCard tenant={routingTo} /></Screen>;
+  if (view === 'chooser' && routingTo && session) {
+    return (
+      <Screen>
+        <ProductChooser
+          tenant={routingTo}
+          onOpenSite={() => {
+            if (!session.access_token || !session.refresh_token) return;
+            window.location.href = buildCallbackUrl(routingTo, session.access_token, session.refresh_token);
+          }}
+        />
+      </Screen>
+    );
+  }
   if (view === 'hub') return <HubView session={session!} user={user!} onSignOut={handlePortalSignOut} />;
 
   return null;
@@ -270,6 +304,52 @@ function LoginForm({ onError }: { onError: (msg: string) => void }) {
       >
         {passkeyLoading ? 'Waiting for passkey…' : 'Sign in with passkey'}
       </button>
+
+      <p className="text-sm text-center mt-6" style={{ color: 'var(--muted)' }}>
+        <Link to="/social" style={{ color: BRAND.skyBlue }}>
+          Hoppy Social
+        </Link>
+        {' '}is a separate sign-in. Website-only accounts cannot open it.
+      </p>
+    </div>
+  );
+}
+
+/* ── Website admin or Hoppy Social ───────────────────────── */
+
+function ProductChooser({ tenant, onOpenSite }: { tenant: TenantConfig; onOpenSite: () => void }) {
+  return (
+    <div
+      className="rounded-2xl border p-8"
+      style={{ background: 'var(--surface)', borderColor: 'var(--border-color)' }}
+    >
+      <h1 className="font-display text-xl font-semibold mb-1" style={{ color: 'var(--ink)' }}>
+        Where to
+      </h1>
+      <p className="text-sm mb-6" style={{ color: 'var(--muted)' }}>
+        This login includes Hoppy Social and the {tenant.label} website admin.
+      </p>
+      <div className="flex flex-col gap-3">
+        <button
+          type="button"
+          onClick={onOpenSite}
+          className="w-full rounded-lg py-2.5 text-sm font-semibold"
+          style={{ background: BRAND.skyBlue, color: BRAND.navy }}
+        >
+          Open {tenant.label} admin
+        </button>
+        <Link
+          to="/social"
+          className="w-full rounded-lg py-2.5 text-sm font-semibold text-center"
+          style={{
+            background: 'var(--surface-2)',
+            color: 'var(--ink)',
+            border: '1px solid var(--border-color)',
+          }}
+        >
+          Open Hoppy Social
+        </Link>
+      </div>
     </div>
   );
 }
@@ -432,13 +512,22 @@ function HubView({ session, user, onSignOut }: { session: Session; user: User; o
           </p>
         ) : null}
 
-        <div className="mb-8">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
           <h1 className="font-display text-2xl font-semibold" style={{ color: 'var(--ink)' }}>
             Internal
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--muted)' }}>
             Sign in here with a passkey, then open LedgerFlow — the session transfers.
           </p>
+          </div>
+          <Link
+            to="/social"
+            className="rounded-lg px-4 py-2 text-sm font-semibold"
+            style={{ background: BRAND.skyBlue, color: BRAND.navy }}
+          >
+            Open Hoppy Social
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">

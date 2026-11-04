@@ -10,6 +10,7 @@ import Blog from "./Blog";
 import Contact from "./Contact";
 import Dashboard from "./Dashboard";
 import Portal from "./Portal";
+import Social from "./Social";
 import Portfolio from "./Portfolio";
 import ThankYou from "./ThankYou";
 import Sorry from "./Sorry";
@@ -388,6 +389,7 @@ function App() {
     <Routes>
       {/* Standalone — no NavBar, no Chatbot */}
       <Route path="/portal" element={<Portal />} />
+      <Route path="/social/*" element={<Social />} />
       {/* Public site */}
       <Route path="/*" element={<SiteLayout />} />
     </Routes>
