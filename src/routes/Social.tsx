@@ -4,7 +4,7 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { BRAND } from "../config/brandColors";
 import { hasSocialAccess } from "../social/access";
-import { clearToken, exchangeSupabaseSession, getToken } from "../social/api";
+import { clearToken, errorText, exchangeSupabaseSession, getToken } from "../social/api";
 import { StudioShell } from "../social/ui";
 import {
   BoostsPage,
@@ -48,10 +48,16 @@ export default function Social() {
       setSession(next);
     });
 
-    supabase.auth.getSession().then(({ data: { session: existing } }) => {
-      setSession(existing);
-      if (!existing) setGate("login");
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session: existing } }) => {
+        setSession(existing);
+        if (!existing) setGate("login");
+      })
+      .catch((err: unknown) => {
+        setError(errorText(err, "Could not read the sign-in session."));
+        setGate("error");
+      });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -86,7 +92,13 @@ export default function Social() {
 
   return (
     <div className="studio-root min-h-screen bg-studio-void text-studio-paper font-studio-sans">
-      {gate === "loading" ? <Centered><p className="font-studio-mono text-xs tracking-widest uppercase text-studio-tungsten">Opening the studio…</p></Centered> : null}
+      {gate === "loading" ? (
+        <Centered>
+          <p className="font-studio-mono text-xs tracking-widest uppercase text-studio-tungsten" role="status">
+            Opening the studio…
+          </p>
+        </Centered>
+      ) : null}
       {gate === "login" ? <Centered><SocialLogin onError={setError} /></Centered> : null}
       {gate === "denied" ? <Centered><Denied /></Centered> : null}
       {gate === "error" ? <Centered><StudioError message={error || "The studio could not open."} /></Centered> : null}
@@ -112,7 +124,7 @@ export default function Social() {
 }
 
 function Centered({ children }: { children: ReactNode }) {
-  return <div className="min-h-screen grid place-items-center px-6">{children}</div>;
+  return <main className="min-h-screen grid place-items-center px-6">{children}</main>;
 }
 
 function SocialLogin({ onError }: { onError: (msg: string) => void }) {
@@ -126,13 +138,18 @@ function SocialLogin({ onError }: { onError: (msg: string) => void }) {
     if (!supabase) return;
     setLoading(true);
     setLocalError("");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      const msg = error.message === "Invalid login credentials" ? "Incorrect email or password." : error.message;
-      setLocalError(msg);
-      onError("");
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        const msg = error.message === "Invalid login credentials" ? "Incorrect email or password." : error.message;
+        setLocalError(msg);
+        onError("");
+      }
+    } catch (err) {
+      setLocalError(errorText(err, "Could not sign in. Try again."));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
@@ -142,7 +159,11 @@ function SocialLogin({ onError }: { onError: (msg: string) => void }) {
       <p className="mt-3 text-sm text-studio-muted">
         Same email as the client portal. Only accounts signed up for socials get in. Nothing publishes until you tap approve.
       </p>
-      {localError ? <p className="mt-4 text-sm text-studio-cue">{localError}</p> : null}
+      {localError ? (
+        <p id="social-login-error" role="alert" className="mt-4 text-sm text-studio-cue">
+          {localError}
+        </p>
+      ) : null}
       <label className="block mt-8 text-xs font-studio-mono tracking-widest uppercase text-studio-muted" htmlFor="social-email">
         Email
       </label>
@@ -151,6 +172,8 @@ function SocialLogin({ onError }: { onError: (msg: string) => void }) {
         type="email"
         required
         autoComplete="email"
+        aria-invalid={localError ? true : undefined}
+        aria-describedby={localError ? "social-login-error" : undefined}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         className="mt-2 w-full bg-studio-void border border-studio-line px-3 py-3 text-studio-paper"
@@ -163,6 +186,8 @@ function SocialLogin({ onError }: { onError: (msg: string) => void }) {
         type="password"
         required
         autoComplete="current-password"
+        aria-invalid={localError ? true : undefined}
+        aria-describedby={localError ? "social-login-error" : undefined}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         className="mt-2 w-full bg-studio-void border border-studio-line px-3 py-3 text-studio-paper"
@@ -170,6 +195,7 @@ function SocialLogin({ onError }: { onError: (msg: string) => void }) {
       <button
         type="submit"
         disabled={loading}
+        aria-busy={loading}
         className="mt-6 w-full bg-studio-tungsten text-studio-ink font-studio-display text-lg py-3 disabled:opacity-60"
       >
         {loading ? "Checking…" : "Open the studio"}
@@ -186,12 +212,34 @@ function SocialLogin({ onError }: { onError: (msg: string) => void }) {
 }
 
 function StudioError({ message }: { message: string }) {
+  async function signOut() {
+    clearToken();
+    try {
+      if (supabase) await supabase.auth.signOut();
+    } catch {
+      /* still leave this login */
+    }
+    window.location.assign("/social");
+  }
+
   return (
     <div className="w-full max-w-sm border border-studio-line bg-studio-tape/50 p-8 shadow-studio">
       <p className="font-studio-mono text-[10px] tracking-[0.3em] uppercase text-studio-tungsten">Studio</p>
       <h1 className="text-3xl mt-2">The studio could not open</h1>
-      <p className="mt-3 text-sm text-studio-muted">{message}</p>
-      <Link to="/portal" className="mt-6 block text-center text-sm text-studio-tungsten">
+      <p className="mt-3 text-sm text-studio-muted" role="alert">
+        {message}
+      </p>
+      <button
+        type="button"
+        onClick={() => window.location.reload()}
+        className="mt-6 w-full bg-studio-tungsten text-studio-ink font-studio-display py-3"
+      >
+        Try again
+      </button>
+      <button type="button" onClick={() => void signOut()} className="mt-4 w-full text-sm text-studio-muted underline">
+        Use a different login
+      </button>
+      <Link to="/portal" className="mt-4 block text-center text-sm text-studio-tungsten">
         Back to the client portal
       </Link>
     </div>
@@ -201,8 +249,12 @@ function StudioError({ message }: { message: string }) {
 function Denied({ message }: { message?: string }) {
   async function signOut() {
     clearToken();
-    if (supabase) await supabase.auth.signOut();
-    window.location.href = "/social";
+    try {
+      if (supabase) await supabase.auth.signOut();
+    } catch {
+      /* still leave this login */
+    }
+    window.location.assign("/social");
   }
 
   return (
@@ -220,7 +272,7 @@ function Denied({ message }: { message?: string }) {
       >
         Back to the client portal
       </Link>
-      <button type="button" onClick={signOut} className="mt-4 w-full text-sm text-studio-muted underline">
+      <button type="button" onClick={() => void signOut()} className="mt-4 w-full text-sm text-studio-muted underline">
         Use a different login
       </button>
     </div>

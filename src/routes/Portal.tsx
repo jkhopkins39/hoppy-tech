@@ -51,12 +51,20 @@ export default function Portal() {
 
     if (isLogout) {
       window.history.replaceState({}, '', window.location.pathname);
-      supabase.auth.signOut();
+      void supabase.auth.signOut().catch(() => {
+        signingOutRef.current = false;
+        setSession(null);
+        setUser(null);
+        setView('login');
+      });
     } else {
       supabase.auth.getSession().then(({ data: { session } }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setView(session ? 'routing' : 'login');
+      }).catch(() => {
+        setError('Could not read your session. Try signing in again.');
+        setView('error');
       });
     }
 
@@ -115,7 +123,13 @@ export default function Portal() {
   const handlePortalSignOut = async () => {
     if (!supabase) return;
     signingOutRef.current = true;
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      signingOutRef.current = false;
+      setError('Could not sign out. Try again.');
+      setView('error');
+    }
   };
 
   if (view === 'loading') return <Screen><Spinner /></Screen>;
@@ -128,7 +142,11 @@ export default function Portal() {
         <ProductChooser
           tenant={routingTo}
           onOpenSite={() => {
-            if (!session.access_token || !session.refresh_token) return;
+            if (!session.access_token || !session.refresh_token) {
+              setError('This session cannot open the website admin. Sign in again.');
+              setView('error');
+              return;
+            }
             window.location.href = buildCallbackUrl(routingTo, session.access_token, session.refresh_token);
           }}
         />

@@ -18,16 +18,44 @@ export function clearToken() {
   sessionStorage.removeItem(TOKEN_KEY);
 }
 
-async function errorDetail(response: Response): Promise<string> {
-  const text = await response.text();
+export function errorText(err: unknown, fallback: string) {
+  if (err instanceof Error && err.message.trim()) return err.message;
+  if (typeof err === "string" && err.trim()) return err;
+  return fallback;
+}
+
+function extractMessage(data: unknown): string {
+  if (!data || typeof data !== "object") return "";
+  const record = data as Record<string, unknown>;
+  const detail = record.detail ?? record.message ?? record.error;
+  if (typeof detail === "string") return detail.trim();
+  if (!Array.isArray(detail)) return "";
+  return detail
+    .map((item) => {
+      if (typeof item === "string") return item.trim();
+      if (item && typeof item === "object" && "msg" in item) {
+        const msg = (item as { msg: unknown }).msg;
+        if (typeof msg === "string") return msg.trim();
+      }
+      return "";
+    })
+    .filter(Boolean)
+    .join(". ");
+}
+
+function messageFromBody(text: string, fallback: string) {
+  const trimmed = text.trim();
+  if (!trimmed) return fallback;
   try {
-    const body = JSON.parse(text) as { detail?: string };
-    if (typeof body.detail === "string" && body.detail) return body.detail;
+    const parsed = extractMessage(JSON.parse(trimmed) as unknown);
+    if (parsed) return parsed.slice(0, 400);
   } catch {
     /* plain text */
   }
-  return text.slice(0, 400) || response.statusText;
+  return trimmed.slice(0, 400);
 }
+
+const UNREACHABLE = "The studio could not reach the agent. Check that it is running, then try again.";
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
@@ -36,30 +64,58 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!(init.body instanceof FormData) && !headers.has("Content-Type") && init.body) {
     headers.set("Content-Type", "application/json");
   }
-  const response = await fetch(apiUrl(path), { ...init, headers });
+
+  let response: Response;
+  try {
+    response = await fetch(apiUrl(path), { ...init, headers });
+  } catch {
+    throw new Error(UNREACHABLE);
+  }
+
   if (response.status === 401) {
     clearToken();
     if (typeof window !== "undefined") window.location.assign("/social");
-    throw new Error("sign in");
+    throw new Error("Sign in again to keep working.");
   }
   if (!response.ok) {
-    throw new Error(await errorDetail(response));
+    const text = await response.text().catch(() => "");
+    throw new Error(messageFromBody(text, response.statusText || `Request failed (${response.status})`));
   }
   if (response.status === 204) return {} as T;
-  return response.json() as Promise<T>;
+  const text = await response.text().catch(() => "");
+  if (!text.trim()) return {} as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error("The agent sent a response the studio could not read.");
+  }
 }
 
 export async function exchangeSupabaseSession(accessToken: string): Promise<void> {
-  const response = await fetch(apiUrl("/portal/supabase"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ access_token: accessToken }),
-  });
-  if (!response.ok) {
-    throw new Error(await errorDetail(response));
+  let response: Response;
+  try {
+    response = await fetch(apiUrl("/portal/supabase"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ access_token: accessToken }),
+    });
+  } catch {
+    throw new Error(UNREACHABLE);
   }
-  const body = (await response.json()) as { token?: string };
-  if (!body.token) throw new Error("studio did not open a session");
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(messageFromBody(text, "The studio could not open a session."));
+  }
+  const text = await response.text().catch(() => "");
+  let body: { token?: string } = {};
+  if (text.trim()) {
+    try {
+      body = JSON.parse(text) as { token?: string };
+    } catch {
+      throw new Error("The agent sent a response the studio could not read.");
+    }
+  }
+  if (!body.token) throw new Error("The studio did not open a session.");
   setToken(body.token);
 }
 

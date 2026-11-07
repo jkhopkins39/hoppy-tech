@@ -812,3 +812,9 @@ body {
 .studio-root .crop-frame {
   box-shadow: inset 0 0 0 2px hsl(36 64% 52% / 0.85);
 }
+
+/* Paper ring on the dark stage. The site-wide sky-blue ring sits on navy, and it disappears on tungsten buttons. */
+.studio-root :focus-visible {
+  outline: 2px solid hsl(42 33% 88%);
+  outline-offset: 3px;
+}

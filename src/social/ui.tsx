@@ -33,16 +33,27 @@ export function StudioShell({ children }: { children: ReactNode }) {
       .catch(() => undefined);
   }, [path, navigate]);
 
-  if (!ready) return <div className="min-h-screen bg-studio-void" />;
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-studio-void grid place-items-center" role="status">
+        <p className="font-studio-mono text-xs tracking-widest uppercase text-studio-tungsten">Checking the studio key…</p>
+      </div>
+    );
+  }
 
   async function signOut() {
     try {
       await api.logout();
-    } finally {
-      clearToken();
-      if (supabase) await supabase.auth.signOut();
-      navigate("/social", { replace: true });
+    } catch {
+      /* the local session still ends */
     }
+    clearToken();
+    try {
+      if (supabase) await supabase.auth.signOut();
+    } catch {
+      /* still leave the studio */
+    }
+    navigate("/social", { replace: true });
   }
 
   return (
@@ -63,6 +74,7 @@ export function StudioShell({ children }: { children: ReactNode }) {
               <Link
                 key={item.href}
                 to={item.href}
+                aria-current={active ? "page" : undefined}
                 className={`flex items-baseline gap-3 px-3 py-2 rounded-sm text-sm ${
                   active ? "bg-studio-void text-studio-paper" : "text-studio-muted hover:text-studio-paper"
                 }`}
@@ -70,7 +82,12 @@ export function StudioShell({ children }: { children: ReactNode }) {
                 <span className="font-studio-mono text-[10px] text-studio-tungsten w-5">{item.cue}</span>
                 {item.label}
                 {item.href === "/social/inbox" && waiting > 0 ? (
-                  <span className="ml-auto font-studio-mono text-[10px] text-studio-cue">{waiting}</span>
+                  <span className="ml-auto font-studio-mono text-[10px] text-studio-cue">
+                    <span className="sr-only">
+                      {waiting} open {waiting === 1 ? "draft" : "drafts"}
+                    </span>
+                    <span aria-hidden="true">{waiting}</span>
+                  </span>
                 ) : null}
               </Link>
             );
@@ -78,7 +95,9 @@ export function StudioShell({ children }: { children: ReactNode }) {
         </nav>
         <button
           type="button"
-          onClick={signOut}
+          onClick={() => {
+            void signOut();
+          }}
           className="mx-4 mb-6 font-studio-mono text-[10px] tracking-widest uppercase text-studio-muted hover:text-studio-paper"
         >
           Sign out
@@ -114,15 +133,18 @@ export function Empty({ children, to, action }: { children: ReactNode; to: strin
 
 export function DualPreview({
   image,
+  imageAlt,
   captionFb,
   captionIg,
   pageName = "Hoppy Tech",
 }: {
   image?: string;
+  imageAlt?: string;
   captionFb: string;
   captionIg: string;
   pageName?: string;
 }) {
+  const alt = imageAlt?.trim() || "Still preview";
   return (
     <div className="grid md:grid-cols-2 gap-6 items-start">
       <figure className="relative mx-auto w-[min(100%,280px)]">
@@ -130,7 +152,7 @@ export function DualPreview({
           <p className="font-studio-mono text-[10px] tracking-widest uppercase text-studio-gel px-2 pb-2">Instagram · 4:5</p>
           <div className="relative aspect-[4/5] overflow-hidden bg-studio-tape crop-frame">
             {image ? (
-              <img src={image} alt="" className="h-full w-full object-cover" />
+              <img src={image} alt={alt} className="h-full w-full object-cover" />
             ) : (
               <div className="h-full grid place-items-center text-studio-muted text-sm">No still</div>
             )}
